@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Banner } from '@/lib/tipos';
 import { corSegura, urlExternaSegura } from '@/lib/formatacao';
 
@@ -18,23 +19,36 @@ function destinoBanner(b: Banner): { href: string; externo: boolean } | null {
   return null;
 }
 
-const ConteudoBanner: React.FC<{ banner: Banner }> = ({ banner }) => (
-  <div
-    className="relative h-36 rounded-2xl overflow-hidden flex items-center p-5 shadow-sm"
-    style={{ background: corSegura(banner.cor_fundo, '#1A1A1A') }}
-  >
-    {banner.imagem_url && (
-      // eslint-disable-next-line @next/next/no-img-element -- imagem configurada no ERP
-      <img src={banner.imagem_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
-    )}
-    {(banner.titulo || banner.subtitulo) && (
-      <div className={`relative z-10 max-w-[75%] ${banner.imagem_url ? 'bg-black/45 rounded-xl p-3' : ''}`}>
-        {banner.titulo && <h2 className="text-white font-black text-[20px] leading-tight">{banner.titulo}</h2>}
-        {banner.subtitulo && <p className="text-white/85 text-[13px] mt-1 leading-snug">{banner.subtitulo}</p>}
-      </div>
-    )}
-  </div>
-);
+// Banner sem foto ganha um fundo em degradê com a cor escolhida no ERP e
+// ilustração de bebidas, para não parecer um bloco vazio.
+const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean }> = ({ banner, primeiro }) => {
+  const cor = corSegura(banner.cor_fundo, '#1A1A1A');
+  return (
+    <div
+      className="relative h-40 rounded-3xl overflow-hidden flex items-end p-5 shadow-sm"
+      style={{ background: banner.imagem_url ? cor : `linear-gradient(135deg, ${cor} 0%, ${cor} 45%, var(--cor-primaria) 160%)` }}
+    >
+      {banner.imagem_url ? (
+        <>
+          <Image src={banner.imagem_url} alt="" fill priority={primeiro} sizes="(max-width: 640px) 100vw, 640px" quality={75} className="object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" aria-hidden="true" />
+        </>
+      ) : (
+        <div className="absolute -right-3 -top-2 flex flex-col items-end gap-1 text-[54px] leading-none rotate-[-8deg] opacity-95 select-none" aria-hidden="true">
+          <span>🍺</span>
+          <span className="mr-12 -mt-4 text-[44px]">🧊</span>
+          <span className="-mt-2 text-[40px]">🥃</span>
+        </div>
+      )}
+      {(banner.titulo || banner.subtitulo) && (
+        <div className="relative z-10 max-w-[70%]">
+          {banner.titulo && <h2 className="text-white font-black text-[22px] leading-[1.1] tracking-tight drop-shadow-sm">{banner.titulo}</h2>}
+          {banner.subtitulo && <p className="text-white/90 text-[13px] mt-1.5 leading-snug">{banner.subtitulo}</p>}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const BannerCarrossel: React.FC<{ banners: Banner[] }> = ({ banners }) => {
   const trilho = useRef<HTMLDivElement>(null);
@@ -88,15 +102,15 @@ export const BannerCarrossel: React.FC<{ banners: Banner[] }> = ({ banners }) =>
               {destino ? (
                 destino.externo ? (
                   <a href={destino.href} target="_blank" rel="noopener noreferrer" className="block rounded-2xl">
-                    <ConteudoBanner banner={banner} />
+                    <ConteudoBanner banner={banner} primeiro={i === 0} />
                   </a>
                 ) : (
                   <Link href={destino.href} className="block rounded-2xl">
-                    <ConteudoBanner banner={banner} />
+                    <ConteudoBanner banner={banner} primeiro={i === 0} />
                   </Link>
                 )
               ) : (
-                <ConteudoBanner banner={banner} />
+                <ConteudoBanner banner={banner} primeiro={i === 0} />
               )}
             </div>
           );

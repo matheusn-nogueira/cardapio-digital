@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React, { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -92,8 +93,7 @@ export const Header: React.FC = () => {
         <div className="flex items-center gap-3 mb-3 max-w-[1100px] mx-auto">
           <Link href="/" className="flex items-center gap-2.5 min-w-0 flex-1" aria-label={`${loja.nome} — início`}>
             {loja.logo_url ? (
-              // eslint-disable-next-line @next/next/no-img-element -- logo da loja (store_settings)
-              <img src={loja.logo_url} alt="" className="w-10 h-10 rounded-full object-cover bg-white shrink-0" />
+              <Image src={loja.logo_url} alt="" width={80} height={80} priority className="w-10 h-10 rounded-full object-cover bg-white shrink-0" />
             ) : (
               <span className="w-10 h-10 rounded-full bg-white/70 flex items-center justify-center font-black shrink-0" aria-hidden="true">
                 {loja.nome.charAt(0)}

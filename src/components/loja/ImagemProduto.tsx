@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useCardapio } from '@/context/CardapioContext';
 import type { Produto } from '@/lib/tipos';
 
@@ -20,18 +21,24 @@ export const ImagemProduto: React.FC<{ produto: Produto; tamanho?: 'pequena' | '
 }) => {
   const { categoriaDoProduto } = useCardapio();
   const [quebrou, setQuebrou] = useState(false);
+  const [carregou, setCarregou] = useState(false);
 
   if (produto.imagem_url && !quebrou) {
+    // Versão reduzida pelo otimizador do Next (as originais têm ~500 KB).
+    const larguras = tamanho === 'grande' ? '(max-width: 640px) 90vw, 480px' : tamanho === 'pequena' ? '64px' : '(max-width: 640px) 45vw, 220px';
     return (
-      // eslint-disable-next-line @next/next/no-img-element -- imagens do storage do Supabase, já leves (webp)
-      <img
-        src={produto.imagem_url}
-        alt={produto.nome}
-        loading="lazy"
-        decoding="async"
-        onError={() => setQuebrou(true)}
-        className="w-full h-full object-contain"
-      />
+      <div className={`relative w-full h-full ${carregou ? '' : 'animate-pulse bg-[#F2F2F2] rounded-xl'}`}>
+        <Image
+          src={produto.imagem_url}
+          alt={produto.nome}
+          fill
+          sizes={larguras}
+          quality={70}
+          onLoad={() => setCarregou(true)}
+          onError={() => setQuebrou(true)}
+          className="object-contain"
+        />
+      </div>
     );
   }
 

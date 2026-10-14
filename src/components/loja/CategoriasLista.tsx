@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import React from 'react';
 import Link from 'next/link';
 import type { Categoria } from '@/lib/tipos';
@@ -26,8 +27,7 @@ export const CategoriasLista: React.FC<{ categorias: Categoria[]; ativaId?: stri
                   aria-hidden="true"
                 >
                   {cat.imagem_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element -- imagem configurada no ERP
-                    <img src={cat.imagem_url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                    <Image src={cat.imagem_url} alt="" width={128} height={128} className="w-full h-full object-cover" />
                   ) : (
                     cat.icone || '🛒'
                   )}
