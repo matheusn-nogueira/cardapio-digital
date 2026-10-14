@@ -1,19 +1,25 @@
 import React from 'react';
 import { PenLine } from 'lucide-react';
 
-export const InstructionsCard: React.FC = () => {
+export const InstructionsCard: React.FC<{ valor: string; aoMudar: (valor: string) => void }> = ({ valor, aoMudar }) => {
   return (
-    <div className="bg-white rounded-2xl p-4 sm:p-5 mb-3.5">
-      <div className="flex items-start gap-3.5">
-        <PenLine className="w-5 h-5 text-[#FFC500] shrink-0 mt-0.5" />
+    <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm">
+      <div className="flex items-start gap-3">
+        <PenLine className="w-5 h-5 text-tinta shrink-0 mt-0.5" aria-hidden="true" />
         <div className="flex-1 w-full">
-          <div className="text-[15px] font-semibold mb-0.5">Observações</div>
+          <label htmlFor="observacoes" className="text-[15px] font-bold block">
+            Observações <span className="font-normal text-suave text-[13px]">(opcional)</span>
+          </label>
           <textarea
-            className="w-full min-h-[70px] mt-2.5 p-3 border border-[#eee] rounded-lg text-[14px] text-[#696969] resize-none outline-none focus:border-[#FFC500]"
-            placeholder="Ex: Deixar na portaria, tocar interfone 302..."
-          ></textarea>
+            id="observacoes"
+            value={valor}
+            maxLength={500}
+            onChange={(e) => aoMudar(e.target.value)}
+            className="w-full min-h-[76px] mt-2 p-3 border border-borda rounded-xl text-[16px] text-tinta resize-none outline-none focus:border-tinta"
+            placeholder="Ex.: tocar o interfone 302, gelo à parte…"
+          />
         </div>
       </div>
-    </div>
+    </section>
   );
 };

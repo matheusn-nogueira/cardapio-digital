@@ -1,66 +1,152 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useCart } from '@/context/CartContext';
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { Check, Copy, MessageCircle } from 'lucide-react';
+import { useCardapio } from '@/context/CardapioContext';
+import { useArmazem, useHidratado } from '@/lib/armazenamento';
+import { armazemUltimoPedido, NOMES_PAGAMENTO, PedidoConfirmado } from '@/lib/estado-checkout';
+import { formatarPreco, linkWhatsapp } from '@/lib/formatacao';
+import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
+
+function mensagemWhatsapp(p: PedidoConfirmado): string {
+  return [
+    `Olá! Acabei de fazer o pedido #${p.numero} pelo cardápio online.`,
+    `Nome: ${p.nomeCliente}`,
+    '',
+    ...p.itens.map((i) => `• ${i}`),
+    '',
+    `Total: ${formatarPreco(p.total)} (${NOMES_PAGAMENTO[p.pagamento]})`,
+    p.trocoPara ? `Troco para ${formatarPreco(p.trocoPara)}` : null,
+    `Entrega: ${p.endereco}`,
+  ]
+    .filter((linha) => linha !== null)
+    .join('\n');
+}
 
 export default function ConfirmationPage() {
-  const router = useRouter();
-  const { clearCart } = useCart();
-  const [orderNum, setOrderNum] = useState<string | null>(null);
+  const hidratado = useHidratado();
+  const { home } = useCardapio();
+  const [pedido] = useArmazem(armazemUltimoPedido);
+  const [copiado, setCopiado] = useState(false);
+  const { config, loja } = home;
 
-  useEffect(() => {
-    // Pegar n do pedido e limpar carrinho
-    const lastOrder = sessionStorage.getItem('zeLastOrder') || '000000';
-    setOrderNum(lastOrder);
-    
-    // Pequeno atraso para não ver o carrinho esvaziando durante a transição
-    const timer = setTimeout(() => {
-        clearCart();
-    }, 500);
+  if (!hidratado) {
+    return (
+      <main className="min-h-screen bg-fundo">
+        <CabecalhoCheckout />
+      </main>
+    );
+  }
 
-    return () => clearTimeout(timer);
-  }, [clearCart]);
+  if (!pedido) {
+    return (
+      <main className="min-h-[70vh] bg-fundo">
+        <CabecalhoCheckout voltarPara="/" />
+        <div className="text-center px-6 py-16">
+          <p className="text-[17px] font-bold">Nenhum pedido recente por aqui</p>
+          <Link href="/" className="mt-4 inline-flex h-12 px-6 items-center rounded-xl bg-primaria text-primaria-texto font-bold">
+            Ver o cardápio
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
-  if (!orderNum) return null;
+  const whatsapp = linkWhatsapp(config.whatsapp || loja.telefone, mensagemWhatsapp(pedido));
+
+  const copiarPix = async () => {
+    if (!config.chave_pix) return;
+    try {
+      await navigator.clipboard.writeText(config.chave_pix);
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 2500);
+    } catch {
+      // sem permissão de área de transferência: a chave continua visível para copiar à mão
+    }
+  };
 
   return (
-    <main className="mt-[72px] bg-[#F5F5F5] min-h-[calc(100vh-72px)] flex flex-col">
-      <div className="bg-white h-14 flex items-center justify-center relative border-b border-[#eee] px-4 shrink-0">
-        <div className="flex items-center gap-1.5">
-          <svg viewBox="0 0 44 44" width="32" height="32" fill="none">
-            <circle cx="22" cy="22" r="22" fill="#FFC500" />
-            <circle cx="15" cy="18" r="4" fill="#333" />
-            <circle cx="29" cy="18" r="4" fill="#333" />
-            <circle cx="15" cy="18" r="1.5" fill="#FFC500" />
-            <circle cx="29" cy="18" r="1.5" fill="#FFC500" />
-            <rect x="11" y="16" width="10" height="2.5" rx="1" fill="#333" />
-            <rect x="24" y="16" width="10" height="2.5" rx="1" fill="#333" />
-            <path d="M13 30 Q22 37 31 30" stroke="#333" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-          </svg>
-          <span className="text-[18px] font-bold text-[#333] italic">Cardápio Digital</span>
-        </div>
-      </div>
+    <main className="bg-fundo min-h-screen flex flex-col">
+      <CabecalhoCheckout />
 
-      <div className="flex-1 flex flex-col items-center justify-center text-center p-6 pb-20 max-w-[500px] mx-auto animate-fadeIn">
-        <div className="text-[64px] mb-4">🎉</div>
-        <h2 className="text-[24px] font-bold mb-2">Pedido Confirmado!</h2>
-        <p className="text-[15px] text-[#696969] mb-1.5">Seu pedido foi realizado com sucesso.</p>
-        <p className="text-[14px] text-[#999] mb-6">Pedido #{orderNum}</p>
-        
-        <div className="inline-flex items-center gap-2 py-3 px-6 bg-[#E8F5E9] rounded-lg text-[15px] font-semibold text-[#43A047] mb-8">
-          <span role="img" aria-label="motoboy">🛵</span> Estimativa de entrega: 35–50 min
+      <div className="flex-1 w-full max-w-[480px] mx-auto px-4 py-8 text-center animate-fade-in">
+        <div className="w-16 h-16 mx-auto rounded-full bg-sucesso text-white flex items-center justify-center">
+          <Check className="w-9 h-9" strokeWidth={3} aria-hidden="true" />
         </div>
-        
-        <button
-          className="py-3.5 px-11 bg-[#FFC500] text-[#333] text-[15px] font-semibold rounded-full hover:bg-[#e6b200] transition-colors w-full max-w-[300px]"
-          onClick={() => {
-            sessionStorage.removeItem('zeLastOrder');
-            router.push('/');
-          }}
+        <h1 className="text-[24px] font-black mt-4">Pedido recebido!</h1>
+        <p className="text-[15px] text-suave mt-1">
+          Pedido <strong className="text-tinta">#{pedido.numero}</strong> · {formatarPreco(pedido.total)}
+        </p>
+        <p className="mt-4 inline-flex items-center gap-2 py-2.5 px-4 bg-[#E7F6EC] rounded-xl text-[14px] font-bold text-sucesso">
+          <span aria-hidden="true">🛵</span> Entrega estimada: {config.tempo_entrega_min}–{config.tempo_entrega_max} min
+        </p>
+
+        <section className="bg-white rounded-2xl p-4 mt-5 text-left shadow-sm text-[14px]">
+          <div className="flex justify-between">
+            <span>Subtotal</span>
+            <span>{formatarPreco(pedido.subtotal)}</span>
+          </div>
+          <div className="flex justify-between mt-1">
+            <span>Entrega</span>
+            <span>{pedido.frete === 0 ? 'Grátis' : formatarPreco(pedido.frete)}</span>
+          </div>
+          <div className="flex justify-between mt-2 pt-2 border-t border-borda font-black text-[16px]">
+            <span>Total</span>
+            <span>{formatarPreco(pedido.total)}</span>
+          </div>
+          <p className="mt-2 text-suave">
+            Pagamento: {NOMES_PAGAMENTO[pedido.pagamento]}
+            {pedido.trocoPara ? ` · troco para ${formatarPreco(pedido.trocoPara)}` : ''}
+          </p>
+        </section>
+
+        {pedido.pagamento === 'pix' && (
+          <section className="bg-white rounded-2xl p-4 mt-3 text-left shadow-sm" aria-labelledby="titulo-pix">
+            <h2 id="titulo-pix" className="text-[15px] font-bold">
+              Pagamento via Pix
+            </h2>
+            {config.chave_pix ? (
+              <>
+                <p className="text-[13px] text-suave mt-1">
+                  Faça o Pix de {formatarPreco(pedido.total)} para a chave abaixo e mande o comprovante no WhatsApp.
+                </p>
+                <div className="mt-3 flex items-center gap-2">
+                  <code className="flex-1 min-w-0 break-all bg-fundo rounded-lg px-3 py-2.5 text-[14px]">{config.chave_pix}</code>
+                  <button
+                    type="button"
+                    onClick={copiarPix}
+                    className="h-11 px-3 rounded-lg border-2 border-tinta font-bold text-[13px] flex items-center gap-1.5 shrink-0"
+                  >
+                    {copiado ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
+                    {copiado ? 'Copiado' : 'Copiar'}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <p className="text-[13px] text-suave mt-1">Chame a gente no WhatsApp para receber a chave Pix.</p>
+            )}
+          </section>
+        )}
+
+        {whatsapp && (
+          <a
+            href={whatsapp}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 w-full h-13 py-3.5 rounded-xl bg-[#1F9D55] text-white font-bold text-[15px] flex items-center justify-center gap-2"
+          >
+            <MessageCircle className="w-5 h-5" aria-hidden="true" /> Falar no WhatsApp
+          </a>
+        )}
+
+        <Link
+          href="/"
+          onClick={() => armazemUltimoPedido.gravar(null)}
+          className="mt-3 w-full h-13 py-3.5 rounded-xl bg-primaria text-primaria-texto font-bold text-[15px] flex items-center justify-center"
         >
           Fazer novo pedido
-        </button>
+        </Link>
       </div>
     </main>
   );

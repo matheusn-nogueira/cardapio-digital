@@ -1,78 +1,79 @@
 'use client';
 
 import React from 'react';
-import { Facebook, Instagram, Twitter } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { MapPin, MessageCircle } from 'lucide-react';
+import { useCardapio } from '@/context/CardapioContext';
+import { faixaHorario, NOMES_DIAS } from '@/lib/horarios';
+import { linkWhatsapp, mascararTelefone } from '@/lib/formatacao';
 
 export const Footer: React.FC = () => {
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  const { home } = useCardapio();
+  const pathname = usePathname();
+  const { loja, config, horarios } = home;
+  const whatsapp = linkWhatsapp(config.whatsapp || loja.telefone);
+  const local = [loja.bairro, loja.cidade].filter(Boolean).join(', ');
+  const pagamentos = [
+    config.aceita_pix && 'Pix',
+    config.aceita_dinheiro && 'Dinheiro',
+    config.aceita_cartao_entrega && 'Cartão na entrega (crédito/débito)',
+  ].filter(Boolean);
+
+  // Espaço para a barra fixa da sacola nas páginas de compra
+  const espacoSacola = ['/checkout', '/payment', '/confirmation'].includes(pathname) ? '' : 'pb-28';
 
   return (
-    <footer className="bg-[#333] text-white">
-      <div 
-        className="bg-[#444] flex items-center justify-center gap-2 py-3 cursor-pointer text-[14px] hover:bg-[#555] transition-colors"
-        onClick={scrollToTop}
-      >
-        ▲ Voltar ao topo
-      </div>
-      
-      <div className="flex gap-9 py-9 px-6 max-w-[1100px] mx-auto flex-wrap md:flex-col md:px-4">
-        {/* Logo */}
-        <div className="w-[60px] h-[60px] shrink-0">
-          <svg viewBox="0 0 54 54" fill="none">
-            <circle cx="27" cy="27" r="27" fill="#FFC500" />
-            <circle cx="18" cy="22" r="5" fill="#333" />
-            <circle cx="36" cy="22" r="5" fill="#333" />
-            <circle cx="18" cy="22" r="2" fill="#FFC500" />
-            <circle cx="36" cy="22" r="2" fill="#FFC500" />
-            <rect x="14" y="20" width="12" height="3" rx="1" fill="#333" />
-            <rect x="30" y="20" width="12" height="3" rx="1" fill="#333" />
-            <path d="M16 36 Q27 44 38 36" stroke="#333" strokeWidth="3" fill="none" strokeLinecap="round" />
-          </svg>
-        </div>
-
-        <div className="min-w-[140px]">
-          <h4 className="text-[15px] font-bold mb-2.5">Institucional</h4>
-          <a href="#" className="block text-[13px] text-white mb-1.5 hover:opacity-80 transition-opacity">Sobre o Zé</a>
-          <a href="#" className="block text-[13px] text-white mb-1.5 hover:opacity-80 transition-opacity">Trabalhe Conosco</a>
-          <a href="#" className="block text-[13px] text-white mb-1.5 hover:opacity-80 transition-opacity">Imprensa</a>
-          <a href="#" className="block text-[13px] text-white mb-1.5 hover:opacity-80 transition-opacity">Blog do Zé</a>
-        </div>
-
-        <div className="min-w-[140px]">
-          <h4 className="text-[15px] font-bold mb-2.5">Ajuda</h4>
-          <a href="#" className="block text-[13px] text-white mb-1.5 hover:opacity-80 transition-opacity">Central de Ajuda</a>
-          <a href="#" className="block text-[13px] text-white mb-1.5 hover:opacity-80 transition-opacity">Fale Conosco</a>
-          <a href="#" className="block text-[13px] text-white mb-1.5 hover:opacity-80 transition-opacity">Como Comprar</a>
-          <a href="#" className="block text-[13px] text-white mb-1.5 hover:opacity-80 transition-opacity">Trocas e Devoluções</a>
-        </div>
-
-        <div className="min-w-[140px]">
-          <h4 className="text-[15px] font-bold mb-2.5">Parceiros</h4>
-          <a href="#" className="block text-[13px] text-white mb-1.5 hover:opacity-80 transition-opacity">Venda pelo Zé</a>
-          <a href="#" className="block text-[13px] text-white mb-1.5 hover:opacity-80 transition-opacity">Seja um Entregador</a>
-          <a href="#" className="block text-[13px] text-white mb-1.5 hover:opacity-80 transition-opacity">Programa de Afiliados</a>
-        </div>
-
+    <footer className={`bg-tinta text-white ${espacoSacola}`}>
+      <div className="max-w-[1100px] mx-auto px-4 py-8 grid gap-7 sm:grid-cols-3">
         <div>
-          <h4 className="text-[15px] font-bold mb-2.5">Redes Sociais</h4>
-          <div className="flex gap-3.5 mb-4">
-            <Facebook className="w-6 h-6 hover:opacity-70 transition-opacity cursor-pointer fill-current" />
-            <Instagram className="w-6 h-6 hover:opacity-70 transition-opacity cursor-pointer" />
-            <Twitter className="w-6 h-6 hover:opacity-70 transition-opacity cursor-pointer fill-current" />
+          <h2 className="text-[17px] font-black">{loja.nome}</h2>
+          <p className="text-[13px] text-white/75 mt-1">{config.slogan}</p>
+          {local && (
+            <p className="text-[13px] text-white/75 mt-3 flex items-center gap-1.5">
+              <MapPin className="w-4 h-4 shrink-0" aria-hidden="true" /> {local}
+            </p>
+          )}
+          {whatsapp && (
+            <a
+              href={whatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-2 py-2.5 px-4 rounded-full bg-[#1F9D55] text-white text-[14px] font-bold"
+            >
+              <MessageCircle className="w-4 h-4" aria-hidden="true" />
+              WhatsApp {mascararTelefone(config.whatsapp || loja.telefone || '')}
+            </a>
+          )}
+        </div>
+
+        {horarios.length > 0 && (
+          <div>
+            <h3 className="text-[14px] font-bold mb-2">Horário de funcionamento</h3>
+            <dl className="text-[13px] text-white/80 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+              {horarios.map((h) => (
+                <React.Fragment key={h.dia_semana}>
+                  <dt className="capitalize">{NOMES_DIAS[h.dia_semana]}</dt>
+                  <dd>{faixaHorario(h)}</dd>
+                </React.Fragment>
+              ))}
+            </dl>
           </div>
-          <a href="#" className="inline-block py-2.5 px-5 border border-white rounded-[4px] text-white text-[13px] font-bold hover:bg-white hover:text-[#333] transition-all">
-            BAIXAR O APP
-          </a>
-        </div>
+        )}
+
+        {pagamentos.length > 0 && (
+          <div>
+            <h3 className="text-[14px] font-bold mb-2">Formas de pagamento</h3>
+            <ul className="text-[13px] text-white/80 space-y-1">
+              {pagamentos.map((p) => (
+                <li key={String(p)}>{p}</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
-      <div className="border-t border-[#555] py-3.5 px-6 flex items-center justify-between flex-wrap gap-2.5 text-[12px] text-[#aaa]">
-        <div>
-          <a href="#" className="text-white text-[13px] mr-4 hover:opacity-80 transition-opacity">Termos de Uso</a>
-          <a href="#" className="text-white text-[13px] mr-4 hover:opacity-80 transition-opacity">Política de Privacidade</a>
-        </div>
-        <span className="flex-1 text-center">Beba com moderação. Venda proibida para menores de 18 anos. © 2025 Cardápio Digital.</span>
-        <span>🔞 Venda proibida para menores</span>
+      <div className="border-t border-white/15 py-4 px-4 text-center text-[12px] text-white/70">
+        🔞 Beba com moderação. Venda de bebidas alcoólicas proibida para menores de 18 anos.
       </div>
     </footer>
   );

@@ -1,25 +1,75 @@
 @import "tailwindcss";
 
+/* Cores da loja: --cor-primaria e --cor-texto-primaria vêm do banco
+   (cardapio_config) e são definidas no <html> pelo layout. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --cor-primaria: #F2B705;
+  --cor-texto-primaria: #1A1A1A;
+  --background: #F5F5F5;
+  --foreground: #1A1A1A;
 }
 
 @theme inline {
-  --color-ze-yellow: #FFCC00;
-  --color-ze-green: #009743;
-  --color-ze-gray: #F5F5F5;
+  --color-primaria: var(--cor-primaria);
+  --color-primaria-texto: var(--cor-texto-primaria);
+  --color-fundo: #F5F5F5;
+  --color-tinta: #1A1A1A;
+  --color-suave: #626262;
+  --color-borda: #E6E6E6;
+  --color-sucesso: #0F7A3D;
+  --color-perigo: #C62828;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-roboto), Arial, Helvetica, sans-serif;
+  --font-condensed: var(--font-roboto-condensed), Arial, sans-serif;
+
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-sobe: sobe 0.25s ease-out;
+  --animate-entra-direita: entra-direita 0.25s ease-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes sobe {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes entra-direita {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 body {
-  background-color: var(--color-ze-gray);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 3px solid #1A1A1A;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

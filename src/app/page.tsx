@@ -1,43 +1,35 @@
-'use client';
+import { BannerCarrossel } from '@/components/loja/BannerCarrossel';
+import { CategoriasLista } from '@/components/loja/CategoriasLista';
+import { MarcasLista, marcasDoCatalogo } from '@/components/loja/MarcasLista';
+import { StatusLojaCard } from '@/components/loja/StatusLojaCard';
+import { Vitrine } from '@/components/loja/Vitrine';
+import { buscarHome, buscarProdutos, produtosDaCategoria } from '@/lib/cardapio';
 
-import React from 'react';
-import { CategoryCards } from '@/components/ui/CategoryCards';
-import { CategoryIcons } from '@/components/ui/CategoryIcons';
-import { PromoBanner, BrandGrid } from '@/components/ui/PromoBanner';
-import { MobileProductShelf } from '@/components/ui/MobileProductShelf';
-import { FloatingCart } from '@/components/ui/FloatingCart';
-import { products } from '@/data/products';
+export const revalidate = 60;
 
-export default function Home() {
-  const topProducts = products.filter((p) => p.shelf === 'top');
-  const ofertasProducts = products.filter((p) => p.shelf === 'ofertas');
-  const craftProducts = products.filter((p) => p.shelf === 'craft');
+export default async function Home() {
+  const [home, produtos] = await Promise.all([buscarHome(), buscarProdutos()]);
+  const categorias = home.categorias.filter((c) => produtosDaCategoria(produtos, c).length > 0);
 
   return (
-    <main className="pb-28 bg-ze-gray min-h-screen">
-      <CategoryCards />
-      <CategoryIcons />
-      <PromoBanner />
-      
-      <div className="bg-white pt-5 pb-2 mt-2 -mx-4 sm:mx-0">
-        <MobileProductShelf
-          title="Ofertas especiais"
-          products={ofertasProducts}
-        />
-        <MobileProductShelf
-          title="Mais vendidas"
-          products={topProducts}
-        />
-        <MobileProductShelf
-          title="Cervejas artesanais"
-          products={craftProducts}
-        />
+    <main className="pb-4 min-h-screen max-w-[1100px] mx-auto">
+      <h1 className="sr-only">{home.loja.nome} — cardápio</h1>
+      <StatusLojaCard />
+      <BannerCarrossel banners={home.banners} />
+      <CategoriasLista categorias={categorias} />
+
+      <div className="bg-white pt-5 pb-1 mt-2">
+        {home.vitrines.map((v) => (
+          <Vitrine
+            key={v.id}
+            titulo={v.titulo}
+            ids={v.produtos}
+            linkVerTodos={v.tipo === 'categoria' && v.categoria_id ? `/categoria/${v.categoria_id}` : undefined}
+          />
+        ))}
       </div>
 
-      <BrandGrid />
-      
-      <FloatingCart />
+      <MarcasLista marcas={marcasDoCatalogo(produtos)} />
     </main>
   );
 }
-

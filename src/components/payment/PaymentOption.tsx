@@ -4,27 +4,34 @@ interface PaymentOptionProps {
   id: string;
   icon: React.ReactNode;
   label: string;
+  descricao?: string;
   isSelected: boolean;
   onSelect: (id: string) => void;
 }
 
-export const PaymentOption: React.FC<PaymentOptionProps> = ({ id, icon, label, isSelected, onSelect }) => {
+export const PaymentOption: React.FC<PaymentOptionProps> = ({ id, icon, label, descricao, isSelected, onSelect }) => {
   return (
-    <div
-      className={`flex items-center gap-3 p-3.5 bg-white rounded-lg cursor-pointer mb-2 border-2 transition-all duration-200 hover:shadow-[0_1px_6px_rgba(0,0,0,0.06)]
-        ${isSelected ? 'border-[#FFC500]' : 'border-transparent'}`}
+    <button
+      type="button"
+      role="radio"
+      aria-checked={isSelected}
+      className={`w-full text-left flex items-center gap-3 p-3.5 bg-white rounded-xl mb-2 border-2 transition-colors
+        ${isSelected ? 'border-tinta' : 'border-borda'}`}
       onClick={() => onSelect(id)}
     >
-      <div className="w-7 h-7 shrink-0 flex items-center justify-center text-[20px]">
+      <span className="w-7 h-7 shrink-0 flex items-center justify-center" aria-hidden="true">
         {icon}
-      </div>
-      <span className="flex-1 text-[14px]">{label}</span>
-      <div
-        className={`w-5 h-5 border-2 rounded-full shrink-0 flex items-center justify-center transition-colors
-          ${isSelected ? 'border-[#FFC500]' : 'border-[#ccc]'}`}
+      </span>
+      <span className="flex-1">
+        <span className="block text-[15px] font-medium">{label}</span>
+        {descricao && <span className="block text-[12px] text-suave">{descricao}</span>}
+      </span>
+      <span
+        className={`w-5 h-5 border-2 rounded-full shrink-0 flex items-center justify-center ${isSelected ? 'border-tinta' : 'border-[#BDBDBD]'}`}
+        aria-hidden="true"
       >
-        {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#FFC500]" />}
-      </div>
-    </div>
+        {isSelected && <span className="w-2.5 h-2.5 rounded-full bg-tinta" />}
+      </span>
+    </button>
   );
 };

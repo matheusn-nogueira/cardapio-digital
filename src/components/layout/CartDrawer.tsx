@@ -1,143 +1,238 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { Minus, Plus, ShoppingBag, Trash2, X } from 'lucide-react';
+import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
-import { X, Trash2, ShoppingBag } from 'lucide-react';
-import { Product } from '@/types';
+import { formatarPreco } from '@/lib/formatacao';
+import { calcularSubtotal, progressoMinimo } from '@/lib/carrinho';
+import { rotuloOferta, temVersaoQuente } from '@/lib/ofertas';
+import { ImagemProduto } from '@/components/loja/ImagemProduto';
+import { SeloTemperatura } from '@/components/loja/ProdutoDetalhe';
 
-interface CartDrawerProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+/** Barra de progresso com texto (pedido mínimo / frete grátis). */
+export const BarraProgresso: React.FC<{ percentual: number; texto: string; completo: boolean }> = ({
+  percentual,
+  texto,
+  completo,
+}) => (
+  <div>
+    <p className={`text-[13px] font-medium mb-1.5 ${completo ? 'text-sucesso' : 'text-tinta'}`}>{texto}</p>
+    <div
+      className="h-2 rounded-full bg-[#E3E3E3] overflow-hidden"
+      role="progressbar"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={percentual}
+      aria-label={texto}
+    >
+      <div
+        className={`h-full rounded-full transition-all ${completo ? 'bg-sucesso' : 'bg-primaria'}`}
+        style={{ width: `${percentual}%` }}
+      />
+    </div>
+  </div>
+);
 
-export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
-  const { items, subtotal, total, updateQty, removeItem } = useCart();
+export const CartDrawer: React.FC = () => {
   const router = useRouter();
+  const { home, status } = useCardapio();
+  const { linhas, indisponiveis, subtotal, alterar, remover, removerIndisponiveis, sacolaAberta, fecharSacola } =
+    useCart();
+  const botaoFechar = useRef<HTMLButtonElement>(null);
+  const { config } = home;
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (!sacolaAberta) return;
+    const anterior = document.activeElement as HTMLElement | null;
+    const overflowAnterior = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    botaoFechar.current?.focus();
+    const aoTeclar = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') fecharSacola();
+    };
+    window.addEventListener('keydown', aoTeclar);
+    return () => {
+      document.body.style.overflow = overflowAnterior;
+      window.removeEventListener('keydown', aoTeclar);
+      anterior?.focus?.();
+    };
+  }, [sacolaAberta, fecharSacola]);
 
-  const handleCheckout = () => {
-    onClose();
+  if (!sacolaAberta) return null;
+
+  const minimo = progressoMinimo(subtotal, config.pedido_minimo);
+  const freteGratis =
+    config.frete_gratis_acima != null && config.frete_gratis_acima > 0
+      ? progressoMinimo(subtotal, config.frete_gratis_acima)
+      : null;
+  const subtotalCartao = calcularSubtotal(linhas, 'credito');
+  const vazia = linhas.length === 0;
+
+  const continuar = () => {
+    fecharSacola();
     router.push('/checkout');
   };
 
-  const beerSVG = (color: string, w = 40, h = 80) => (
-    <svg viewBox="0 0 40 90" width={w} height={h} xmlns="http://www.w3.org/2000/svg">
-      <rect x="15" y="2" width="10" height="14" rx="2" fill="#888" />
-      <rect x="14" y="14" width="12" height="4" rx="1" fill="#aaa" />
-      <path d="M14 18 L12 30 L12 80 Q12 86 16 86 L24 86 Q28 86 28 80 L28 30 L26 18 Z" fill={color} />
-      <rect x="10" y="38" width="20" height="18" rx="2" fill="#fff" opacity="0.85" />
-      <rect x="12" y="42" width="16" height="2" rx="1" fill={color} opacity="0.6" />
-      <rect x="14" y="46" width="12" height="1.5" rx="0.75" fill={color} opacity="0.4" />
-      <rect x="13" y="50" width="14" height="1.5" rx="0.75" fill={color} opacity="0.3" />
-    </svg>
-  );
-
   return (
     <>
-      {/* Overlay */}
-      <div className="fixed inset-0 z-[100] bg-black/50 transition-opacity duration-300" onClick={onClose} />
+      <div className="fixed inset-0 z-[100] bg-black/50 animate-fade-in" onClick={fecharSacola} aria-hidden="true" />
 
-      {/* Drawer */}
-      <div className="fixed top-0 right-0 bottom-0 z-[101] w-[380px] max-w-[100vw] bg-[#F5F5F5] flex flex-col shadow-[-4px_0_20px_rgba(0,0,0,0.12)] animate-slideInRight">
-        {/* Header */}
-        <div className="flex items-center justify-center relative p-4 h-14 bg-white border-b border-[#eee] shrink-0">
-          <span className="text-[15px] font-semibold uppercase tracking-wide">Sacola</span>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titulo-sacola"
+        className="fixed top-0 right-0 bottom-0 z-[101] w-[400px] max-w-full bg-fundo flex flex-col shadow-[-4px_0_20px_rgba(0,0,0,0.12)] animate-entra-direita"
+      >
+        <div className="flex items-center justify-center relative px-4 h-14 bg-white border-b border-borda shrink-0">
+          <h2 id="titulo-sacola" className="text-[16px] font-bold">
+            Sua sacola
+          </h2>
           <button
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-full text-[#696969] hover:bg-[#f0f0f0] transition-colors"
-            onClick={onClose}
+            ref={botaoFechar}
+            type="button"
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full text-tinta"
+            onClick={fecharSacola}
+            aria-label="Fechar sacola"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
-        {/* Items list */}
-        <div className="flex-1 overflow-y-auto px-3.5 pb-2 custom-scrollbar">
-          {items.length === 0 ? (
-            <div className="text-center py-16 px-5 text-[#999]">
-              <ShoppingBag className="w-12 h-12 mx-auto mb-3 opacity-40" />
-              <p className="text-[15px] font-medium mb-1 text-[#333]">Sua sacola está vazia</p>
+        <div className="flex-1 overflow-y-auto px-3.5 pb-3">
+          {!status.aberta && (
+            <div className="mt-3 rounded-xl bg-[#FFF1F1] border border-[#F5C2C2] p-3 text-[13px]">
+              <strong className="text-perigo">Estamos fechados agora.</strong> Você pode montar a sacola, mas só dá para
+              finalizar quando abrirmos{status.detalhe ? ` (${status.detalhe.toLowerCase()})` : ''}.
+            </div>
+          )}
+
+          {!vazia && (minimo.exige || freteGratis) && (
+            <div className="mt-3 bg-white rounded-xl p-3 space-y-3">
+              {minimo.exige && (
+                <BarraProgresso
+                  percentual={minimo.percentual}
+                  completo={minimo.atingido}
+                  texto={
+                    minimo.atingido
+                      ? 'Pedido mínimo atingido'
+                      : `Faltam ${formatarPreco(minimo.falta)} para o pedido mínimo (${formatarPreco(config.pedido_minimo)})`
+                  }
+                />
+              )}
+              {freteGratis && (
+                <BarraProgresso
+                  percentual={freteGratis.percentual}
+                  completo={freteGratis.atingido}
+                  texto={
+                    freteGratis.atingido
+                      ? 'Você ganhou frete grátis!'
+                      : `Faltam ${formatarPreco(freteGratis.falta)} para frete grátis`
+                  }
+                />
+              )}
+            </div>
+          )}
+
+          {indisponiveis.length > 0 && (
+            <div className="mt-3 rounded-xl bg-[#FFF8E1] border border-[#F1D58A] p-3 text-[13px] flex items-center gap-2">
+              <span className="flex-1">
+                {indisponiveis.length === 1
+                  ? '1 item da sua sacola não está mais disponível.'
+                  : `${indisponiveis.length} itens da sua sacola não estão mais disponíveis.`}
+              </span>
+              <button type="button" onClick={removerIndisponiveis} className="font-bold underline py-1">
+                Remover
+              </button>
+            </div>
+          )}
+
+          {vazia ? (
+            <div className="text-center py-16 px-5 text-suave">
+              <ShoppingBag className="w-12 h-12 mx-auto mb-3 opacity-40" aria-hidden="true" />
+              <p className="text-[15px] font-medium mb-1 text-tinta">Sua sacola está vazia</p>
               <p className="text-[13px]">Que tal colocar algumas bebidas para gelar?</p>
             </div>
           ) : (
-            items.map((item) => (
-              <div key={item.id} className="bg-white border border-[#f5f5f5] rounded-xl p-3 mt-2.5 relative animate-slideIn">
-                <div className="flex gap-2.5 items-start">
-                  <div className="w-[60px] h-[60px] shrink-0 flex items-center justify-center">
-                    {beerSVG(item.color, 30, 60)}
-                  </div>
-                  <div className="flex-1 pr-6">
-                    <h4 className="text-[13px] text-[#999] leading-tight mb-1">{item.name}</h4>
-                    <div className="flex items-center gap-1.5">
-                      {item.oldPrice && (
-                        <span className="text-[12px] text-[#999] line-through">
-                          R$ {item.oldPrice.toFixed(2).replace('.', ',')}
-                        </span>
-                      )}
-                      <span className="text-[14px] font-semibold text-[#333]">
-                        R$ {item.price.toFixed(2).replace('.', ',')}
-                      </span>
+            <ul>
+              {linhas.map(({ item, produto, oferta }) => {
+                const rotulo = rotuloOferta(oferta, produto);
+                return (
+                  <li key={oferta.id} className="bg-white rounded-xl p-3 mt-2.5 flex gap-3 items-start">
+                    <div className="w-[60px] h-[60px] shrink-0 rounded-lg overflow-hidden">
+                      <ImagemProduto produto={produto} tamanho="pequena" />
                     </div>
-
-                    {/* Qty Controls */}
-                    <div className="flex items-center justify-start gap-0 mt-2">
-                      <button
-                        className="w-[34px] h-[34px] flex items-center justify-center border border-[#eee] rounded-l-md bg-white text-[16px] text-[#333] hover:bg-[#f5f5f5] transition-colors"
-                        onClick={() => updateQty(item.id, item.qty - 1)}
-                      >
-                        -
-                      </button>
-                      <div className="w-[44px] h-[34px] flex items-center justify-center border-t border-b border-[#eee] bg-white text-[14px] font-medium">
-                        {item.qty}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[14px] font-medium leading-tight">{produto.nome}</p>
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                        {(rotulo !== 'Unidade' || produto.ofertas.length > 1) && (
+                          <span className="text-[12px] text-suave">
+                            {rotulo}
+                            {oferta.qtd > 1 && !rotulo.includes(String(oferta.qtd)) ? ` (${oferta.qtd} un)` : ''}
+                          </span>
+                        )}
+                        <SeloTemperatura oferta={oferta} mostrarGelada={temVersaoQuente(produto)} />
                       </div>
-                      <button
-                        className="w-[34px] h-[34px] flex items-center justify-center border border-[#eee] rounded-r-md bg-white text-[16px] text-[#333] hover:bg-[#f5f5f5] transition-colors"
-                        onClick={() => updateQty(item.id, item.qty + 1)}
-                      >
-                        +
-                      </button>
+                      <div className="flex items-center justify-between mt-2 gap-2">
+                        <div className="flex items-center rounded-full border border-borda">
+                          <button
+                            type="button"
+                            className="w-9 h-9 flex items-center justify-center"
+                            onClick={() => alterar(oferta.id, item.quantidade - 1)}
+                            aria-label={`Diminuir ${produto.nome}`}
+                          >
+                            <Minus className="w-4 h-4" aria-hidden="true" />
+                          </button>
+                          <span className="w-8 text-center text-[14px] font-bold">{item.quantidade}</span>
+                          <button
+                            type="button"
+                            className="w-9 h-9 flex items-center justify-center"
+                            onClick={() => alterar(oferta.id, item.quantidade + 1)}
+                            aria-label={`Aumentar ${produto.nome}`}
+                          >
+                            <Plus className="w-4 h-4" aria-hidden="true" />
+                          </button>
+                        </div>
+                        <span className="text-[15px] font-bold">{formatarPreco(oferta.preco * item.quantidade)}</span>
+                      </div>
                     </div>
-                  </div>
-                </div>
-
-                <button
-                  className="absolute top-2.5 right-2.5 w-6 h-6 flex items-center justify-center text-[#999] hover:text-[#E53935] transition-colors"
-                  onClick={() => removeItem(item.id)}
-                >
-                  <Trash2 className="w-[18px] h-[18px]" />
-                </button>
-              </div>
-            ))
+                    <button
+                      type="button"
+                      className="w-9 h-9 -mr-1 -mt-1 flex items-center justify-center text-suave hover:text-perigo"
+                      onClick={() => remover(oferta.id)}
+                      aria-label={`Remover ${produto.nome} da sacola`}
+                    >
+                      <Trash2 className="w-[18px] h-[18px]" aria-hidden="true" />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
           )}
         </div>
 
-        {/* Summary Footer */}
-        <div className="bg-white p-4 shrink-0 border-t border-[#eee]">
-          <div className="flex justify-between mb-1 text-[14px]">
-            <span className="text-[#333]">Subtotal</span>
-            <span className="text-[#333]">R$ {subtotal.toFixed(2).replace('.', ',')}</span>
+        <div className="bg-white p-4 pb-[max(16px,env(safe-area-inset-bottom))] shrink-0 border-t border-borda">
+          <div className="flex justify-between text-[16px] font-bold">
+            <span>Subtotal</span>
+            <span>{formatarPreco(subtotal)}</span>
           </div>
-          <div className="flex justify-between mb-1 text-[14px]">
-            <span className="text-[#333]">Entrega</span>
-            <span className="text-[#43A047] font-medium">Grátis</span>
-          </div>
-          <hr className="my-2 border-t border-[#eee]" />
-          <div className="flex justify-between text-[16px] font-bold text-[#333]">
-            <span>Total</span>
-            <span>R$ {total.toFixed(2).replace('.', ',')}</span>
-          </div>
+          <p className="text-[12px] text-suave mt-1">
+            Frete calculado no próximo passo.
+            {subtotalCartao !== subtotal && ` No cartão (na entrega) o subtotal fica ${formatarPreco(subtotalCartao)}.`}
+          </p>
 
           <button
-            className={`w-full mt-3.5 p-3.5 rounded-full text-[14px] font-bold uppercase tracking-wide transition-all ${
-              items.length > 0
-                ? 'bg-[#FFC500] text-[#333] hover:bg-[#e6b200] active:scale-95'
-                : 'bg-[#ddd] text-[#999] cursor-not-allowed'
-            }`}
-            onClick={handleCheckout}
-            disabled={items.length === 0}
+            type="button"
+            className="w-full mt-3 h-13 py-3.5 rounded-xl text-[15px] font-bold transition-all bg-primaria text-primaria-texto disabled:bg-[#DDD] disabled:text-suave"
+            onClick={continuar}
+            disabled={vazia || !minimo.atingido}
           >
-            Ir para o checkout
+            {vazia
+              ? 'Sacola vazia'
+              : minimo.atingido
+                ? 'Continuar'
+                : `Faltam ${formatarPreco(minimo.falta)} para o mínimo`}
           </button>
         </div>
       </div>
