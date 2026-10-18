@@ -12,6 +12,7 @@ import { ConfirmacaoIdade } from '@/components/loja/ConfirmacaoIdade';
 import { buscarHome, buscarProdutos } from '@/lib/cardapio';
 import { corSegura } from '@/lib/formatacao';
 import { descreverStatus } from '@/lib/horarios';
+import { DESCRICAO_SITE, URL_SITE } from '@/lib/site';
 
 const roboto = Roboto({
   weight: ['400', '500', '700', '900'],
@@ -29,11 +30,26 @@ const robotoCondensed = Roboto_Condensed({
 
 export async function generateMetadata(): Promise<Metadata> {
   const { loja, config } = await buscarHome();
-  const local = [loja.bairro, loja.cidade].filter(Boolean).join(', ');
+  const nome = loja.nome || 'Casa dos Fundos';
+  const descricao = DESCRICAO_SITE;
+  // prévia no WhatsApp/redes: logo da loja (Storage do Supabase, URL absoluta)
+  const imagens = loja.logo_url ? [{ url: loja.logo_url, alt: nome }] : undefined;
   return {
-    title: { default: `${loja.nome} — ${config.slogan}`, template: `%s · ${loja.nome}` },
-    description: `Cardápio online da ${loja.nome}${local ? ` (${local})` : ''}: cervejas, destilados, refrigerantes, gelo e mais, com entrega.`,
-    icons: loja.logo_url ? { icon: loja.logo_url } : undefined,
+    metadataBase: new URL(URL_SITE),
+    title: { default: `${nome} — ${config.slogan}`, template: `%s · ${nome}` },
+    description: descricao,
+    applicationName: nome,
+    alternates: { canonical: '/' },
+    openGraph: {
+      type: 'website',
+      locale: 'pt_BR',
+      url: '/',
+      siteName: nome,
+      title: nome,
+      description: descricao,
+      images: imagens,
+    },
+    twitter: { card: 'summary', title: nome, description: descricao, images: loja.logo_url ? [loja.logo_url] : undefined },
   };
 }
 

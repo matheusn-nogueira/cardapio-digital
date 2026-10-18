@@ -60,6 +60,15 @@ export function chaveEndereco(e: Endereco): string {
 export interface FreteSalvo {
   chave: string;
   resultado: ResultadoFrete;
+  /** Date.now() do cálculo: frete salvo vale por VALIDADE_FRETE_MS e depois é recalculado. */
+  calculadoEm: number;
+}
+
+/** Frete salvo no navegador vale 30 min (faixas podem mudar); depois recalcula. */
+export const VALIDADE_FRETE_MS = 30 * 60 * 1000;
+
+export function freteVencido(salvo: FreteSalvo, agora = Date.now()): boolean {
+  return agora - salvo.calculadoEm > VALIDADE_FRETE_MS;
 }
 
 export const armazemFrete = criarArmazem<FreteSalvo | null>('cdf:frete', null, {
@@ -73,6 +82,8 @@ export const armazemFrete = criarArmazem<FreteSalvo | null>('cdf:frete', null, {
         frete: numeroOuNulo(o.resultado.frete),
         bloqueado: o.resultado.bloqueado === true,
       },
+      // salvo antes da validade existir → vencido (recalcula ao abrir)
+      calculadoEm: numeroOuNulo(o.calculadoEm) ?? 0,
     };
   },
 });
@@ -84,11 +95,36 @@ export interface DetalhesPedido {
   trocoPara: string;
 }
 
+/** Aceita o que estava salvo antes (crédito/débito viraram "cartão"). */
+export function normalizarPagamento(v: unknown): FormaPagamento | null {
+  if (v === 'credito' || v === 'debito' || v === 'cartao') return 'cartao';
+  return v === 'pix' || v === 'dinheiro' ? v : null;
+}
+
 export const armazemDetalhes = criarArmazem<DetalhesPedido>(
   'cdf:detalhes',
   { observacoes: '', pagamento: null, trocoPara: '' },
-  { tipo: 'sessao' },
+  {
+    tipo: 'sessao',
+    validar: (b) => {
+      const o = (b ?? {}) as Record<string, unknown>;
+      return {
+        observacoes: typeof o.observacoes === 'string' ? o.observacoes.slice(0, 500) : '',
+        pagamento: normalizarPagamento(o.pagamento),
+        trocoPara: texto(o.trocoPara).slice(0, 12),
+      };
+    },
+  },
 );
+
+/**
+ * Chave (uuid) da tentativa de pedido em andamento. Fica guardada até o pedido ser
+ * aceito: se a rede cair, o reenvio usa a mesma chave e o banco não duplica.
+ */
+export const armazemChavePedido = criarArmazem<string | null>('cdf:chave-pedido', null, {
+  tipo: 'sessao',
+  validar: (b) => (typeof b === 'string' && /^[0-9a-f-]{36}$/i.test(b) ? b : null),
+});
 
 export interface PedidoConfirmado {
   numero: number;
@@ -100,6 +136,8 @@ export interface PedidoConfirmado {
   nomeCliente: string;
   itens: string[];
   endereco: string;
+  /** O banco já tinha esse pedido (reenvio depois de falha de rede). */
+  repetido?: boolean;
 }
 
 export const armazemUltimoPedido = criarArmazem<PedidoConfirmado | null>('cdf:ultimo-pedido', null, {
@@ -109,6 +147,11 @@ export const armazemUltimoPedido = criarArmazem<PedidoConfirmado | null>('cdf:ul
 export const NOMES_PAGAMENTO: Record<FormaPagamento, string> = {
   pix: 'Pix',
   dinheiro: 'Dinheiro',
-  credito: 'Cartão de crédito (na entrega)',
-  debito: 'Cartão de débito (na entrega)',
+  cartao: 'Cartão (na entrega)',
 };
+
+/** Nome da forma de pagamento, aceitando o que ficou salvo no formato antigo. */
+export function nomePagamento(forma: unknown): string {
+  const f = normalizarPagamento(forma);
+  return f ? NOMES_PAGAMENTO[f] : 'A combinar';
+}

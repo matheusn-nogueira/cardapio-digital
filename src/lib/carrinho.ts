@@ -1,45 +1,83 @@
-// Contas do carrinho (subtotal, mínimo, frete grátis). Módulo puro.
-// O banco recalcula tudo em `cardapio_criar_pedido`; aqui é só para exibir.
-import type { FormaPagamento, ItemCarrinho, Oferta, Produto } from './tipos';
-import { precoOferta } from './ofertas';
+// Itens da sacola e contas auxiliares. Módulo puro (só importa tipos) para poder
+// ser testado com `node --test`. O banco recalcula tudo em `cardapio_criar_pedido`.
+//
+// Dois tipos de linha:
+//  - versão padrão: produto + UNIDADES (combinação de blocos mais barata);
+//  - variante (natural, vasilhame…): oferta + BLOCOS, preço fechado do bloco.
+// O mesmo produto pode ter as duas linhas (ex.: 6 geladas + 1 pack natural).
+import type { ItemCarrinho, ItemLegado, ItemPedido, ItemSalvo, ItemVariante, Produto, Variante } from './tipos';
 
-export const QUANTIDADE_MAXIMA = 999;
+export const QUANTIDADE_MAXIMA = 999; // unidades ou blocos por linha (mesmo teto do banco)
 
 export interface LinhaCarrinho {
-  item: ItemCarrinho;
+  /** produtoId (versão padrão) ou "of:<ofertaId>" (variante). */
+  chave: string;
   produto: Produto;
-  oferta: Oferta;
+  /** null = versão padrão. */
+  variante: Variante | null;
+  /** Unidades (padrão) ou blocos (variante). */
+  quantidade: number;
 }
 
-export type IndiceOfertas = Map<string, { produto: Produto; oferta: Oferta }>;
-
-export function indexarOfertas(produtos: Produto[]): IndiceOfertas {
-  const indice: IndiceOfertas = new Map();
-  for (const produto of produtos) {
-    for (const oferta of produto.ofertas) indice.set(oferta.id, { produto, oferta });
-  }
-  return indice;
+export function ehLegado(item: ItemSalvo): item is ItemLegado {
+  return 'ofertaId' in item && !('produtoId' in item);
 }
 
-/** Separa o que ainda existe no cardápio do que saiu (oferta desativada, produto oculto…). */
-export function montarLinhas(itens: ItemCarrinho[], indice: IndiceOfertas) {
+export function ehVariante(item: ItemSalvo): item is ItemVariante {
+  return 'ofertaId' in item && 'produtoId' in item;
+}
+
+export function ehUnidades(item: ItemSalvo): item is ItemCarrinho {
+  return 'unidades' in item;
+}
+
+/** Chave da linha: identifica o item para alterar/remover. */
+export function chaveItem(item: ItemSalvo): string {
+  return ehUnidades(item) ? item.produtoId : `of:${item.ofertaId}`;
+}
+
+const limitar = (n: number) => Math.min(QUANTIDADE_MAXIMA, Math.max(0, Math.floor(n)));
+
+/**
+ * Monta as linhas com o catálogo atual. Produto (ou variante) que saiu do cardápio
+ * vai para `indisponiveis`; item no formato antigo ainda não migrado, para `legados`.
+ */
+export function montarLinhas(itens: ItemSalvo[], produtoDe: (id: string) => Produto | undefined) {
   const linhas: LinhaCarrinho[] = [];
-  const indisponiveis: ItemCarrinho[] = [];
+  const indisponiveis: ItemSalvo[] = [];
+  const legados: ItemLegado[] = [];
   for (const item of itens) {
-    const achado = indice.get(item.ofertaId);
-    if (achado) linhas.push({ item, ...achado });
+    if (ehLegado(item)) {
+      legados.push(item);
+      continue;
+    }
+    const produto = produtoDe(item.produtoId);
+    if (ehUnidades(item)) {
+      if (produto) linhas.push({ chave: chaveItem(item), produto, variante: null, quantidade: item.unidades });
+      else indisponiveis.push(item);
+      continue;
+    }
+    const variante = produto?.variantes.find((v) => v.id === item.ofertaId);
+    if (produto && variante) linhas.push({ chave: chaveItem(item), produto, variante, quantidade: item.quantidade });
     else indisponiveis.push(item);
   }
-  return { linhas, indisponiveis };
+  return { linhas, indisponiveis, legados };
 }
 
-export function calcularSubtotal(linhas: LinhaCarrinho[], forma: FormaPagamento | null | undefined): number {
-  const total = linhas.reduce((soma, l) => soma + precoOferta(l.oferta, forma) * l.item.quantidade, 0);
-  return arredondar(total);
+/** Unidades físicas da linha (variante: blocos × tamanho do bloco). */
+export function unidadesDaLinha(l: LinhaCarrinho): number {
+  return l.variante ? l.quantidade * l.variante.qtd : l.quantidade;
 }
 
-export function contarItens(itens: ItemCarrinho[]): number {
-  return itens.reduce((soma, i) => soma + i.quantidade, 0);
+export function contarUnidades(linhas: LinhaCarrinho[]): number {
+  return linhas.reduce((soma, l) => soma + unidadesDaLinha(l), 0);
+}
+
+/** Itens no formato do banco: padrão em unidades, variante em blocos da oferta. */
+export function itensDoPedido(linhas: LinhaCarrinho[]): ItemPedido[] {
+  return linhas.map((l) =>
+    l.variante ? { oferta_id: l.variante.id, quantidade: l.quantidade } : { product_id: l.produto.id, unidades: l.quantidade },
+  );
 }
 
 export function arredondar(valor: number): number {
@@ -63,36 +101,91 @@ export function freteFinal(freteBase: number | null, subtotal: number, freteGrat
   return freteBase;
 }
 
-// --- operações sobre a lista de itens (imutáveis) ---
+// --- operações sobre a lista de itens (imutáveis; itens antigos são preservados) ---
 
-export function adicionarItem(itens: ItemCarrinho[], ofertaId: string, quantidade = 1): ItemCarrinho[] {
-  const existente = itens.find((i) => i.ofertaId === ofertaId);
-  if (existente) {
+/** Quantidade guardada na linha (unidades ou blocos). */
+function quantidadeDe(item: ItemSalvo): number {
+  return ehUnidades(item) ? item.unidades : item.quantidade;
+}
+
+function comQuantidade(item: ItemSalvo, n: number): ItemSalvo {
+  return ehUnidades(item) ? { ...item, unidades: n } : { ...item, quantidade: n };
+}
+
+/** Quantidade na linha de chave dada (0 se não houver). */
+export function quantidadeNaLinha(itens: ItemSalvo[], chave: string): number {
+  const item = itens.find((i) => !ehLegado(i) && chaveItem(i) === chave);
+  return item ? quantidadeDe(item) : 0;
+}
+
+/** Soma na linha existente ou cria uma nova. */
+export function somarItem(itens: ItemSalvo[], novo: ItemCarrinho | ItemVariante): ItemSalvo[] {
+  const chave = chaveItem(novo);
+  if (itens.some((i) => !ehLegado(i) && chaveItem(i) === chave)) {
     return itens.map((i) =>
-      i.ofertaId === ofertaId ? { ...i, quantidade: Math.min(QUANTIDADE_MAXIMA, i.quantidade + quantidade) } : i,
+      !ehLegado(i) && chaveItem(i) === chave ? comQuantidade(i, limitar(quantidadeDe(i) + quantidadeDe(novo))) : i,
     );
   }
-  return [...itens, { ofertaId, quantidade: Math.min(QUANTIDADE_MAXIMA, quantidade) }];
+  const n = limitar(quantidadeDe(novo));
+  return n > 0 ? [...itens, comQuantidade(novo, n)] : itens;
 }
 
-export function alterarQuantidade(itens: ItemCarrinho[], ofertaId: string, quantidade: number): ItemCarrinho[] {
-  if (quantidade <= 0) return itens.filter((i) => i.ofertaId !== ofertaId);
-  return itens.map((i) =>
-    i.ofertaId === ofertaId ? { ...i, quantidade: Math.min(QUANTIDADE_MAXIMA, Math.floor(quantidade)) } : i,
-  );
+export function adicionarItem(itens: ItemSalvo[], produtoId: string, unidades = 1): ItemSalvo[] {
+  return somarItem(itens, { produtoId, unidades });
 }
 
-/** Aceita só o formato esperado do que veio do localStorage. */
-export function validarItensSalvos(valor: unknown): ItemCarrinho[] {
+export function adicionarVariante(itens: ItemSalvo[], produtoId: string, ofertaId: string, quantidade = 1): ItemSalvo[] {
+  return somarItem(itens, { produtoId, ofertaId, quantidade });
+}
+
+export function alterarQuantidade(itens: ItemSalvo[], chave: string, quantidade: number): ItemSalvo[] {
+  if (quantidade <= 0) return removerItem(itens, chave);
+  return itens.map((i) => (!ehLegado(i) && chaveItem(i) === chave ? comQuantidade(i, limitar(quantidade)) : i));
+}
+
+export function removerItem(itens: ItemSalvo[], chave: string): ItemSalvo[] {
+  return itens.filter((i) => ehLegado(i) || chaveItem(i) !== chave);
+}
+
+const inteiroPositivo = (v: unknown): v is number => Number.isInteger(v) && (v as number) > 0;
+
+/** Aceita os formatos atuais (unidades, variante) e o antigo ({ofertaId, quantidade}). */
+export function validarItensSalvos(valor: unknown): ItemSalvo[] {
   if (!Array.isArray(valor)) return [];
-  return valor
-    .filter(
-      (i): i is ItemCarrinho =>
-        !!i &&
-        typeof i === 'object' &&
-        typeof (i as ItemCarrinho).ofertaId === 'string' &&
-        Number.isInteger((i as ItemCarrinho).quantidade) &&
-        (i as ItemCarrinho).quantidade > 0,
-    )
-    .map((i) => ({ ofertaId: i.ofertaId, quantidade: Math.min(QUANTIDADE_MAXIMA, i.quantidade) }));
+  const saida: ItemSalvo[] = [];
+  for (const bruto of valor) {
+    if (!bruto || typeof bruto !== 'object') continue;
+    const i = bruto as Record<string, unknown>;
+    if (typeof i.produtoId === 'string' && inteiroPositivo(i.unidades)) {
+      saida.push({ produtoId: i.produtoId, unidades: limitar(i.unidades) });
+    } else if (typeof i.ofertaId === 'string' && inteiroPositivo(i.quantidade)) {
+      saida.push(
+        typeof i.produtoId === 'string'
+          ? { produtoId: i.produtoId, ofertaId: i.ofertaId, quantidade: limitar(i.quantidade) }
+          : { ofertaId: i.ofertaId, quantidade: limitar(i.quantidade) },
+      );
+    }
+  }
+  return saida;
+}
+
+/** id da oferta → produto, tamanho do bloco e se é variante (lido do banco só para sacola antiga). */
+export type MapaOfertas = Map<string, { produtoId: string; qtd: number; variante: boolean }>;
+
+/**
+ * Converte itens do formato antigo: oferta comum vira unidades do produto (somando
+ * com o que já houver); oferta variante (natural, vasilhame…) vira linha de variante.
+ * Oferta que não existe mais fica como está (aparece como indisponível).
+ */
+export function migrarItens(itens: ItemSalvo[], mapa: MapaOfertas): ItemSalvo[] {
+  let saida: ItemSalvo[] = itens.filter((i) => !ehLegado(i));
+  const sobras: ItemLegado[] = [];
+  for (const item of itens) {
+    if (!ehLegado(item)) continue;
+    const achado = mapa.get(item.ofertaId);
+    if (!achado) sobras.push(item);
+    else if (achado.variante) saida = adicionarVariante(saida, achado.produtoId, item.ofertaId, item.quantidade);
+    else saida = adicionarItem(saida, achado.produtoId, item.quantidade * Math.max(1, achado.qtd));
+  }
+  return [...saida, ...sobras];
 }

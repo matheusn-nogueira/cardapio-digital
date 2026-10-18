@@ -1,14 +1,26 @@
 // Tipos do cardápio, no formato que as views `cardapio_vw_home` e
 // `cardapio_vw_produtos` devolvem (ver supabase_cardapio_online.sql no ERP).
 
-/** Unidade de venda: o preço é do BLOCO inteiro (ex.: Mala c/ 6 = R$ 54). */
+/**
+ * Bloco de venda: o preço é do BLOCO inteiro (ex.: Mala c/ 6 = R$ 54). Na versão
+ * padrão o cliente escolhe UNIDADES e a sacola monta a combinação de blocos mais
+ * barata (ver precoQuantidade.ts) — por isso esses blocos vêm sem id.
+ */
 export interface Oferta {
-  id: string;
   nome: string;
   qtd: number;
   preco: number;
   preco_cartao: number;
   quente: boolean;
+}
+
+/**
+ * Versão escolhida explicitamente pelo cliente, com preço FECHADO do bloco:
+ * pack [Quente] de produto gelado, galão com vasilhame (unidade mais cara)…
+ * Vai para o banco como `{oferta_id, quantidade}` (quantidade = blocos).
+ */
+export interface Variante extends Oferta {
+  id: string;
 }
 
 export interface Produto {
@@ -21,12 +33,15 @@ export interface Produto {
   preco: number;
   preco_cartao: number;
   retornavel: boolean;
-  gelada: boolean;
-  destaque: boolean;
   selo: string | null;
-  ordem: number;
-  vendas_recentes: number;
+  /** Produto natural ("[Quente]" no nome original) — mesma regra do banco. */
+  quente: boolean;
+  /** Apelidos/tags (sem acento) que não estão no nome — só para a busca. */
+  apelidos: string;
+  /** Blocos da combinação automática (versão padrão). */
   ofertas: Oferta[];
+  /** Versões de escolha explícita (natural, vasilhame…). Fora da combinação. */
+  variantes: Variante[];
 }
 
 export interface Loja {
@@ -109,13 +124,33 @@ export interface DadosHome {
   vitrines: Vitrine[];
 }
 
-export type FormaPagamento = 'pix' | 'dinheiro' | 'credito' | 'debito';
+/** Cartão na entrega é uma opção só (crédito ou débito na maquininha). */
+export type FormaPagamento = 'pix' | 'dinheiro' | 'cartao';
 
-/** Item do carrinho: uma oferta + quantos BLOCOS dela. */
+/** Item do carrinho: um produto + quantas UNIDADES dele. */
 export interface ItemCarrinho {
+  produtoId: string;
+  unidades: number;
+}
+
+/** Linha de versão escolhida (variante): quantos BLOCOS da oferta. */
+export interface ItemVariante {
+  produtoId: string;
   ofertaId: string;
   quantidade: number;
 }
+
+/** Formato antigo salvo no navegador (oferta + quantos blocos, sem produto): migrado ao abrir. */
+export interface ItemLegado {
+  ofertaId: string;
+  quantidade: number;
+  produtoId?: never;
+}
+
+export type ItemSalvo = ItemCarrinho | ItemVariante | ItemLegado;
+
+/** Item como vai para `cardapio_criar_pedido`. */
+export type ItemPedido = { product_id: string; unidades: number } | { oferta_id: string; quantidade: number };
 
 export interface ResultadoFrete {
   distancia_km: number | null;
@@ -145,15 +180,28 @@ export interface Cliente {
 export interface PayloadPedido {
   cliente: Cliente;
   endereco: Endereco;
-  itens: { oferta_id: string; quantidade: number }[];
+  itens: ItemPedido[];
   pagamento: FormaPagamento;
   troco_para: number | null;
   observacoes: string;
+  /** uuid por tentativa de checkout: reenvio com a mesma chave não duplica o pedido. */
+  chave: string;
+  /** Total que o cliente viu; se o banco calcular outro, devolve PRECO_MUDOU. */
+  total_esperado: number;
 }
 
 export interface RespostaPedido {
   pedido_id: string;
   numero: number;
+  subtotal: number;
+  frete: number;
+  total: number;
+  /** true = a mesma chave já tinha gerado esse pedido (reenvio). */
+  repetido: boolean;
+}
+
+/** Valores recalculados pelo banco (DETAIL do erro PRECO_MUDOU). */
+export interface TotaisServidor {
   subtotal: number;
   frete: number;
   total: number;

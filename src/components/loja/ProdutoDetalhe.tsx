@@ -5,33 +5,44 @@ import { Minus, Plus, Snowflake } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatarPreco } from '@/lib/formatacao';
 import {
-  ofertaPrincipal,
+  detalheVariante,
   ofertaPromocional,
   precoPorUnidade,
   rotuloOferta,
-  temVersaoQuente,
+  rotuloPadrao,
+  rotuloVariante,
+  tabelaDePrecos,
 } from '@/lib/ofertas';
-import { QUANTIDADE_MAXIMA } from '@/lib/carrinho';
-import type { Oferta, Produto } from '@/lib/tipos';
+import { atalhosDoProduto, descreverCombinacao, melhorPreco, UNIDADES_MAXIMAS } from '@/lib/precoQuantidade';
+import type { Produto, Variante } from '@/lib/tipos';
 import { toastEvent } from '@/components/ui/Toast';
 import { ImagemProduto } from './ImagemProduto';
 
-/** Categorias de produto que ganham os atalhos +6 / +12. */
-const CATEGORIAS_ATALHO = ['cerveja'];
-
-export const SeloTemperatura: React.FC<{ oferta: Oferta; mostrarGelada: boolean }> = ({ oferta, mostrarGelada }) => {
-  if (oferta.quente) {
-    return (
-      <span className="inline-flex items-center text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-[#FFE7CC] text-[#8A4B00]">
-        Natural/quente
-      </span>
-    );
-  }
-  if (!mostrarGelada) return null;
+/** Selo "Natural/quente" (produto quente ou versão natural escolhida). */
+export const SeloTemperatura: React.FC<{ quente: boolean }> = ({ quente }) => {
+  if (!quente) return null;
   return (
-    <span className="inline-flex items-center gap-0.5 text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-[#DDEEFF] text-[#0B4A8B]">
-      <Snowflake className="w-3 h-3" aria-hidden="true" /> Gelada
+    <span className="inline-flex items-center text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-[#FFE7CC] text-[#8A4B00]">
+      Natural/quente
     </span>
+  );
+};
+
+/** "1 pack de 12 + 1 un · economia de R$ 2,00" — explica o preço da quantidade. */
+export const ResumoCombinacao: React.FC<{ produto: Produto; unidades: number; className?: string }> = ({
+  produto,
+  unidades,
+  className = '',
+}) => {
+  const preco = melhorPreco(produto, unidades, false);
+  const combinacao = descreverCombinacao(preco.partes);
+  // combinação sem desconto (pack pelo mesmo preço das unidades) não precisa de explicação
+  if (!combinacao || preco.economia <= 0) return null;
+  return (
+    <p className={`text-[12px] text-suave ${className}`}>
+      {combinacao}
+      <span className="text-sucesso font-medium"> · economia de {formatarPreco(preco.economia)}</span>
+    </p>
   );
 };
 
@@ -43,28 +54,84 @@ interface ProdutoDetalheProps {
   aoAdicionar?: () => void;
 }
 
+/** Botão de rádio de versão (padrão ou variante). */
+const OpcaoVersao: React.FC<{
+  selecionada: boolean;
+  aoEscolher: () => void;
+  titulo: string;
+  detalhe: string | null;
+  preco: string;
+  icone?: React.ReactNode;
+}> = ({ selecionada, aoEscolher, titulo, detalhe, preco, icone }) => (
+  <button
+    type="button"
+    role="radio"
+    aria-checked={selecionada}
+    onClick={aoEscolher}
+    className={`w-full flex items-center gap-3 text-left p-3 rounded-xl border-2 transition-colors ${
+      selecionada ? 'border-primaria bg-primaria/10' : 'border-borda bg-white'
+    }`}
+  >
+    <span
+      className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center ${
+        selecionada ? 'border-tinta' : 'border-[#BDBDBD]'
+      }`}
+      aria-hidden="true"
+    >
+      {selecionada && <span className="w-2.5 h-2.5 rounded-full bg-tinta" />}
+    </span>
+    <span className="flex-1 min-w-0">
+      <span className="flex items-center gap-1.5 text-[14px] font-semibold">
+        {icone}
+        {titulo}
+      </span>
+      {detalhe && <span className="block text-[12px] text-suave mt-0.5">{detalhe}</span>}
+    </span>
+    <span className="text-[14px] font-bold shrink-0 tabular-nums">{preco}</span>
+  </button>
+);
+
 export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitulo, paginaPropria, aoAdicionar }) => {
-  const { adicionar, quantidadeDaOferta } = useCart();
-  const [ofertaId, setOfertaId] = useState(() => ofertaPrincipal(produto).id);
+  const { adicionar, adicionarVariante, unidadesDoProduto, quantidadeNaLinha } = useCart();
+  // null = versão padrão (preço por quantidade); senão o id da variante escolhida
+  const [varianteId, setVarianteId] = useState<string | null>(null);
   const [quantidade, setQuantidade] = useState(1);
-  const idOfertas = useId();
+  const idVersoes = useId();
 
-  const oferta = produto.ofertas.find((o) => o.id === ofertaId) ?? ofertaPrincipal(produto);
-  const marcarGelada = temVersaoQuente(produto);
-  const comAtalhos = CATEGORIAS_ATALHO.includes(produto.categoria.toLowerCase()) && oferta.qtd === 1;
-  const jaNaSacola = quantidadeDaOferta(oferta.id);
-  const precoCartaoDiferente = oferta.preco_cartao !== oferta.preco;
+  const variante: Variante | null = produto.variantes.find((v) => v.id === varianteId) ?? null;
+  const tabela = tabelaDePrecos(produto.ofertas);
+  const temBlocos = tabela.some((o) => o.qtd > 1);
+  const atalhos = atalhosDoProduto(produto);
 
-  const mudarQuantidade = (nova: number) => setQuantidade(Math.max(1, Math.min(QUANTIDADE_MAXIMA, nova)));
+  // padrão: quantidade em unidades; variante: em blocos com preço fechado
+  const preco = variante ? null : melhorPreco(produto, quantidade, false);
+  const total = variante ? Math.round(variante.preco * quantidade * 100) / 100 : preco!.total;
+  const totalCartao = variante
+    ? Math.round(variante.preco_cartao * quantidade * 100) / 100
+    : melhorPreco(produto, quantidade, true).total;
+  const naLinha = quantidadeNaLinha(variante ? `of:${variante.id}` : produto.id);
+  const naSacola = unidadesDoProduto(produto.id);
+
+  const mudar = (nova: number) => setQuantidade(Math.max(1, Math.min(UNIDADES_MAXIMAS, nova)));
+  const escolher = (id: string | null) => {
+    setVarianteId(id);
+    setQuantidade(1);
+  };
 
   const confirmar = () => {
-    adicionar(oferta.id, quantidade);
-    const rotulo = rotuloOferta(oferta, produto);
-    toastEvent.show(
-      `${quantidade}× ${produto.nome}${rotulo !== 'Unidade' ? ` (${rotulo})` : ''}${oferta.quente ? ' natural' : ''} na sacola`,
-    );
+    if (variante) {
+      adicionarVariante(produto.id, variante.id, quantidade);
+      const detalhe = detalheVariante(variante);
+      toastEvent.show(`${quantidade}× ${produto.nome} · ${rotuloVariante(variante)}${detalhe ? ` (${detalhe})` : ''} na sacola`);
+    } else {
+      adicionar(produto.id, quantidade);
+      toastEvent.show(`${quantidade} un · ${produto.nome}${produto.quente ? ' natural' : ''} na sacola`);
+    }
     aoAdicionar?.();
   };
+
+  const unidadePadrao = melhorPreco(produto, 1, false).total;
+  const temNatural = produto.variantes.some((v) => v.quente);
 
   return (
     <div className="flex flex-col">
@@ -79,7 +146,7 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
         {produto.retornavel && (
           <span className="bg-[#E7F6EC] text-sucesso text-[11px] font-bold px-1.5 py-0.5 rounded-md">Retornável</span>
         )}
-        {produto.ofertas.length === 1 && <SeloTemperatura oferta={oferta} mostrarGelada={false} />}
+        <SeloTemperatura quente={produto.quente || variante?.quente === true} />
       </div>
 
       {React.createElement(
@@ -89,95 +156,103 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
       )}
       {produto.descricao && <p className="text-[14px] text-suave mt-1.5 leading-relaxed">{produto.descricao}</p>}
 
-      {produto.ofertas.length > 1 && (
+      {produto.variantes.length > 0 && (
         <fieldset className="mt-4">
-          <legend id={idOfertas} className="text-[14px] font-bold mb-2">
-            Como você quer levar?
+          <legend id={idVersoes} className="text-[14px] font-bold mb-2">
+            Escolha a versão
           </legend>
-          <div role="radiogroup" aria-labelledby={idOfertas} className="flex flex-col gap-2">
-            {produto.ofertas.map((o) => {
-              const selecionada = o.id === oferta.id;
-              const porUnidade = precoPorUnidade(o, 'pix');
+          <div role="radiogroup" aria-labelledby={idVersoes} className="flex flex-col gap-2">
+            <OpcaoVersao
+              selecionada={!variante}
+              aoEscolher={() => escolher(null)}
+              titulo={rotuloPadrao(produto)}
+              detalhe={temBlocos ? 'Preço por quantidade' : null}
+              preco={`${formatarPreco(unidadePadrao)} un`}
+              icone={temNatural ? <Snowflake className="w-3.5 h-3.5" aria-hidden="true" /> : undefined}
+            />
+            {produto.variantes.map((v) => {
+              const detalhe = detalheVariante(v);
               return (
-                <button
-                  key={o.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={selecionada}
-                  onClick={() => {
-                    setOfertaId(o.id);
-                    setQuantidade(1);
-                  }}
-                  className={`w-full flex items-center gap-3 text-left p-3 rounded-xl border-2 transition-colors ${
-                    selecionada ? 'border-primaria bg-primaria/10' : 'border-borda bg-white'
-                  }`}
-                >
-                  <span
-                    className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center ${
-                      selecionada ? 'border-tinta' : 'border-[#BDBDBD]'
-                    }`}
-                    aria-hidden="true"
-                  >
-                    {selecionada && <span className="w-2.5 h-2.5 rounded-full bg-tinta" />}
-                  </span>
-                  <span className="flex-1 min-w-0">
-                    <span className="flex flex-wrap items-center gap-1.5">
-                      <span className="text-[14px] font-semibold">{rotuloOferta(o, produto)}</span>
-                      {ofertaPromocional(o) && (
-                        <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-perigo text-white">Promo</span>
-                      )}
-                      <SeloTemperatura oferta={o} mostrarGelada={marcarGelada} />
-                    </span>
-                    {porUnidade != null && (
-                      <span className="block text-[12px] text-suave mt-0.5">
-                        {o.qtd} un · {formatarPreco(porUnidade)} cada
-                      </span>
-                    )}
-                  </span>
-                  <span className="text-[15px] font-bold shrink-0">{formatarPreco(o.preco)}</span>
-                </button>
+                <OpcaoVersao
+                  key={v.id}
+                  selecionada={variante?.id === v.id}
+                  aoEscolher={() => escolher(v.id)}
+                  titulo={rotuloVariante(v)}
+                  detalhe={detalhe}
+                  preco={formatarPreco(v.preco)}
+                />
               );
             })}
           </div>
         </fieldset>
       )}
 
-      {precoCartaoDiferente && (
-        <p className="text-[12px] text-suave mt-2">
-          Preço no Pix ou dinheiro. No cartão (na entrega): {formatarPreco(oferta.preco_cartao)}.
-        </p>
+      {!variante && temBlocos && (
+        <section className="mt-4" aria-labelledby={`${produto.id}-tabela`}>
+          <h3 id={`${produto.id}-tabela`} className="text-[14px] font-bold">
+            Quanto mais, mais barato
+          </h3>
+          <p className="text-[12px] text-suave mb-2">Escolha a quantidade: a sacola monta sozinha a combinação mais barata.</p>
+          <ul className="flex flex-col gap-1.5">
+            {tabela.map((o) => {
+              const porUnidade = precoPorUnidade(o, 'pix');
+              return (
+                <li key={o.qtd} className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white border border-borda">
+                  <span className="flex-1 min-w-0">
+                    <span className="flex flex-wrap items-center gap-1.5">
+                      <span className="text-[14px] font-semibold">{rotuloOferta(o)}</span>
+                      {ofertaPromocional(o) && (
+                        <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-perigo text-white">Promo</span>
+                      )}
+                    </span>
+                    {porUnidade != null && (
+                      <span className="block text-[12px] text-suave">
+                        {o.qtd} un · {formatarPreco(porUnidade)} cada
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-[15px] font-bold shrink-0 tabular-nums">{formatarPreco(o.preco)}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       )}
 
       <div className="mt-4 flex items-center gap-3 flex-wrap">
         <div className="flex items-center rounded-full border border-borda bg-white">
           <button
             type="button"
-            onClick={() => mudarQuantidade(quantidade - 1)}
+            onClick={() => mudar(quantidade - 1)}
             disabled={quantidade <= 1}
             aria-label="Diminuir quantidade"
             className="w-11 h-11 flex items-center justify-center disabled:opacity-30"
           >
             <Minus className="w-4 h-4" aria-hidden="true" />
           </button>
-          <span className="w-10 text-center text-[16px] font-bold" aria-live="polite" aria-label={`Quantidade: ${quantidade}`}>
+          <span
+            className="w-12 text-center text-[16px] font-bold tabular-nums"
+            aria-live="polite"
+            aria-label={variante ? `Quantidade: ${quantidade}` : `Quantidade: ${quantidade} unidades`}
+          >
             {quantidade}
           </span>
           <button
             type="button"
-            onClick={() => mudarQuantidade(quantidade + 1)}
+            onClick={() => mudar(quantidade + 1)}
             aria-label="Aumentar quantidade"
             className="w-11 h-11 flex items-center justify-center"
           >
             <Plus className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
-        {comAtalhos && (
+        {!variante && atalhos.length > 0 && (
           <div className="flex gap-2">
-            {[6, 12].map((n) => (
+            {atalhos.map((n) => (
               <button
                 key={n}
                 type="button"
-                onClick={() => mudarQuantidade(quantidade === 1 ? n : quantidade + n)}
+                onClick={() => mudar(quantidade === 1 ? n : quantidade + n)}
                 className="h-11 px-3.5 rounded-full border border-borda bg-white text-[14px] font-bold"
                 aria-label={`${quantidade === 1 ? 'Levar' : 'Somar mais'} ${n} unidades`}
               >
@@ -186,9 +261,29 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
             ))}
           </div>
         )}
+        {variante && variante.qtd > 1 && (
+          <span className="text-[13px] text-suave">
+            {quantidade}× {detalheVariante(variante)} = {quantidade * variante.qtd} un
+          </span>
+        )}
       </div>
-      {jaNaSacola > 0 && (
-        <p className="text-[12px] text-suave mt-2">Você já tem {jaNaSacola} dessa opção na sacola.</p>
+
+      {!variante && <ResumoCombinacao produto={produto} unidades={quantidade} className="mt-2" />}
+      {totalCartao !== total && (
+        <p className="text-[12px] text-suave mt-1">
+          Preço no Pix ou dinheiro. No cartão (na entrega): {formatarPreco(totalCartao)}.
+        </p>
+      )}
+      {naLinha > 0 ? (
+        <p className="text-[12px] text-suave mt-1">
+          {variante
+            ? `Você já tem ${naLinha} dessa versão na sacola.`
+            : `Você já tem ${naLinha} un na sacola. O preço final soma tudo e usa a combinação mais barata.`}
+        </p>
+      ) : (
+        naSacola > 0 && (
+          <p className="text-[12px] text-suave mt-1">Você já tem {naSacola} un desse produto na sacola, em outra versão.</p>
+        )
       )}
 
       <button
@@ -196,8 +291,8 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
         onClick={confirmar}
         className="mt-4 w-full h-13 py-3.5 rounded-xl bg-primaria text-primaria-texto font-bold text-[15px] flex items-center justify-between px-5 active:scale-[0.99] transition-transform"
       >
-        <span>Adicionar</span>
-        <span>{formatarPreco(oferta.preco * quantidade)}</span>
+        <span>Adicionar {!variante && quantidade > 1 ? `${quantidade} un` : ''}</span>
+        <span className="tabular-nums">{formatarPreco(total)}</span>
       </button>
     </div>
   );

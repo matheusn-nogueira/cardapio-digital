@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Check, Copy, MessageCircle } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useArmazem, useHidratado } from '@/lib/armazenamento';
-import { armazemUltimoPedido, NOMES_PAGAMENTO, PedidoConfirmado } from '@/lib/estado-checkout';
+import { armazemUltimoPedido, nomePagamento, PedidoConfirmado } from '@/lib/estado-checkout';
 import { formatarPreco, linkWhatsapp } from '@/lib/formatacao';
 import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
 
@@ -16,7 +16,7 @@ function mensagemWhatsapp(p: PedidoConfirmado): string {
     '',
     ...p.itens.map((i) => `• ${i}`),
     '',
-    `Total: ${formatarPreco(p.total)} (${NOMES_PAGAMENTO[p.pagamento]})`,
+    `Total: ${formatarPreco(p.total)} (${nomePagamento(p.pagamento)})`,
     p.trocoPara ? `Troco para ${formatarPreco(p.trocoPara)}` : null,
     `Entrega: ${p.endereco}`,
   ]
@@ -78,8 +78,13 @@ export default function ConfirmationPage() {
         <p className="text-[15px] text-suave mt-1">
           Pedido <strong className="text-tinta">#{pedido.numero}</strong> · {formatarPreco(pedido.total)}
         </p>
+        {pedido.repetido && (
+          <p className="mt-3 text-[13px] text-suave">
+            Esse pedido já tinha chegado na loja na primeira tentativa. Nada foi enviado em dobro.
+          </p>
+        )}
         <p className="mt-4 inline-flex items-center gap-2 py-2.5 px-4 bg-[#E7F6EC] rounded-xl text-[14px] font-bold text-sucesso">
-          <span aria-hidden="true">🛵</span> Entrega estimada: {config.tempo_entrega_min}–{config.tempo_entrega_max} min
+          Entrega estimada: {config.tempo_entrega_min}–{config.tempo_entrega_max} min
         </p>
 
         <section className="bg-white rounded-2xl p-4 mt-5 text-left shadow-sm text-[14px]">
@@ -96,7 +101,7 @@ export default function ConfirmationPage() {
             <span>{formatarPreco(pedido.total)}</span>
           </div>
           <p className="mt-2 text-suave">
-            Pagamento: {NOMES_PAGAMENTO[pedido.pagamento]}
+            Pagamento: {nomePagamento(pedido.pagamento)}
             {pedido.trocoPara ? ` · troco para ${formatarPreco(pedido.trocoPara)}` : ''}
           </p>
         </section>

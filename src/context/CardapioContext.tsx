@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { indexarOfertas, IndiceOfertas } from '@/lib/carrinho';
 import type { StatusLoja } from '@/lib/horarios';
 import type { Categoria, DadosHome, Produto } from '@/lib/tipos';
 
@@ -10,7 +9,6 @@ interface CardapioContextType {
   status: StatusLoja;
   produtos: Produto[];
   produtoPorId: Map<string, Produto>;
-  indiceOfertas: IndiceOfertas;
   /** categoria do produto (ex.: "Cerveja") → categoria do cardápio */
   categoriaDoProduto: (produto: Produto) => Categoria | undefined;
   produtoAberto: Produto | null;
@@ -29,7 +27,6 @@ export const CardapioProvider: React.FC<{
   const [produtoAbertoId, setProdutoAbertoId] = useState<string | null>(null);
 
   const produtoPorId = useMemo(() => new Map(produtos.map((p) => [p.id, p])), [produtos]);
-  const indiceOfertas = useMemo(() => indexarOfertas(produtos), [produtos]);
   const categoriaPorNome = useMemo(() => {
     const mapa = new Map<string, Categoria>();
     for (const c of home.categorias) for (const nome of c.categorias_produto) if (!mapa.has(nome)) mapa.set(nome, c);
@@ -46,13 +43,12 @@ export const CardapioProvider: React.FC<{
       status,
       produtos,
       produtoPorId,
-      indiceOfertas,
       categoriaDoProduto,
       produtoAberto: produtoAbertoId ? produtoPorId.get(produtoAbertoId) ?? null : null,
       abrirProduto,
       fecharProduto,
     }),
-    [home, status, produtos, produtoPorId, indiceOfertas, categoriaDoProduto, produtoAbertoId, abrirProduto, fecharProduto],
+    [home, status, produtos, produtoPorId, categoriaDoProduto, produtoAbertoId, abrirProduto, fecharProduto],
   );
 
   return <CardapioContext.Provider value={valor}>{children}</CardapioContext.Provider>;

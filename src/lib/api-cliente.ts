@@ -1,9 +1,10 @@
-// Chamadas feitas pelo navegador (checkout): status atualizado da loja,
-// CEP, geocodificação, frete e envio do pedido.
-import { normalizarHome } from './cardapio';
+// Chamadas feitas pelo navegador (checkout): status atualizado da loja, preços
+// atuais, CEP, geocodificação (pelo nosso servidor), frete e envio do pedido.
+import { classificarOfertas, COLUNAS_PRODUTO, normalizarHome, normalizarProduto, paraCliente } from './cardapio';
+import type { MapaOfertas } from './carrinho';
 import { ConexaoPedido, enviarPedido } from './pedido';
 import { cabecalhosSupabase, urlRest } from './supabase';
-import type { DadosHome, Endereco, PayloadPedido, RespostaPedido, ResultadoFrete } from './tipos';
+import type { DadosHome, Endereco, PayloadPedido, Produto, RespostaPedido, ResultadoFrete } from './tipos';
 
 /** Home sem cache — usado no pagamento para conferir se a loja ainda está aberta. */
 export async function buscarHomeAtualizada(): Promise<DadosHome | null> {
@@ -43,46 +44,79 @@ export async function buscarCep(cep: string): Promise<EnderecoViaCep | null> {
   };
 }
 
-async function consultarNominatim(q: string): Promise<{ lat: number; lng: number } | null> {
-  const url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=br&limit=1&q=${encodeURIComponent(q)}`;
-  const r = await fetch(url, { headers: { 'Accept-Language': 'pt-BR' } });
-  if (!r.ok) return null;
-  const dados = (await r.json()) as { lat: string; lon: string }[];
-  if (!dados.length) return null;
-  const lat = parseFloat(dados[0].lat);
-  const lng = parseFloat(dados[0].lon);
-  return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
-}
-
-const esperar = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
-
 /**
- * Lat/lng do endereço pelo Nominatim (mesmo padrão do ERP). Tenta com número,
- * depois só rua/bairro. null = não achou (o banco marca "frete a confirmar").
+ * Lat/lng do endereço pelo nosso servidor (/api/geocodificar, que consulta o
+ * Nominatim com identificação e cache). Plano B: qualquer falha ou endereço não
+ * encontrado devolve null — o pedido segue sem coordenadas e o banco marca
+ * "frete a confirmar".
  */
 export async function geocodificar(e: Endereco): Promise<{ lat: number; lng: number } | null> {
-  const cidade = [e.cidade || 'Rio de Janeiro', e.uf || 'RJ'].join(', ');
-  const tentativas = [
-    [e.rua, e.numero, e.bairro, cidade],
-    [e.rua, e.bairro, cidade],
-  ].map((partes) => partes.filter((p) => p && p.trim()).join(', '));
-
-  for (let i = 0; i < tentativas.length; i++) {
-    try {
-      if (i > 0) await esperar(1100); // política de uso do Nominatim: 1 req/s
-      const achado = await consultarNominatim(tentativas[i]);
-      if (achado) return achado;
-    } catch {
-      // segue para a próxima tentativa
-    }
+  try {
+    const r = await fetch('/api/geocodificar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rua: e.rua, numero: e.numero, bairro: e.bairro, cidade: e.cidade, uf: e.uf }),
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (!r.ok) return null;
+    const d = (await r.json()) as { lat?: unknown; lng?: unknown };
+    const lat = Number(d.lat);
+    const lng = Number(d.lng);
+    return d.lat != null && d.lng != null && Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+  } catch {
+    return null;
   }
-  return null;
+}
+
+/**
+ * Preços atuais (sem cache) só dos produtos da sacola — usado ao abrir o checkout e
+ * o pagamento. null = não deu para conferir (segue com o catálogo da página).
+ */
+export async function buscarProdutosAtualizados(ids: string[]): Promise<Produto[] | null> {
+  const unicos = [...new Set(ids)].filter((id) => /^[0-9a-f-]{36}$/i.test(id));
+  if (!unicos.length) return [];
+  try {
+    const r = await fetch(urlRest(`cardapio_vw_produtos?select=${COLUNAS_PRODUTO}&id=in.(${unicos.join(',')})`), {
+      headers: cabecalhosSupabase(),
+      cache: 'no-store',
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!r.ok) return null;
+    const linhas = (await r.json()) as Record<string, unknown>[];
+    return linhas.map(normalizarProduto).filter((p) => p.ofertas.length > 0).map(paraCliente);
+  } catch {
+    return null;
+  }
+}
+
+/** Mapa oferta → produto/tamanho/variante, só para migrar sacola salva no formato antigo. */
+export async function buscarMapaOfertas(): Promise<MapaOfertas | null> {
+  try {
+    const r = await fetch(urlRest('cardapio_vw_produtos?select=id,nome_original,gelada,ofertas'), {
+      headers: cabecalhosSupabase(),
+      cache: 'no-store',
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!r.ok) return null;
+    const linhas = (await r.json()) as Record<string, unknown>[];
+    const mapa: MapaOfertas = new Map();
+    for (const l of linhas) {
+      const { venda, variantes } = classificarOfertas(l);
+      const produtoId = String(l.id);
+      for (const o of venda) mapa.set(o.id, { produtoId, qtd: o.qtd, variante: false });
+      for (const o of variantes) mapa.set(o.id, { produtoId, qtd: o.qtd, variante: true });
+    }
+    return mapa;
+  } catch {
+    return null;
+  }
 }
 
 /** Frete pelo banco (`cardapio_calcular_frete`, só leitura). */
 export async function calcularFrete(lat: number, lng: number): Promise<ResultadoFrete> {
   const r = await fetch(urlRest('rpc/cardapio_calcular_frete'), {
     method: 'POST',
+    signal: AbortSignal.timeout(10_000),
     headers: cabecalhosSupabase({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ p_lat: lat, p_lng: lng }),
   });

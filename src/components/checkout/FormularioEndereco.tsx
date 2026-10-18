@@ -8,6 +8,7 @@ import { useArmazem } from '@/lib/armazenamento';
 import { buscarCep, calcularFrete, geocodificar } from '@/lib/api-cliente';
 import { freteFinal } from '@/lib/carrinho';
 import { armazemEndereco, armazemFrete, chaveEndereco } from '@/lib/estado-checkout';
+import { useFrete } from '@/lib/frete';
 import { apenasDigitos, formatarPreco, mascararCep } from '@/lib/formatacao';
 import type { Endereco } from '@/lib/tipos';
 
@@ -37,17 +38,20 @@ export const Campo: React.FC<{
 
 type EstadoCep = 'ocioso' | 'buscando' | 'nao-encontrado' | 'erro';
 
-/** Endereço de entrega: CEP → ViaCEP, geocodificação (Nominatim) e frete pelo banco. */
+/**
+ * Endereço de entrega: CEP → ViaCEP, geocodificação (no nosso servidor, que consulta
+ * o Nominatim) e frete pelo banco. Endereço não achado no mapa segue com "frete a confirmar".
+ */
 export const FormularioEndereco: React.FC = () => {
   const { home } = useCardapio();
   const { subtotal } = useCart();
   const [endereco, gravarEndereco] = useArmazem(armazemEndereco);
-  const [freteSalvo, gravarFrete] = useArmazem(armazemFrete);
+  const freteSalvo = useFrete();
   const [estadoCep, setEstadoCep] = useState<EstadoCep>('ocioso');
   const [calculando, setCalculando] = useState(false);
   const [erroFrete, setErroFrete] = useState<string | null>(null);
 
-  const freteValido = freteSalvo && freteSalvo.chave === chaveEndereco(endereco) ? freteSalvo.resultado : null;
+  const freteValido = freteSalvo?.resultado ?? null;
   const podeCalcular = endereco.rua.trim() !== '' && endereco.numero.trim() !== '';
 
   // Qualquer mudança no endereço invalida a localização (e o frete, pela chave).
@@ -89,12 +93,15 @@ export const FormularioEndereco: React.FC = () => {
     setErroFrete(null);
     const alvo = armazemEndereco.ler();
     try {
+      // geocodificar nunca lança: falha ou "não achou" = null (frete a confirmar)
       const ponto = await geocodificar(alvo);
       const resultado = ponto
         ? await calcularFrete(ponto.lat, ponto.lng)
         : { distancia_km: null, frete: null, bloqueado: false };
+      // o cliente pode ter mexido no endereço enquanto calculava
+      if (chaveEndereco(armazemEndereco.ler()) !== chaveEndereco(alvo)) return;
       gravarEndereco((atual) => ({ ...atual, latitude: ponto?.lat ?? null, longitude: ponto?.lng ?? null }));
-      gravarFrete({ chave: chaveEndereco(alvo), resultado });
+      armazemFrete.gravar({ chave: chaveEndereco(alvo), resultado, calculadoEm: Date.now() });
     } catch {
       setErroFrete('Não conseguimos calcular o frete agora. Confira sua internet e tente de novo.');
     } finally {

@@ -6,10 +6,11 @@ import { Minus, Plus, ShoppingBag, Trash2, X } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { formatarPreco } from '@/lib/formatacao';
-import { calcularSubtotal, progressoMinimo } from '@/lib/carrinho';
-import { rotuloOferta, temVersaoQuente } from '@/lib/ofertas';
+import { progressoMinimo } from '@/lib/carrinho';
+import { detalheVariante, descreverVariante } from '@/lib/ofertas';
+import { subtotalCarrinho, totalDaLinha } from '@/lib/precoQuantidade';
 import { ImagemProduto } from '@/components/loja/ImagemProduto';
-import { SeloTemperatura } from '@/components/loja/ProdutoDetalhe';
+import { ResumoCombinacao, SeloTemperatura } from '@/components/loja/ProdutoDetalhe';
 
 /** Barra de progresso com texto (pedido mínimo / frete grátis). */
 export const BarraProgresso: React.FC<{ percentual: number; texto: string; completo: boolean }> = ({
@@ -67,7 +68,7 @@ export const CartDrawer: React.FC = () => {
     config.frete_gratis_acima != null && config.frete_gratis_acima > 0
       ? progressoMinimo(subtotal, config.frete_gratis_acima)
       : null;
-  const subtotalCartao = calcularSubtotal(linhas, 'credito');
+  const subtotalCartao = subtotalCarrinho(linhas, true);
   const vazia = linhas.length === 0;
 
   const continuar = () => {
@@ -135,12 +136,12 @@ export const CartDrawer: React.FC = () => {
             </div>
           )}
 
-          {indisponiveis.length > 0 && (
+          {indisponiveis > 0 && (
             <div className="mt-3 rounded-xl bg-[#FFF8E1] border border-[#F1D58A] p-3 text-[13px] flex items-center gap-2">
               <span className="flex-1">
-                {indisponiveis.length === 1
+                {indisponiveis === 1
                   ? '1 item da sua sacola não está mais disponível.'
-                  : `${indisponiveis.length} itens da sua sacola não estão mais disponíveis.`}
+                  : `${indisponiveis} itens da sua sacola não estão mais disponíveis.`}
               </span>
               <button type="button" onClick={removerIndisponiveis} className="font-bold underline py-1">
                 Remover
@@ -156,51 +157,57 @@ export const CartDrawer: React.FC = () => {
             </div>
           ) : (
             <ul>
-              {linhas.map(({ item, produto, oferta }) => {
-                const rotulo = rotuloOferta(oferta, produto);
+              {linhas.map((linha) => {
+                const { chave, produto, variante, quantidade } = linha;
                 return (
-                  <li key={oferta.id} className="bg-white rounded-xl p-3 mt-2.5 flex gap-3 items-start">
+                  <li key={chave} className="bg-white rounded-xl p-3 mt-2.5 flex gap-3 items-start">
                     <div className="w-[60px] h-[60px] shrink-0 rounded-lg overflow-hidden">
                       <ImagemProduto produto={produto} tamanho="pequena" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[14px] font-medium leading-tight">{produto.nome}</p>
                       <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                        {(rotulo !== 'Unidade' || produto.ofertas.length > 1) && (
+                        <SeloTemperatura quente={produto.quente || variante?.quente === true} />
+                        {variante && (
                           <span className="text-[12px] text-suave">
-                            {rotulo}
-                            {oferta.qtd > 1 && !rotulo.includes(String(oferta.qtd)) ? ` (${oferta.qtd} un)` : ''}
+                            {variante.quente ? detalheVariante(variante) : descreverVariante(variante)}
+                            {variante.qtd > 1 ? ` · ${quantidade * variante.qtd} un` : ''}
                           </span>
                         )}
-                        <SeloTemperatura oferta={oferta} mostrarGelada={temVersaoQuente(produto)} />
                       </div>
+                      {!variante && <ResumoCombinacao produto={produto} unidades={quantidade} className="mt-0.5" />}
                       <div className="flex items-center justify-between mt-2 gap-2">
                         <div className="flex items-center rounded-full border border-borda">
                           <button
                             type="button"
                             className="w-9 h-9 flex items-center justify-center"
-                            onClick={() => alterar(oferta.id, item.quantidade - 1)}
+                            onClick={() => alterar(chave, quantidade - 1)}
                             aria-label={`Diminuir ${produto.nome}`}
                           >
                             <Minus className="w-4 h-4" aria-hidden="true" />
                           </button>
-                          <span className="w-8 text-center text-[14px] font-bold">{item.quantidade}</span>
+                          <span
+                            className="min-w-8 px-1 text-center text-[14px] font-bold tabular-nums"
+                            aria-label={variante ? `${quantidade}` : `${quantidade} unidades`}
+                          >
+                            {quantidade}
+                          </span>
                           <button
                             type="button"
                             className="w-9 h-9 flex items-center justify-center"
-                            onClick={() => alterar(oferta.id, item.quantidade + 1)}
+                            onClick={() => alterar(chave, quantidade + 1)}
                             aria-label={`Aumentar ${produto.nome}`}
                           >
                             <Plus className="w-4 h-4" aria-hidden="true" />
                           </button>
                         </div>
-                        <span className="text-[15px] font-bold">{formatarPreco(oferta.preco * item.quantidade)}</span>
+                        <span className="text-[15px] font-bold tabular-nums">{formatarPreco(totalDaLinha(linha, false))}</span>
                       </div>
                     </div>
                     <button
                       type="button"
                       className="w-9 h-9 -mr-1 -mt-1 flex items-center justify-center text-suave hover:text-perigo"
-                      onClick={() => remover(oferta.id)}
+                      onClick={() => remover(chave)}
                       aria-label={`Remover ${produto.nome} da sacola`}
                     >
                       <Trash2 className="w-[18px] h-[18px]" aria-hidden="true" />

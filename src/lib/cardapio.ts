@@ -1,5 +1,8 @@
 // Leitura do cardápio no servidor (Server Components), com revalidação curta.
 import { cache } from 'react';
+import { normalizarTexto } from './formatacao';
+import { separarVariantes } from './ofertas';
+import { ofertasDeVenda } from './precoQuantidade';
 import { cabecalhosSupabase, urlRest } from './supabase';
 import type {
   Banner,
@@ -8,8 +11,8 @@ import type {
   DadosHome,
   Horario,
   Loja,
-  Oferta,
   Produto,
+  Variante,
   Vitrine,
 } from './tipos';
 
@@ -84,25 +87,43 @@ export function normalizarHome(bruto: Record<string, unknown>): DadosHome {
   };
 }
 
-/** Mantém só os campos que o site usa (o catálogo vai inteiro para o cliente). */
-export function normalizarProduto(p: Record<string, unknown>): Produto {
-  return {
-    id: String(p.id),
-    nome: String(p.nome ?? ''),
-    categoria: String(p.categoria ?? ''),
-    marca: (p.marca as string | null) ?? null,
-    descricao: (p.descricao as string | null)?.trim() || null,
-    imagem_url: (p.imagem_url as string | null) || null,
-    preco: num(p.preco),
-    preco_cartao: num(p.preco_cartao, num(p.preco)),
-    retornavel: p.retornavel === true,
-    gelada: p.gelada !== false,
-    destaque: p.destaque === true,
-    selo: (p.selo as string | null)?.trim() || null,
-    ordem: num(p.ordem, 9999),
-    vendas_recentes: num(p.vendas_recentes),
-    ofertas: lista<Record<string, unknown>>(p.ofertas).map(
-      (o): Oferta => ({
+const ehQuente = (texto: unknown) => /^\s*\[quente\]/i.test(String(texto ?? ''));
+
+/** Colunas da view que o site usa (o resto não vem do banco). */
+export const COLUNAS_PRODUTO =
+  'id,nome,nome_original,categoria,marca,descricao,imagem_url,preco,preco_cartao,retornavel,gelada,selo,ordem,vendas_recentes,ofertas,apelidos';
+
+/** Apelidos/tags sem acento que acrescentam algo ao nome (o resto só pesaria no payload). */
+function apelidosUteis(bruto: unknown, nome: string, marca: string | null, categoria: string): string {
+  const base = normalizarTexto([nome, marca ?? '', categoria].join(' '));
+  const vistos = new Set<string>();
+  for (const a of lista<unknown>(bruto)) {
+    const texto = normalizarTexto(String(a ?? ''));
+    if (!texto || vistos.has(texto)) continue;
+    // apelido cujas palavras já estão todas no nome não ajuda a busca
+    if (texto.split(/\s+/).every((palavra) => base.includes(palavra))) continue;
+    vistos.add(texto);
+  }
+  return [...vistos].join(' ');
+}
+
+/** Produto como vem do banco, com os campos de ordenação (ficam só no servidor). */
+export interface ProdutoOrdenavel extends Produto {
+  ordem: number;
+  vendas_recentes: number;
+}
+
+/** Ofertas do banco com id, já separadas em combinação automática e variantes. */
+export function classificarOfertas(p: Record<string, unknown>): {
+  quente: boolean;
+  venda: Variante[];
+  variantes: Variante[];
+} {
+  // mesma regra do banco: produto é quente pelo nome original ("[Quente] …")
+  const quente = p.nome_original != null ? ehQuente(p.nome_original) : p.gelada === false;
+  const brutas = lista<Record<string, unknown>>(p.ofertas)
+    .map(
+      (o): Variante => ({
         id: String(o.id),
         nome: String(o.nome ?? ''),
         qtd: Math.max(1, num(o.qtd, 1)),
@@ -110,13 +131,55 @@ export function normalizarProduto(p: Record<string, unknown>): Produto {
         preco_cartao: num(o.preco_cartao, num(o.preco)),
         quente: o.quente === true,
       }),
-    ),
+    )
+    .filter((o) => o.preco > 0);
+  return { quente, ...separarVariantes(brutas, quente) };
+}
+
+/**
+ * Mantém só os campos que o site usa (o catálogo vai inteiro para o navegador).
+ * Blocos da combinação vão sem id; variantes (escolha explícita) levam o id da oferta.
+ */
+export function normalizarProduto(p: Record<string, unknown>): ProdutoOrdenavel {
+  const { quente, venda, variantes } = classificarOfertas(p);
+  const nome = String(p.nome ?? '');
+  const categoria = String(p.categoria ?? '');
+  const marca = (p.marca as string | null) ?? null;
+  return {
+    id: String(p.id),
+    nome,
+    categoria,
+    marca,
+    descricao: (p.descricao as string | null)?.trim() || null,
+    imagem_url: (p.imagem_url as string | null) || null,
+    preco: num(p.preco),
+    preco_cartao: num(p.preco_cartao, num(p.preco)),
+    retornavel: p.retornavel === true,
+    selo: (p.selo as string | null)?.trim() || null,
+    quente,
+    apelidos: apelidosUteis(p.apelidos, nome, marca, categoria),
+    // blocos da combinação vão sem id (só a variante precisa dele)
+    ofertas: ofertasDeVenda({
+      quente,
+      ofertas: venda.map((o) => ({ nome: o.nome, qtd: o.qtd, preco: o.preco, preco_cartao: o.preco_cartao, quente: o.quente })),
+    }),
+    variantes,
+    ordem: num(p.ordem, 9999),
+    vendas_recentes: num(p.vendas_recentes),
   };
 }
 
 /** Ordem padrão de listagem: ordem manual → mais vendidos → nome. */
-export function compararProdutos(a: Produto, b: Produto): number {
+export function compararProdutos(a: ProdutoOrdenavel, b: ProdutoOrdenavel): number {
   return a.ordem - b.ordem || b.vendas_recentes - a.vendas_recentes || a.nome.localeCompare(b.nome, 'pt-BR');
+}
+
+/** Tira os campos que só servem para ordenar. */
+export function paraCliente(p: ProdutoOrdenavel): Produto {
+  const produto: Produto & Partial<Pick<ProdutoOrdenavel, 'ordem' | 'vendas_recentes'>> = { ...p };
+  delete produto.ordem;
+  delete produto.vendas_recentes;
+  return produto;
 }
 
 export const buscarHome = cache(async (): Promise<DadosHome> => {
@@ -126,11 +189,12 @@ export const buscarHome = cache(async (): Promise<DadosHome> => {
 });
 
 export const buscarProdutos = cache(async (): Promise<Produto[]> => {
-  const linhas = await consultar<Record<string, unknown>[]>('cardapio_vw_produtos?select=*');
+  const linhas = await consultar<Record<string, unknown>[]>(`cardapio_vw_produtos?select=${COLUNAS_PRODUTO}`);
   return linhas
     .map(normalizarProduto)
     .filter((p) => p.ofertas.length > 0)
-    .sort(compararProdutos);
+    .sort(compararProdutos)
+    .map(paraCliente);
 });
 
 export function produtosDaCategoria(produtos: Produto[], categoria: Categoria): Produto[] {

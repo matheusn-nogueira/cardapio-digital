@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { User } from 'lucide-react';
@@ -8,7 +8,8 @@ import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { useArmazem, useHidratado } from '@/lib/armazenamento';
 import { progressoMinimo } from '@/lib/carrinho';
-import { armazemCliente, armazemDetalhes, armazemEndereco, armazemFrete, chaveEndereco } from '@/lib/estado-checkout';
+import { armazemCliente, armazemDetalhes, armazemEndereco } from '@/lib/estado-checkout';
+import { useFrete } from '@/lib/frete';
 import { apenasDigitos, formatarPreco, mascararTelefone } from '@/lib/formatacao';
 import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
 import { Campo, classeCampo, FormularioEndereco } from '@/components/checkout/FormularioEndereco';
@@ -19,11 +20,16 @@ export default function CheckoutPage() {
   const router = useRouter();
   const hidratado = useHidratado();
   const { home, status } = useCardapio();
-  const { linhas, subtotal, abrirSacola } = useCart();
+  const { linhas, subtotal, abrirSacola, atualizarPrecos, precosMudaram } = useCart();
   const [cliente, gravarCliente] = useArmazem(armazemCliente);
   const [endereco] = useArmazem(armazemEndereco);
-  const [freteSalvo] = useArmazem(armazemFrete);
+  const freteSalvo = useFrete();
   const [detalhes, gravarDetalhes] = useArmazem(armazemDetalhes);
+
+  // A página pode estar com o catálogo em cache: confere os preços da sacola no banco.
+  useEffect(() => {
+    atualizarPrecos();
+  }, [atualizarPrecos]);
 
   if (!hidratado) {
     return (
@@ -47,7 +53,7 @@ export default function CheckoutPage() {
     );
   }
 
-  const frete = freteSalvo && freteSalvo.chave === chaveEndereco(endereco) ? freteSalvo.resultado : null;
+  const frete = freteSalvo?.resultado ?? null;
   const minimo = progressoMinimo(subtotal, home.config.pedido_minimo);
   const nomeOk = cliente.nome.trim().length >= 2;
   const telefoneOk = apenasDigitos(cliente.telefone).length >= 10;
@@ -74,6 +80,12 @@ export default function CheckoutPage() {
               <strong className="text-perigo">{status.titulo}.</strong> {home.config.mensagem_fechado}
               {status.detalhe ? ` ${status.detalhe}.` : ''}
             </div>
+          )}
+
+          {precosMudaram && (
+            <p className="mb-3 rounded-xl bg-[#FFF8E1] border border-[#F1D58A] p-3 text-[14px]" role="status">
+              Alguns preços da sua sacola foram atualizados. Confira o resumo do pedido.
+            </p>
           )}
 
           <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm" aria-labelledby="titulo-dados">
