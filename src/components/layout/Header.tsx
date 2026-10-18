@@ -93,7 +93,7 @@ export const Header: React.FC = () => {
         <div className="flex items-center gap-3 mb-3 max-w-[1100px] mx-auto">
           <Link href="/" className="flex items-center gap-2.5 min-w-0 flex-1" aria-label={`${loja.nome} — início`}>
             {loja.logo_url ? (
-              <Image src={loja.logo_url} alt="" width={80} height={80} priority className="w-10 h-10 rounded-full object-cover bg-white shrink-0" />
+              <Image src={loja.logo_url} alt="" width={96} height={96} priority className="w-12 h-12 object-contain shrink-0 drop-shadow-sm" />
             ) : (
               <span className="w-10 h-10 rounded-full bg-white/70 flex items-center justify-center font-black shrink-0" aria-hidden="true">
                 {loja.nome.charAt(0)}
