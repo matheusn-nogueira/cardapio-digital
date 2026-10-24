@@ -23,16 +23,16 @@ export function marcasDoCatalogo(produtos: Produto[], minimo = 2): string[] {
 export const MarcasLista: React.FC<{ marcas: string[] }> = ({ marcas }) => {
   if (!marcas.length) return null;
   return (
-    <section className="px-4 py-5 bg-white mt-2" aria-labelledby="titulo-marcas">
-      <h2 id="titulo-marcas" className="text-[17px] font-bold tracking-tight mb-3">
-        Marcas
+    <section className="pt-4 pb-6" aria-labelledby="titulo-marcas">
+      <h2 id="titulo-marcas" className="px-4 text-[14px] font-medium uppercase tracking-wide text-rotulo mb-3">
+        Marcas que temos
       </h2>
-      <ul className="flex flex-wrap gap-2">
+      <ul className="flex gap-3 overflow-x-auto no-scrollbar px-4 scroll-px-4 snap-x">
         {marcas.map((marca) => (
-          <li key={marca}>
+          <li key={marca} className="shrink-0 snap-start">
             <Link
               href={`/busca?marca=${encodeURIComponent(marca)}`}
-              className="inline-flex items-center h-10 px-4 rounded-full border border-borda bg-white text-[14px] font-medium"
+              className="w-[112px] h-[112px] rounded-xl bg-bloco flex items-center justify-center p-2 text-center font-condensed font-bold uppercase text-[18px] leading-[1.05] text-tinta break-words"
             >
               {marca}
             </Link>

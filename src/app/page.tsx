@@ -12,13 +12,15 @@ export default async function Home() {
   const categorias = home.categorias.filter((c) => produtosDaCategoria(produtos, c).length > 0);
 
   return (
-    <main className="pb-4 min-h-screen max-w-[1100px] mx-auto">
+    // Fundo branco contínuo, seções separadas só por espaço (como no Zé)
+    <main className="pb-4 min-h-screen max-w-[1100px] mx-auto bg-white">
       <h1 className="sr-only">{home.loja.nome} — cardápio</h1>
       <StatusLojaCard />
       <BannerCarrossel banners={home.banners} />
       <CategoriasLista categorias={categorias} />
+      <MarcasLista marcas={marcasDoCatalogo(produtos)} />
 
-      <div className="bg-white pt-5 pb-1 mt-2">
+      <div className="pt-2 pb-1">
         {home.vitrines.map((v) => (
           <Vitrine
             key={v.id}
@@ -28,8 +30,6 @@ export default async function Home() {
           />
         ))}
       </div>
-
-      <MarcasLista marcas={marcasDoCatalogo(produtos)} />
     </main>
   );
 }

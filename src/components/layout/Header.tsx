@@ -46,7 +46,7 @@ const CampoBusca: React.FC = () => {
       <label htmlFor="campo-busca" className="sr-only">
         Buscar produtos
       </label>
-      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-suave w-5 h-5 pointer-events-none" aria-hidden="true" />
+      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9B9B9B] w-5 h-5 pointer-events-none" aria-hidden="true" />
       <input
         id="campo-busca"
         type="search"
@@ -54,8 +54,8 @@ const CampoBusca: React.FC = () => {
         autoComplete="off"
         value={texto}
         onChange={(e) => buscar(e.target.value)}
-        className="w-full h-12 pr-11 pl-11 rounded-2xl bg-white text-[16px] text-tinta shadow-sm outline-none placeholder:text-suave [&::-webkit-search-cancel-button]:hidden"
-        placeholder="Buscar cerveja, gelo, whisky…"
+        className="w-full h-12 pr-11 pl-12 rounded-lg bg-white text-[16px] text-tinta outline-none placeholder:text-[14px] placeholder:text-[#9B9B9B] [&::-webkit-search-cancel-button]:hidden"
+        placeholder="Pesquise sua bebida favorita"
       />
       {texto && (
         <button
@@ -89,20 +89,19 @@ export const Header: React.FC = () => {
       {config.aviso_topo && (
         <div className="bg-tinta text-white text-[13px] font-medium text-center px-4 py-2">{config.aviso_topo}</div>
       )}
-      <header className="bg-primaria text-primaria-texto pt-3 pb-3 px-4 sticky top-0 z-40 shadow-sm">
-        <div className="flex items-center gap-3 mb-3 max-w-[1100px] mx-auto">
-          <Link href="/" className="flex items-center gap-2.5 min-w-0 flex-1" aria-label={`${loja.nome} — início`}>
-            {loja.logo_url ? (
-              <Image src={loja.logo_url} alt="" width={96} height={96} priority className="w-12 h-12 object-contain shrink-0 drop-shadow-sm" />
-            ) : (
-              <span className="w-10 h-10 rounded-full bg-white/70 flex items-center justify-center font-black shrink-0" aria-hidden="true">
-                {loja.nome.charAt(0)}
-              </span>
-            )}
+      <header className="bg-topo text-white pt-4 pb-4 px-4 sticky top-0 z-40 shadow-md">
+        <div className="flex items-center gap-3 mb-4 max-w-[1100px] mx-auto">
+          <Link href="/" className="flex items-center gap-3 min-w-0 flex-1" aria-label={`${loja.nome} — início`}>
+            <span className="w-11 h-11 rounded-full bg-primaria flex items-center justify-center overflow-hidden shrink-0 font-black text-primaria-texto" aria-hidden="true">
+              {loja.logo_url ? (
+                <Image src={loja.logo_url} alt="" width={96} height={96} priority className="w-10 h-10 object-contain" />
+              ) : (
+                loja.nome.charAt(0)
+              )}
+            </span>
             <span className="min-w-0">
-              <span className="block text-[16px] font-black leading-tight truncate">{loja.nome}</span>
-              <span className="flex items-center gap-1.5 text-[12px] font-medium leading-tight">
-                <span className={`w-2 h-2 rounded-full ${status.aberta ? 'bg-sucesso' : 'bg-perigo'}`} aria-hidden="true" />
+              <span className="block text-[15px] font-bold leading-tight truncate">{loja.nome}</span>
+              <span className={`flex items-center gap-1 text-[14px] font-bold leading-tight mt-0.5 ${status.aberta ? 'text-primaria' : 'text-[#FF8A80]'}`}>
                 <span className="truncate">
                   {status.aberta ? 'Aberto' : 'Fechado'}
                   {status.detalhe ? ` · ${status.detalhe}` : ''}
@@ -113,15 +112,15 @@ export const Header: React.FC = () => {
           <button
             type="button"
             onClick={abrirSacola}
-            className="relative w-11 h-11 rounded-full bg-white/80 flex items-center justify-center shrink-0"
+            className="relative w-11 h-11 rounded-full flex items-center justify-center shrink-0 text-white"
             aria-label={`Abrir sacola${hidratado && quantidadeTotal ? ` (${quantidadeTotal} itens)` : ''}`}
           >
-            <ShoppingBag className="w-5 h-5" aria-hidden="true" />
+            <ShoppingBag className="w-6 h-6" aria-hidden="true" />
             {hidratado && <Badge count={quantidadeTotal} />}
           </button>
         </div>
         <div className="max-w-[1100px] mx-auto">
-          <Suspense fallback={<div className="h-12 rounded-2xl bg-white" />}>
+          <Suspense fallback={<div className="h-12 rounded-lg bg-white" />}>
             <CampoBusca />
           </Suspense>
         </div>

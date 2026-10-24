@@ -40,38 +40,40 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
 
   return (
     <article
-      className={`relative bg-white rounded-2xl p-2.5 shadow-sm border border-borda flex flex-col ${
-        formato === 'carrossel' ? 'w-[148px] shrink-0 snap-start' : 'w-full'
+      className={`relative bg-white rounded-lg shadow-[0_1px_4px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden ${
+        formato === 'carrossel' ? 'w-[136px] shrink-0 snap-start' : 'w-full'
       }`}
     >
       <button
         type="button"
         onClick={() => abrirProduto(produto.id)}
-        className="text-left flex flex-col flex-1 rounded-xl"
+        className="text-left flex flex-col flex-1 rounded-lg"
         aria-label={`Ver ${produto.nome}`}
       >
-        <div className="relative w-full aspect-square mb-2 rounded-xl overflow-hidden bg-white">
+        <div className="relative w-full aspect-square p-3 bg-white">
           <ImagemProduto produto={produto} />
-          <div className="absolute top-1 left-1 flex flex-col items-start gap-1">
+          <div className="absolute top-2 left-2 flex flex-col items-start gap-1">
             {produto.selo && (
-              <span className="bg-tinta text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md">{produto.selo}</span>
+              <span className="bg-desconto text-white text-[11px] font-bold px-1.5 py-0.5 rounded-md">{produto.selo}</span>
             )}
             {(produto.quente || temNatural) && (
-              <span className="bg-[#FFE7CC] text-[#8A4B00] text-[10px] font-bold px-1.5 py-0.5 rounded-md">
+              <span className="bg-bloco text-[#4A4A4A] text-[10px] font-bold px-1.5 py-0.5 rounded-md">
                 {produto.quente ? 'Natural' : 'Também natural'}
               </span>
             )}
           </div>
         </div>
-        <span className="text-[16px] font-bold text-tinta leading-tight tabular-nums">{formatarPreco(unidade)}</span>
-        {bloco ? (
-          <span className="text-[11px] font-medium text-sucesso leading-tight mt-0.5">
-            {rotuloOferta(bloco)} por {formatarPreco(bloco.preco)}
-          </span>
-        ) : produto.quente ? (
-          <span className="text-[11px] font-medium text-suave leading-tight mt-0.5">Natural (sem gelar)</span>
-        ) : null}
-        <span className="text-[13px] text-tinta/80 leading-snug line-clamp-2 mt-1 pr-8">{produto.nome}</span>
+        <div className="flex flex-col flex-1 border-t border-[#EFEFEF] px-2.5 pt-2 pb-2.5">
+          <span className="text-[14px] text-[#4A4A4A] leading-snug line-clamp-2 min-h-[2.5em]">{produto.nome}</span>
+          <span className="text-[18px] font-bold text-tinta leading-tight tabular-nums mt-1.5">{formatarPreco(unidade)}</span>
+          {bloco ? (
+            <span className="text-[11px] font-bold text-sucesso leading-tight mt-0.5 pr-10">
+              {rotuloOferta(bloco)} por {formatarPreco(bloco.preco)}
+            </span>
+          ) : produto.quente ? (
+            <span className="text-[11px] font-medium text-suave leading-tight mt-0.5 pr-10">Natural (sem gelar)</span>
+          ) : null}
+        </div>
       </button>
 
       <button

@@ -18,6 +18,11 @@
   --color-borda: #E6E6E6;
   --color-sucesso: #0F7A3D;
   --color-perigo: #C62828;
+  /* visual estilo Zé Delivery: topo grafite, rótulos de seção cinza, blocos cinza-claro */
+  --color-topo: #333333;
+  --color-rotulo: #6B6B6B;
+  --color-bloco: #F2F2F2;
+  --color-desconto: #E8343B;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-roboto), Arial, Helvetica, sans-serif;

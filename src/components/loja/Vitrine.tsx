@@ -20,16 +20,16 @@ export const Vitrine: React.FC<VitrineProps> = ({ titulo, ids, linkVerTodos }) =
   if (!produtos.length) return null;
 
   return (
-    <section className="mb-6" aria-label={titulo}>
-      <div className="flex items-center justify-between px-4 mb-3">
-        <h2 className="text-[17px] font-bold text-tinta tracking-tight">{titulo}</h2>
+    <section className="mb-7" aria-label={titulo}>
+      <div className="flex items-center justify-between px-4 mb-2">
+        <h2 className="text-[14px] font-medium uppercase tracking-wide text-rotulo">{titulo}</h2>
         {linkVerTodos && (
-          <Link href={linkVerTodos} className="text-[13px] text-sucesso font-bold py-2 pl-3">
+          <Link href={linkVerTodos} className="text-[14px] text-tinta font-bold underline underline-offset-2 py-2 pl-3">
             Ver todos
           </Link>
         )}
       </div>
-      <div className="flex gap-3 overflow-x-auto no-scrollbar px-4 scroll-px-4 pb-2 snap-x">
+      <div className="flex gap-3 overflow-x-auto no-scrollbar px-4 scroll-px-4 pt-1 pb-2 snap-x">
         {produtos.map((produto) => (
           <ProdutoCard key={produto.id} produto={produto} formato="carrossel" />
         ))}

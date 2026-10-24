@@ -21,11 +21,11 @@ function destinoBanner(b: Banner): { href: string; externo: boolean } | null {
 
 // Banner sem foto ganha um fundo em degradê com a cor escolhida no ERP e
 // ilustração de bebidas, para não parecer um bloco vazio.
-const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean }> = ({ banner, primeiro }) => {
+const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean; comLink: boolean }> = ({ banner, primeiro, comLink }) => {
   const cor = corSegura(banner.cor_fundo, '#1A1A1A');
   return (
     <div
-      className="relative h-40 rounded-3xl overflow-hidden flex items-end p-5 shadow-sm"
+      className="relative h-44 rounded-2xl overflow-hidden flex items-end p-5"
       style={{ background: banner.imagem_url ? cor : `linear-gradient(135deg, ${cor} 0%, ${cor} 45%, var(--cor-primaria) 160%)` }}
     >
       {banner.imagem_url ? (
@@ -44,6 +44,11 @@ const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean }> = ({ banne
         <div className="relative z-10 max-w-[70%]">
           {banner.titulo && <h2 className="text-white font-black text-[22px] leading-[1.1] tracking-tight drop-shadow-sm">{banner.titulo}</h2>}
           {banner.subtitulo && <p className="text-white/90 text-[13px] mt-1.5 leading-snug">{banner.subtitulo}</p>}
+          {comLink && (
+            <span className="inline-flex items-center h-9 px-5 mt-3 rounded-lg bg-primaria text-primaria-texto text-[14px] font-bold">
+              Saiba mais
+            </span>
+          )}
         </div>
       )}
     </div>
@@ -102,15 +107,15 @@ export const BannerCarrossel: React.FC<{ banners: Banner[] }> = ({ banners }) =>
               {destino ? (
                 destino.externo ? (
                   <a href={destino.href} target="_blank" rel="noopener noreferrer" className="block rounded-2xl">
-                    <ConteudoBanner banner={banner} primeiro={i === 0} />
+                    <ConteudoBanner banner={banner} primeiro={i === 0} comLink />
                   </a>
                 ) : (
                   <Link href={destino.href} className="block rounded-2xl">
-                    <ConteudoBanner banner={banner} primeiro={i === 0} />
+                    <ConteudoBanner banner={banner} primeiro={i === 0} comLink />
                   </Link>
                 )
               ) : (
-                <ConteudoBanner banner={banner} primeiro={i === 0} />
+                <ConteudoBanner banner={banner} primeiro={i === 0} comLink={false} />
               )}
             </div>
           );
