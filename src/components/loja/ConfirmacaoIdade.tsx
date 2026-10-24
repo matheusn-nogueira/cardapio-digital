@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import { useCardapio } from '@/context/CardapioContext';
 import { criarArmazem, useArmazem, useHidratado } from '@/lib/armazenamento';
 
-const armazemIdade = criarArmazem<boolean>('cdf:maior-de-18', false, { validar: (v) => v === true });
+/** Confirmação de idade lembrada no navegador (os pop-ups de promoção esperam por ela). */
+export const armazemIdade = criarArmazem<boolean>('cdf:maior-de-18', false, { validar: (v) => v === true });
 
 /** Pergunta a idade na primeira visita (se a loja pedir) e lembra a resposta. */
 export const ConfirmacaoIdade: React.FC = () => {

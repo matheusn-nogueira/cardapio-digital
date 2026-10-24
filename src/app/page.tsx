@@ -1,6 +1,7 @@
 import { BannerCarrossel } from '@/components/loja/BannerCarrossel';
 import { CategoriasLista } from '@/components/loja/CategoriasLista';
 import { MarcasLista, marcasDoCatalogo } from '@/components/loja/MarcasLista';
+import { PopupPromo } from '@/components/loja/PopupPromo';
 import { StatusLojaCard } from '@/components/loja/StatusLojaCard';
 import { Vitrine } from '@/components/loja/Vitrine';
 import { buscarHome, buscarProdutos, fotoDaMarca, imagemDaCategoria, produtosDaCategoria } from '@/lib/cardapio';
@@ -19,6 +20,7 @@ export default async function Home() {
     // Fundo branco contínuo, seções separadas só por espaço (como no Zé)
     <main className="pb-4 min-h-screen max-w-[1100px] mx-auto bg-white">
       <h1 className="sr-only">{home.loja.nome} — cardápio</h1>
+      <PopupPromo />
       <StatusLojaCard />
       <BannerCarrossel banners={home.banners} />
       <CategoriasLista categorias={categorias} />
