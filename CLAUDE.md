@@ -11,7 +11,7 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
 ## Commit e deploy
 
 - Commit e push direto no `main`, sem pedir confirmação. Pode acumular mudanças relacionadas num commit só.
-- O deploy é pelo EasyPanel (imagem do `Dockerfile`) a partir deste repo no GitHub. O push no `main` é o deploy; se o painel não estiver ligado ao GitHub, falta só clicar em Deploy lá.
+- O deploy é pelo EasyPanel (imagem do `Dockerfile`), ligado a este repo no GitHub: o push no `main` é o deploy, sem etapa manual. Por isso, só dar push com testes, lint e tipos passando.
 - Mensagem de commit em pt-BR, no formato `tipo: resumo` (`feat:`, `fix:`), sem `Co-Authored-By`.
 - Nunca commitar `.env*` (o `.env.local.example` fica fora do git de propósito).
 
