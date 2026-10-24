@@ -10,12 +10,15 @@ const LOGOS = logos as Record<string, { arquivo: string; fonte: string }>;
  * Marcas reais do catálogo (campo `marca`), ignorando as que são só o nome
  * da categoria (ex.: "Refrigerante") e as que têm um produto só.
  */
+// "Marca" que na verdade é tipo de produto no cadastro ("Água Tônica", "Gelo") fica de fora.
+const NAO_E_MARCA = /^(água|agua|gelo|refrigerante|cerveja|vinho|suco|energético|energetico)\b/i;
+
 export function marcasDoCatalogo(produtos: Produto[], minimo = 2): string[] {
   const categorias = new Set(produtos.map((p) => p.categoria.toLowerCase()));
   const contagem = new Map<string, number>();
   for (const p of produtos) {
     const marca = p.marca?.trim();
-    if (!marca || categorias.has(marca.toLowerCase())) continue;
+    if (!marca || categorias.has(marca.toLowerCase()) || NAO_E_MARCA.test(marca)) continue;
     contagem.set(marca, (contagem.get(marca) ?? 0) + 1);
   }
   return [...contagem.entries()]
@@ -34,9 +37,10 @@ const CORES_MARCA: [RegExp, [string, string]][] = [
   [/heineken/i, ['#007A3D', '#FFFFFF']],
   [/amstel/i, ['#B61C22', '#F0C75E']],
   [/stella/i, ['#EDEDED', '#C8102E']],
-  [/budweiser|bud\b/i, ['#C8102E', '#FFFFFF']],
+  // Budweiser e Spaten: o logo tem texto branco por dentro e vira mancha em silhueta; ficam no claro
+  [/budweiser|bud\b/i, ['#F2F2F2', '#C8102E']],
   [/corona/i, ['#0B2545', '#F2C94C']],
-  [/spaten/i, ['#0B5D3B', '#FFFFFF']],
+  [/spaten/i, ['#F2F2F2', '#0B5D3B']],
   [/imp[eé]rio/i, ['#1A1A1A', '#D4A017']],
   [/itaipava/i, ['#0033A0', '#FFFFFF']],
   [/michelob/i, ['#F2F2F2', '#1B2A4A']],
@@ -78,6 +82,15 @@ function coresDaMarca(nome: string, indice: number): [string, string] {
   return CORES_MARCA.find(([re]) => re.test(nome))?.[1] ?? CORES_SOBRA[indice % CORES_SOBRA.length];
 }
 
+// Logo que fica com as cores originais mesmo em fundo escuro (dourado da Império, selo da Amstel).
+const LOGO_ORIGINAL = [/imp[eé]rio/i, /amstel/i];
+
+function fundoClaro(hex: string): boolean {
+  const n = parseInt(hex.slice(1), 16);
+  const lum = (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+  return lum > 0.6;
+}
+
 const MINIMO_DUAS_LINHAS = 8;
 
 /** Atalhos de marca como letreiros: fundo na cor da marca e o nome em tipografia pesada, em uma ou duas linhas. */
@@ -96,22 +109,35 @@ export const MarcasLista: React.FC<{ marcas: string[] }> = ({ marcas }) => {
       >
         {marcas.map((marca, i) => {
           const logo = LOGOS[marca];
+          const [fundo, texto] = coresDaMarca(marca, i);
           if (logo) {
+            // fundo na cor da marca; em fundo escuro o logo vira silhueta branca (como no Zé),
+            // salvo os que têm cor própria que funciona no escuro
+            const branco = !fundoClaro(fundo) && !LOGO_ORIGINAL.some((re) => re.test(marca));
             return (
               <li key={marca} className="snap-start">
                 <Link
                   href={`/busca?marca=${encodeURIComponent(marca)}`}
                   aria-label={marca}
-                  className="flex items-center justify-center w-[104px] h-[84px] rounded-xl bg-[#F3F3F3] p-3"
+                  className="relative flex items-center justify-center w-[104px] h-[84px] rounded-xl overflow-hidden p-3"
+                  style={{ background: fundo }}
                 >
+                  <span
+                    className="absolute inset-0 pointer-events-none"
+                    style={{ background: 'radial-gradient(circle at 20% 15%, rgba(255,255,255,0.22), transparent 55%)' }}
+                    aria-hidden="true"
+                  />
                   {/* svg/png estático: <img> simples, sem otimizador */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`/marcas/${logo.arquivo}`} alt="" className="max-w-full max-h-full object-contain" />
+                  <img
+                    src={`/marcas/${logo.arquivo}`}
+                    alt=""
+                    className={`relative max-w-full max-h-full object-contain ${branco ? '[filter:brightness(0)_invert(1)]' : ''}`}
+                  />
                 </Link>
               </li>
             );
           }
-          const [fundo, texto] = coresDaMarca(marca, i);
           // palavra comprida ("Antarctica") diminui em vez de quebrar no meio
           const comprida = marca.split(/\s+/).some((p) => p.length > 8);
           return (

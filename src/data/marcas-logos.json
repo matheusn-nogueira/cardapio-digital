@@ -19,6 +19,10 @@
     "arquivo": "heineken.svg",
     "fonte": "https://en.wikipedia.org/wiki/File:Heineken_Logo.svg"
   },
+  "Império": {
+    "arquivo": "imperio.png",
+    "fonte": "https://www.cervejaimperio.com.br/img/logo.png"
+  },
   "Skol": {
     "arquivo": "skol.svg",
     "fonte": "https://en.wikipedia.org/wiki/File:Skol_logo_(2016).svg"
