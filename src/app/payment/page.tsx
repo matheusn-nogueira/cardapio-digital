@@ -221,13 +221,22 @@ export default function PaymentPage() {
           <section className="bg-white rounded-lg p-4 mb-3 shadow-cartao flex items-start gap-3">
             <MapPin className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />
             <div className="flex-1 min-w-0 text-[14px]">
-              <p className="font-bold">
-                {endereco.rua}, {endereco.numero}
-                {endereco.complemento ? ` - ${endereco.complemento}` : ''}
-              </p>
-              <p className="text-suave">
-                {[endereco.bairro, endereco.cidade].filter(Boolean).join(', ')} · {cliente.nome}
-              </p>
+              {endereco.rua.trim() && endereco.numero.trim() ? (
+                <>
+                  <p className="font-bold">
+                    {endereco.rua}, {endereco.numero}
+                    {endereco.complemento ? ` - ${endereco.complemento}` : ''}
+                  </p>
+                  <p className="text-suave">
+                    {[[endereco.bairro, endereco.cidade].filter(Boolean).join(', '), cliente.nome].filter(Boolean).join(' · ')}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-bold">Endereço de entrega não informado</p>
+                  <p className="text-suave">Volte à etapa 1 para preencher.</p>
+                </>
+              )}
             </div>
             <Link href="/checkout" className="text-[13px] font-bold underline py-1 shrink-0">
               Alterar

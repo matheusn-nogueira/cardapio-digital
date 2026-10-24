@@ -20,7 +20,7 @@ function destinoBanner(b: Banner): { href: string; externo: boolean } | null {
 }
 
 // Banner sem foto ganha um fundo em degradê com a cor escolhida no ERP e
-// ilustração de bebidas, para não parecer um bloco vazio.
+// círculos na cor da loja, para não parecer um bloco vazio.
 const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean; comLink: boolean }> = ({ banner, primeiro, comLink }) => {
   const cor = corSegura(banner.cor_fundo, '#1A1A1A');
   return (
@@ -34,10 +34,10 @@ const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean; comLink: boo
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" aria-hidden="true" />
         </>
       ) : (
-        <div className="absolute -right-3 -top-2 flex flex-col items-end gap-1 text-[54px] leading-none rotate-[-8deg] opacity-95 select-none" aria-hidden="true">
-          <span>🍺</span>
-          <span className="mr-12 -mt-4 text-[44px]">🧊</span>
-          <span className="-mt-2 text-[40px]">🥃</span>
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <span className="absolute -right-12 -top-20 w-60 h-60 rounded-full bg-primaria/15" />
+          <span className="absolute right-10 top-16 w-28 h-28 rounded-full bg-primaria/25" />
+          <span className="absolute right-28 -bottom-10 w-24 h-24 rounded-full bg-white/5" />
         </div>
       )}
       {(banner.titulo || banner.subtitulo) && (

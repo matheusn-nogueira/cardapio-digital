@@ -27,11 +27,16 @@ export const PecaTambem: React.FC = () => {
       const nome = `${categoriaDoProduto(p)?.nome ?? ''} ${p.categoria}`;
       return COMPLEMENTOS.findIndex((re) => re.test(nome));
     };
-    const complementos = candidatos
-      .map((p) => ({ p, grupo: grupoDe(p) }))
-      .filter((x) => x.grupo >= 0)
-      .sort((a, b) => a.grupo - b.grupo)
-      .map((x) => x.p);
+    // um de cada grupo por vez (gelo, refri, petisco, gelo…), para a prateleira não virar só gelo
+    const porGrupo = COMPLEMENTOS.map(() => [] as Produto[]);
+    for (const p of candidatos) {
+      const grupo = grupoDe(p);
+      if (grupo >= 0) porGrupo[grupo].push(p);
+    }
+    const complementos: Produto[] = [];
+    for (let i = 0; porGrupo.some((g) => i < g.length); i++) {
+      for (const g of porGrupo) if (i < g.length) complementos.push(g[i]);
+    }
     // completa com a primeira vitrine (mais pedidos) quando os complementos são poucos
     const porId = new Map(candidatos.map((p) => [p.id, p]));
     const usados = new Set(complementos.map((p) => p.id));
@@ -48,30 +53,27 @@ export const PecaTambem: React.FC = () => {
       <h3 className="text-[13px] font-medium uppercase tracking-wide text-rotulo mb-2">Peça também</h3>
       <div className="flex gap-2.5 overflow-x-auto no-scrollbar -mx-3.5 px-3.5 scroll-px-3.5 pb-1 snap-x">
         {sugestoes.map((produto) => (
-          <article
-            key={produto.id}
-            className="relative w-[112px] shrink-0 snap-start bg-white rounded-lg shadow-cartao overflow-hidden"
-          >
-            <div className="w-full aspect-square p-2 bg-white">
+          <article key={produto.id} className="w-[112px] shrink-0 snap-start bg-white rounded-lg shadow-cartao overflow-hidden">
+            <div className="relative w-full aspect-square p-2 bg-white">
               <ImagemProduto produto={produto} />
+              <button
+                type="button"
+                onClick={() => {
+                  adicionar(produto.id, 1);
+                  toastEvent.show(`${produto.nome} na sacola`);
+                }}
+                aria-label={`Adicionar 1 unidade de ${produto.nome} à sacola`}
+                className="absolute bottom-1.5 right-1.5 w-8 h-8 rounded-full bg-primaria text-primaria-texto flex items-center justify-center shadow-md active:scale-95 transition-transform"
+              >
+                <Plus className="w-4 h-4" strokeWidth={3} aria-hidden="true" />
+              </button>
             </div>
             <div className="px-2 pt-1.5 pb-2 border-t border-[#EFEFEF]">
               <span className="block text-[12px] text-[#4A4A4A] leading-snug line-clamp-2 min-h-[2.5em]">{produto.nome}</span>
-              <span className="block text-[14px] font-bold text-tinta tabular-nums mt-1 pr-8">
+              <span className="block text-[14px] font-bold text-tinta tabular-nums mt-1">
                 {formatarPreco(melhorPreco(produto, 1, false).total)}
               </span>
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                adicionar(produto.id, 1);
-                toastEvent.show(`${produto.nome} na sacola`);
-              }}
-              aria-label={`Adicionar 1 unidade de ${produto.nome} à sacola`}
-              className="absolute bottom-1.5 right-1.5 w-8 h-8 rounded-full bg-primaria text-primaria-texto flex items-center justify-center shadow-md active:scale-95 transition-transform"
-            >
-              <Plus className="w-4 h-4" strokeWidth={3} aria-hidden="true" />
-            </button>
           </article>
         ))}
       </div>

@@ -224,3 +224,14 @@ export function produtosDaCategoria(produtos: Produto[], categoria: Categoria): 
   const nomes = new Set(categoria.categorias_produto);
   return produtos.filter((p) => nomes.has(p.categoria));
 }
+
+/** Foto que representa a categoria no atalho da home: a do primeiro produto dela com imagem. */
+export function imagemDaCategoria(categoria: Categoria, produtos: Produto[]): string | null {
+  return produtosDaCategoria(produtos, categoria).find((p) => p.imagem_url)?.imagem_url ?? null;
+}
+
+/** Foto que representa a marca (não há logos no banco): a do primeiro produto dela com imagem. */
+export function fotoDaMarca(marca: string, produtos: Produto[]): string | null {
+  const alvo = marca.trim().toLowerCase();
+  return produtos.find((p) => p.marca?.trim().toLowerCase() === alvo && p.imagem_url)?.imagem_url ?? null;
+}

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import React from 'react';
 import Link from 'next/link';
 import type { Produto } from '@/lib/tipos';
@@ -20,7 +21,14 @@ export function marcasDoCatalogo(produtos: Produto[], minimo = 2): string[] {
     .map(([marca]) => marca);
 }
 
-export const MarcasLista: React.FC<{ marcas: string[] }> = ({ marcas }) => {
+export interface MarcaVitrine {
+  nome: string;
+  /** Foto de um produto da marca (não há logos no banco); null = só o nome. */
+  imagem_url: string | null;
+}
+
+/** Atalhos de marca: quadrado com a foto de um produto e o nome embaixo. */
+export const MarcasLista: React.FC<{ marcas: MarcaVitrine[] }> = ({ marcas }) => {
   if (!marcas.length) return null;
   return (
     <section className="pt-4 pb-6" aria-labelledby="titulo-marcas">
@@ -29,12 +37,23 @@ export const MarcasLista: React.FC<{ marcas: string[] }> = ({ marcas }) => {
       </h2>
       <ul className="flex gap-3 overflow-x-auto no-scrollbar px-4 scroll-px-4 snap-x">
         {marcas.map((marca) => (
-          <li key={marca} className="shrink-0 snap-start">
-            <Link
-              href={`/busca?marca=${encodeURIComponent(marca)}`}
-              className="w-[112px] h-[112px] rounded-xl bg-bloco flex items-center justify-center p-2 text-center font-condensed font-bold uppercase text-[18px] leading-[1.05] text-tinta break-words"
-            >
-              {marca}
+          <li key={marca.nome} className="shrink-0 snap-start w-[96px]">
+            <Link href={`/busca?marca=${encodeURIComponent(marca.nome)}`} className="flex flex-col items-center gap-1.5">
+              <span
+                className={`w-[96px] h-[84px] rounded-xl flex items-center justify-center overflow-hidden ${
+                  marca.imagem_url ? 'bg-white border-2 border-[#EFEFEF] shadow-cartao' : 'bg-bloco'
+                }`}
+                aria-hidden="true"
+              >
+                {marca.imagem_url ? (
+                  <Image src={marca.imagem_url} alt="" width={192} height={168} quality={70} className="w-full h-full object-contain p-2" />
+                ) : (
+                  <span className="px-1 text-center font-condensed font-bold uppercase text-[16px] leading-[1.05] text-tinta break-words">
+                    {marca.nome}
+                  </span>
+                )}
+              </span>
+              <span className="w-full text-center text-[12.5px] font-bold text-[#4A4A4A] leading-tight line-clamp-1">{marca.nome}</span>
             </Link>
           </li>
         ))}
