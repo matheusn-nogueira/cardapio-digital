@@ -4,7 +4,7 @@ import { MarcasLista, marcasDoCatalogo } from '@/components/loja/MarcasLista';
 import { PopupPromo } from '@/components/loja/PopupPromo';
 import { StatusLojaCard } from '@/components/loja/StatusLojaCard';
 import { Vitrine } from '@/components/loja/Vitrine';
-import { buscarHome, buscarProdutos, fotoDaMarca, imagemDaCategoria, produtosDaCategoria } from '@/lib/cardapio';
+import { buscarHome, buscarProdutos, imagemDaCategoria, produtosDaCategoria } from '@/lib/cardapio';
 
 export const revalidate = 60;
 
@@ -14,7 +14,7 @@ export default async function Home() {
   const categorias = home.categorias
     .filter((c) => produtosDaCategoria(produtos, c).length > 0)
     .map((c) => ({ ...c, imagem_url: c.imagem_url ?? imagemDaCategoria(c, produtos) }));
-  const marcas = marcasDoCatalogo(produtos).map((nome) => ({ nome, imagem_url: fotoDaMarca(nome, produtos) }));
+  const marcas = marcasDoCatalogo(produtos);
 
   return (
     // Fundo branco contínuo, seções separadas só por espaço (como no Zé)
