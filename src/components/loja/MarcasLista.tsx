@@ -93,25 +93,30 @@ function fundoClaro(hex: string): boolean {
 
 const MINIMO_DUAS_LINHAS = 8;
 
-/** Atalhos de marca como letreiros: fundo na cor da marca e o nome em tipografia pesada, em uma ou duas linhas. */
+// Com poucos logos a prateleira cai para os letreiros; com logos suficientes, só marcas com logo entram
+const MINIMO_COM_LOGO = 4;
+
+/** Atalhos de marca como no Zé: quadrados na cor da marca com o logo oficial grande. Sem logos, letreiros. */
 export const MarcasLista: React.FC<{ marcas: string[] }> = ({ marcas }) => {
-  if (!marcas.length) return null;
-  const duasLinhas = marcas.length >= MINIMO_DUAS_LINHAS;
+  const comLogo = marcas.filter((m) => LOGOS[m]);
+  const lista = comLogo.length >= MINIMO_COM_LOGO ? comLogo : marcas;
+  if (!lista.length) return null;
+  const duasLinhas = lista.length >= MINIMO_DUAS_LINHAS;
   return (
     <section className="pt-4 pb-6" aria-labelledby="titulo-marcas">
       <h2 id="titulo-marcas" className="px-4 text-[14px] font-medium uppercase tracking-wide text-rotulo mb-3">
         Marcas que temos
       </h2>
       <ul
-        className={`grid grid-flow-col auto-cols-[104px] gap-2.5 overflow-x-auto no-scrollbar px-4 scroll-px-4 pb-1 snap-x ${
+        className={`grid grid-flow-col auto-cols-[92px] gap-3 overflow-x-auto no-scrollbar px-4 scroll-px-4 pb-1 snap-x ${
           duasLinhas ? 'grid-rows-2' : 'grid-rows-1'
         }`}
       >
-        {marcas.map((marca, i) => {
+        {lista.map((marca, i) => {
           const logo = LOGOS[marca];
           const [fundo, texto] = coresDaMarca(marca, i);
           if (logo) {
-            // fundo na cor da marca; em fundo escuro o logo vira silhueta branca (como no Zé),
+            // fundo chapado na cor da marca; em fundo escuro o logo vira silhueta branca (como no Zé),
             // salvo os que têm cor própria que funciona no escuro
             const branco = !fundoClaro(fundo) && !LOGO_ORIGINAL.some((re) => re.test(marca));
             return (
@@ -119,20 +124,15 @@ export const MarcasLista: React.FC<{ marcas: string[] }> = ({ marcas }) => {
                 <Link
                   href={`/busca?marca=${encodeURIComponent(marca)}`}
                   aria-label={marca}
-                  className="relative flex items-center justify-center w-[104px] h-[84px] rounded-xl overflow-hidden p-3"
+                  className="flex items-center justify-center w-[92px] h-[92px] rounded-2xl overflow-hidden p-2.5"
                   style={{ background: fundo }}
                 >
-                  <span
-                    className="absolute inset-0 pointer-events-none"
-                    style={{ background: 'radial-gradient(circle at 20% 15%, rgba(255,255,255,0.22), transparent 55%)' }}
-                    aria-hidden="true"
-                  />
                   {/* svg/png estático: <img> simples, sem otimizador */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={`/marcas/${logo.arquivo}`}
                     alt=""
-                    className={`relative max-w-full max-h-full object-contain ${branco ? '[filter:brightness(0)_invert(1)]' : ''}`}
+                    className={`w-full h-full object-contain ${branco ? '[filter:brightness(0)_invert(1)]' : ''}`}
                   />
                 </Link>
               </li>
@@ -144,15 +144,9 @@ export const MarcasLista: React.FC<{ marcas: string[] }> = ({ marcas }) => {
             <li key={marca} className="snap-start">
               <Link
                 href={`/busca?marca=${encodeURIComponent(marca)}`}
-                className="relative flex items-center justify-center w-[104px] h-[84px] rounded-xl overflow-hidden px-2 text-center"
+                className="relative flex items-center justify-center w-[92px] h-[92px] rounded-2xl overflow-hidden px-2 text-center"
                 style={{ background: fundo, color: texto }}
               >
-                {/* brilho leve no canto, para o bloco não parecer chapado */}
-                <span
-                  className="absolute inset-0 pointer-events-none"
-                  style={{ background: 'radial-gradient(circle at 20% 15%, rgba(255,255,255,0.22), transparent 55%)' }}
-                  aria-hidden="true"
-                />
                 <span
                   className={`relative font-condensed font-bold uppercase leading-[0.95] tracking-tight line-clamp-2 ${
                     comprida ? 'text-[17px]' : 'text-[21px]'
