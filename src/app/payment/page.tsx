@@ -73,7 +73,7 @@ export default function PaymentPage() {
   if (!hidratado) {
     return (
       <main className="min-h-screen bg-fundo">
-        <CabecalhoCheckout voltarPara="/checkout" etapa="Pagamento" />
+        <CabecalhoCheckout voltarPara="/checkout" etapa="Pagamento" etapaAtual={2} />
       </main>
     );
   }
@@ -81,7 +81,7 @@ export default function PaymentPage() {
   if (linhas.length === 0) {
     return (
       <main className="min-h-[70vh] bg-fundo">
-        <CabecalhoCheckout voltarPara="/" etapa="Pagamento" />
+        <CabecalhoCheckout voltarPara="/" etapa="Pagamento" etapaAtual={2} />
         <div className="text-center px-6 py-16">
           <p className="text-[17px] font-bold">Sua sacola está vazia</p>
           <Link href="/" className="mt-4 inline-flex h-12 px-6 items-center rounded-lg bg-primaria text-primaria-texto font-bold">
@@ -212,7 +212,7 @@ export default function PaymentPage() {
 
   return (
     <main className="pb-10 bg-fundo min-h-screen">
-      <CabecalhoCheckout voltarPara="/checkout" etapa="Etapa 2 de 2 · Pagamento" />
+      <CabecalhoCheckout voltarPara="/checkout" etapa="Etapa 2 de 2 · Pagamento" etapaAtual={2} />
 
       <div className="flex flex-col lg:flex-row gap-4 p-4 max-w-[960px] mx-auto">
         <div className="flex-1 min-w-0">

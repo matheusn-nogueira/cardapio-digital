@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Search, ShoppingBag, X } from 'lucide-react';
@@ -54,7 +54,7 @@ const CampoBusca: React.FC = () => {
         autoComplete="off"
         value={texto}
         onChange={(e) => buscar(e.target.value)}
-        className="w-full h-12 pr-11 pl-12 rounded-lg bg-white text-[16px] text-tinta outline-none placeholder:text-[14px] placeholder:text-[#9B9B9B] [&::-webkit-search-cancel-button]:hidden"
+        className="w-full h-11 pr-11 pl-12 rounded-lg bg-white text-[16px] text-tinta outline-none placeholder:text-[14px] placeholder:text-[#9B9B9B] [&::-webkit-search-cancel-button]:hidden"
         placeholder="Pesquise sua bebida favorita"
       />
       {texto && (
@@ -78,6 +78,27 @@ export const Header: React.FC = () => {
   const pathname = usePathname();
   const { loja, config } = home;
 
+  // Rolou a página: a linha da logo recolhe e sobra só a busca (com a sacola ao lado).
+  // Histerese para não piscar perto do limite.
+  const [compacto, setCompacto] = useState(false);
+  useEffect(() => {
+    const aoRolar = () => setCompacto((atual) => (atual ? window.scrollY > 120 : window.scrollY > 200));
+    window.addEventListener('scroll', aoRolar, { passive: true });
+    return () => window.removeEventListener('scroll', aoRolar);
+  }, []);
+
+  const botaoSacola = (
+    <button
+      type="button"
+      onClick={abrirSacola}
+      className="relative w-11 h-11 rounded-full flex items-center justify-center shrink-0 text-white"
+      aria-label={`Abrir sacola${hidratado && quantidadeTotal ? ` (${quantidadeTotal} itens)` : ''}`}
+    >
+      <ShoppingBag className="w-6 h-6" aria-hidden="true" />
+      {hidratado && <Badge count={quantidadeTotal} />}
+    </button>
+  );
+
   if (ROTAS_CHECKOUT.includes(pathname)) {
     return config.aviso_topo ? (
       <div className="bg-tinta text-white text-[13px] text-center px-4 py-2">{config.aviso_topo}</div>
@@ -89,8 +110,13 @@ export const Header: React.FC = () => {
       {config.aviso_topo && (
         <div className="bg-tinta text-white text-[13px] font-medium text-center px-4 py-2">{config.aviso_topo}</div>
       )}
-      <header className="bg-topo text-white pt-4 pb-4 px-4 sticky top-0 z-40 shadow-md">
-        <div className="flex items-center gap-3 mb-4 max-w-[1100px] mx-auto">
+      <header className="bg-topo text-white pt-3 pb-3 px-4 sticky top-0 z-40 shadow-md">
+        <div
+          className={`flex items-center gap-3 max-w-[1100px] mx-auto overflow-hidden transition-all duration-200 ${
+            compacto ? 'max-h-0 opacity-0 mb-0' : 'max-h-12 opacity-100 mb-3'
+          }`}
+          aria-hidden={compacto}
+        >
           <Link href="/" className="flex items-center gap-3 min-w-0 flex-1" aria-label={`${loja.nome} — início`}>
             <span className="w-11 h-11 rounded-full bg-primaria flex items-center justify-center overflow-hidden shrink-0 font-black text-primaria-texto" aria-hidden="true">
               {loja.logo_url ? (
@@ -109,20 +135,15 @@ export const Header: React.FC = () => {
               </span>
             </span>
           </Link>
-          <button
-            type="button"
-            onClick={abrirSacola}
-            className="relative w-11 h-11 rounded-full flex items-center justify-center shrink-0 text-white"
-            aria-label={`Abrir sacola${hidratado && quantidadeTotal ? ` (${quantidadeTotal} itens)` : ''}`}
-          >
-            <ShoppingBag className="w-6 h-6" aria-hidden="true" />
-            {hidratado && <Badge count={quantidadeTotal} />}
-          </button>
+          {!compacto && botaoSacola}
         </div>
-        <div className="max-w-[1100px] mx-auto">
-          <Suspense fallback={<div className="h-12 rounded-lg bg-white" />}>
-            <CampoBusca />
-          </Suspense>
+        <div className="flex items-center gap-2 max-w-[1100px] mx-auto">
+          <div className="flex-1 min-w-0">
+            <Suspense fallback={<div className="h-11 rounded-lg bg-white" />}>
+              <CampoBusca />
+            </Suspense>
+          </div>
+          {compacto && botaoSacola}
         </div>
       </header>
     </>

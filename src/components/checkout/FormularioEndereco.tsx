@@ -13,7 +13,7 @@ import { apenasDigitos, formatarPreco, mascararCep } from '@/lib/formatacao';
 import type { Endereco } from '@/lib/tipos';
 
 export const classeCampo =
-  'w-full h-12 px-3.5 border border-borda rounded-lg text-[16px] text-tinta bg-white outline-none focus:border-tinta aria-[invalid=true]:border-perigo';
+  'w-full h-11 px-3.5 border border-borda rounded-lg text-[16px] text-tinta bg-white outline-none focus:border-tinta aria-[invalid=true]:border-perigo';
 
 export const Campo: React.FC<{
   id: string;

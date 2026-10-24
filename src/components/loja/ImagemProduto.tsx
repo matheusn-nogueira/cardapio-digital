@@ -2,11 +2,30 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { Beer, Candy, Cigarette, CupSoda, Flame, GlassWater, Martini, Package, Snowflake, Wine } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import type { Produto } from '@/lib/tipos';
 
 // Paleta suave para o placeholder (escolhida pelo nome, sempre a mesma por produto).
 const FUNDOS = ['#FFF4D6', '#E8F1FF', '#FDE8E8', '#E7F6EC', '#F1EAFE', '#FFEBD9'];
+
+// Ícone do placeholder pelo tipo de bebida (categoria do cardápio ou do produto).
+const ICONES: [RegExp, React.FC<{ className?: string }>][] = [
+  [/cervej|chopp/i, Beer],
+  [/vinho|espumante/i, Wine],
+  [/destilad|drink|whisk|vodka|cacha|gin|licor/i, Martini],
+  [/gelo/i, Snowflake],
+  [/água|agua/i, GlassWater],
+  [/refri|energ|suco|ch[áa]/i, CupSoda],
+  [/churras|carv/i, Flame],
+  [/bombon|doce|chocolate/i, Candy],
+  [/tabac|cigar/i, Cigarette],
+];
+
+function iconePlaceholder(texto: string, className: string): React.ReactElement {
+  const Icone = ICONES.find(([re]) => re.test(texto))?.[1] ?? Package;
+  return <Icone className={className} />;
+}
 
 function indiceDe(texto: string): number {
   let h = 0;
@@ -42,18 +61,16 @@ export const ImagemProduto: React.FC<{ produto: Produto; tamanho?: 'pequena' | '
     );
   }
 
-  const icone = categoriaDoProduto(produto)?.icone || '🛒';
-  const tamanhoIcone = tamanho === 'grande' ? 'text-[64px]' : tamanho === 'pequena' ? 'text-[24px]' : 'text-[40px]';
+  const tamanhoIcone = tamanho === 'grande' ? 'w-16 h-16' : tamanho === 'pequena' ? 'w-6 h-6' : 'w-10 h-10';
+  const icone = iconePlaceholder(`${categoriaDoProduto(produto)?.nome ?? ''} ${produto.categoria}`, `${tamanhoIcone} text-tinta/35`);
   return (
     <div
-      className="w-full h-full flex flex-col items-center justify-center gap-1 rounded-xl"
+      className="w-full h-full flex flex-col items-center justify-center gap-1.5 rounded-xl"
       style={{ background: FUNDOS[indiceDe(produto.nome)] }}
       role="img"
       aria-label={produto.nome}
     >
-      <span className={tamanhoIcone} aria-hidden="true">
-        {icone}
-      </span>
+      {icone}
       {tamanho !== 'pequena' && (
         <span className="px-2 text-center text-[10px] font-bold uppercase tracking-wide text-tinta/50 line-clamp-1">
           {produto.marca && produto.marca !== produto.categoria ? produto.marca : produto.categoria}

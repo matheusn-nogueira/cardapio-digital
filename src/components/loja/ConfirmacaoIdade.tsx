@@ -24,8 +24,11 @@ export const ConfirmacaoIdade: React.FC = () => {
         aria-describedby="texto-idade"
         className="bg-white rounded-2xl p-6 w-full max-w-[380px] text-center animate-sobe"
       >
-        <div className="text-[44px]" aria-hidden="true">
-          🔞
+        <div
+          className="mx-auto w-16 h-16 rounded-full bg-primaria text-primaria-texto flex items-center justify-center text-[22px] font-black tracking-tight"
+          aria-hidden="true"
+        >
+          18+
         </div>
         {recusou ? (
           <>

@@ -33,7 +33,7 @@ export const ResultadosBusca: React.FC = () => {
                   href={`/categoria/${c.id}`}
                   className="inline-flex items-center gap-1.5 h-11 px-4 rounded-lg bg-bloco text-[14px] font-bold text-[#4A4A4A]"
                 >
-                  <span aria-hidden="true">{c.icone}</span> {c.nome}
+                  {c.nome}
                 </Link>
               </li>
             ))}

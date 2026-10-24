@@ -34,7 +34,7 @@ export default function CheckoutPage() {
   if (!hidratado) {
     return (
       <main className="min-h-screen bg-fundo">
-        <CabecalhoCheckout voltarPara="/" etapa="Entrega" />
+        <CabecalhoCheckout voltarPara="/" etapa="Entrega" etapaAtual={1} />
       </main>
     );
   }
@@ -42,7 +42,7 @@ export default function CheckoutPage() {
   if (linhas.length === 0) {
     return (
       <main className="min-h-[70vh] bg-fundo">
-        <CabecalhoCheckout voltarPara="/" etapa="Entrega" />
+        <CabecalhoCheckout voltarPara="/" etapa="Entrega" etapaAtual={1} />
         <div className="text-center px-6 py-16">
           <p className="text-[17px] font-bold">Sua sacola está vazia</p>
           <Link href="/" className="mt-4 inline-flex h-12 px-6 items-center rounded-lg bg-primaria text-primaria-texto font-bold">
@@ -69,7 +69,7 @@ export default function CheckoutPage() {
 
   return (
     <main className="pb-10 bg-fundo min-h-screen">
-      <CabecalhoCheckout voltarPara="/" etapa="Etapa 1 de 2 · Entrega" />
+      <CabecalhoCheckout voltarPara="/" etapa="Etapa 1 de 2 · Entrega" etapaAtual={1} />
 
       <div className="flex flex-col lg:flex-row gap-4 p-4 max-w-[960px] mx-auto">
         <div className="flex-1 min-w-0">

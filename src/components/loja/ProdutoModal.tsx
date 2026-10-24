@@ -39,6 +39,8 @@ export const ProdutoModal: React.FC = () => {
         className="relative w-full sm:max-w-[440px] max-h-[92vh] overflow-y-auto bg-white rounded-t-2xl sm:rounded-2xl p-4 pb-6 animate-sobe"
       >
         <div className="sticky top-0 z-10 flex justify-end -mb-10">
+          {/* alça da folha no celular, como nos apps: dá a pista de que ela desce */}
+          <span className="absolute left-1/2 -translate-x-1/2 top-0.5 w-10 h-1.5 rounded-full bg-[#D9D9D9] sm:hidden" aria-hidden="true" />
           <button
             ref={botaoFechar}
             type="button"

@@ -72,8 +72,14 @@ export const Footer: React.FC = () => {
         )}
       </div>
 
-      <div className="border-t border-white/15 py-4 px-4 text-center text-[12px] text-white/70">
-        🔞 Beba com moderação. Venda de bebidas alcoólicas proibida para menores de 18 anos.
+      <div className="border-t border-white/15 py-4 px-4 flex items-center justify-center gap-2 text-center text-[12px] text-white/70">
+        <span
+          className="inline-flex items-center justify-center w-7 h-7 rounded-full border border-white/40 text-[10px] font-black text-white shrink-0"
+          aria-hidden="true"
+        >
+          18+
+        </span>
+        <span>Beba com moderação. Venda de bebidas alcoólicas proibida para menores de 18 anos.</span>
       </div>
     </footer>
   );
