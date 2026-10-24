@@ -6,6 +6,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { CartDrawer } from '@/components/layout/CartDrawer';
 import { FloatingCart } from '@/components/ui/FloatingCart';
+import { BarraInferior } from '@/components/layout/BarraInferior';
 import { Toast } from '@/components/ui/Toast';
 import { ProdutoModal } from '@/components/loja/ProdutoModal';
 import { ConfirmacaoIdade } from '@/components/loja/ConfirmacaoIdade';
@@ -78,6 +79,7 @@ export default async function RootLayout({
           {children}
           <Footer />
           <FloatingCart />
+          <BarraInferior />
           <CartDrawer />
           <ProdutoModal />
           <ConfirmacaoIdade />

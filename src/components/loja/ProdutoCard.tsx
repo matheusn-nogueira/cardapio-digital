@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { formatarPreco } from '@/lib/formatacao';
-import { descontoDoBloco, detalheVariante, melhorBloco, precoPorUnidade } from '@/lib/ofertas';
+import { descontoDoBloco, melhorBloco, precoPorUnidade } from '@/lib/ofertas';
 import { melhorPreco } from '@/lib/precoQuantidade';
 import type { Produto } from '@/lib/tipos';
 import { toastEvent } from '@/components/ui/Toast';
@@ -18,18 +18,17 @@ interface ProdutoCardProps {
 }
 
 /**
- * Card de produto: foto com os selos e o "+" por cima, nome e preço embaixo
- * ocupando a largura toda (o "+" sobre a foto deixa o texto respirar).
+ * Card como no app do Zé: foto num bloco cinza-claro com o "+" quadrado amarelo no canto,
+ * e embaixo o preço antes do nome. Com desconto no pack ("Leve + por -"), o preço em verde
+ * é o da unidade no pack, com o preço avulso riscado e a pílula "-N%".
  */
 export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'grade' }) => {
   const { abrirProduto } = useCardapio();
   const { adicionar, unidadesDoProduto } = useCart();
-  // preço de 1 unidade pela mesma regra da sacola; o melhor bloco chama atenção para o desconto
   const unidade = melhorPreco(produto, 1, false).total;
   const bloco = melhorBloco(produto.ofertas);
-  // selo "-6%" só quando o pack sai mais barato que as unidades avulsas
   const desconto = bloco ? descontoDoBloco(bloco, unidade) : 0;
-  const porUnidade = bloco ? precoPorUnidade(bloco, 'pix') : null;
+  const porUnidade = bloco && desconto > 0 ? precoPorUnidade(bloco, 'pix') : null;
   const naSacola = unidadesDoProduto(produto.id);
   const temNatural = !produto.quente && produto.variantes.some((v) => v.quente);
 
@@ -46,25 +45,27 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
     toastEvent.show(`${produto.nome} na sacola`);
   };
 
+  const selo = porUnidade != null ? 'Leve + por -' : produto.selo;
+
   return (
-    <article
-      className={`bg-white rounded-lg shadow-cartao flex flex-col overflow-hidden ${
-        formato === 'carrossel' ? 'w-[140px] shrink-0 snap-start' : 'w-full'
-      }`}
-    >
-      <div className="relative w-full aspect-square bg-white">
-        <button type="button" onClick={abrir} className="absolute inset-0 p-3 text-left" aria-label={`Ver ${produto.nome}`}>
-          <ImagemProduto produto={produto} />
+    <article className={`flex flex-col ${formato === 'carrossel' ? 'w-[150px] shrink-0 snap-start' : 'w-full'}`}>
+      <div className="relative w-full aspect-square rounded-2xl bg-[#F4F4F4]">
+        <button type="button" onClick={abrir} className="absolute inset-0 p-4 rounded-2xl" aria-label={`Ver ${produto.nome}`}>
+          {/* a foto tem fundo branco: multiply funde o branco com o cinza do bloco */}
+          <span className="block w-full h-full mix-blend-multiply">
+            <ImagemProduto produto={produto} />
+          </span>
         </button>
         <div className="absolute top-2 left-2 flex flex-col items-start gap-1 pointer-events-none">
-          {desconto > 0 && (
-            <span className="bg-desconto text-white text-[11px] font-bold px-1.5 py-0.5 rounded-md">-{desconto}%</span>
-          )}
-          {produto.selo && (
-            <span className="bg-desconto text-white text-[11px] font-bold px-1.5 py-0.5 rounded-md">{produto.selo}</span>
+          {selo && (
+            <span
+              className={`text-[12px] font-bold px-2 py-0.5 rounded-full text-white ${porUnidade != null ? 'bg-sucesso' : 'bg-tinta'}`}
+            >
+              {selo}
+            </span>
           )}
           {(produto.quente || temNatural) && (
-            <span className="bg-bloco text-[#4A4A4A] text-[10px] font-bold px-1.5 py-0.5 rounded-md">
+            <span className="bg-white text-[#4A4A4A] text-[11px] font-bold px-2 py-0.5 rounded-full">
               {produto.quente ? 'Natural' : 'Também natural'}
             </span>
           )}
@@ -73,11 +74,11 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
           type="button"
           onClick={aoAdicionar}
           aria-label={pedeEscolha ? `Escolher versão de ${produto.nome}` : `Adicionar 1 unidade de ${produto.nome} à sacola`}
-          className="absolute bottom-2 right-2 w-9 h-9 rounded-full bg-primaria text-primaria-texto flex items-center justify-center shadow-md active:scale-95 transition-transform"
+          className="absolute -bottom-1 -right-1 w-12 h-12 rounded-2xl bg-primaria text-primaria-texto flex items-center justify-center active:scale-95 transition-transform"
         >
-          <Plus className="w-5 h-5" strokeWidth={3} aria-hidden="true" />
+          <Plus className="w-6 h-6" strokeWidth={2.5} aria-hidden="true" />
           {naSacola > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-tinta text-white text-[10px] font-bold flex items-center justify-center">
+            <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 rounded-full bg-tinta text-white text-[11px] font-bold flex items-center justify-center">
               {naSacola}
               <span className="sr-only"> na sacola</span>
             </span>
@@ -86,16 +87,19 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
       </div>
 
       {/* a ação de abrir já está no botão da foto; aqui é só o texto, clicável por conveniência */}
-      <div onClick={abrir} className="flex flex-col flex-1 border-t border-[#EFEFEF] px-2.5 pt-2 pb-2.5 cursor-pointer">
-        <span className="text-[13.5px] text-[#4A4A4A] leading-snug line-clamp-2 min-h-[2.5em]">{produto.nome}</span>
-        <span className="text-[17px] font-bold text-tinta leading-tight tabular-nums mt-1">{formatarPreco(unidade)}</span>
-        {bloco && porUnidade != null ? (
-          <span className="text-[11px] font-bold text-sucesso leading-tight mt-0.5 truncate">
-            {detalheVariante(bloco)} · {formatarPreco(porUnidade)}/un
-          </span>
-        ) : produto.quente ? (
-          <span className="text-[11px] font-medium text-suave leading-tight mt-0.5 truncate">Natural (sem gelar)</span>
-        ) : null}
+      <div onClick={abrir} className="flex flex-col pt-3 cursor-pointer">
+        {porUnidade != null ? (
+          <>
+            <span className="text-[19px] font-bold text-sucesso leading-tight tabular-nums">{formatarPreco(porUnidade)}</span>
+            <span className="flex items-center gap-1.5 mt-0.5 text-[12.5px] text-suave tabular-nums">
+              1un. {formatarPreco(unidade)}
+              <span className="px-1.5 py-px rounded-full bg-sucesso text-white text-[12px] font-bold">-{desconto}%</span>
+            </span>
+          </>
+        ) : (
+          <span className="text-[19px] font-bold text-tinta leading-tight tabular-nums">{formatarPreco(unidade)}</span>
+        )}
+        <span className="text-[15px] text-[#3A3A3A] leading-snug line-clamp-2 mt-1.5">{produto.nome}</span>
       </div>
     </article>
   );

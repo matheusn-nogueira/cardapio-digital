@@ -20,7 +20,7 @@ export const Footer: React.FC = () => {
   ].filter(Boolean);
 
   // Espaço para a barra fixa da sacola nas páginas de compra
-  const espacoSacola = ['/checkout', '/payment', '/confirmation'].includes(pathname) ? '' : 'pb-28';
+  const espacoSacola = ['/checkout', '/payment', '/confirmation'].includes(pathname) ? '' : 'pb-40';
 
   return (
     <footer className={`bg-topo text-white ${espacoSacola}`}>

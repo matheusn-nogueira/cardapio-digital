@@ -87,14 +87,14 @@ export const CartDrawer: React.FC = () => {
         aria-labelledby="titulo-sacola"
         className="fixed top-0 right-0 bottom-0 z-[101] w-[400px] max-w-full bg-fundo flex flex-col shadow-[-4px_0_20px_rgba(0,0,0,0.12)] animate-entra-direita"
       >
-        <div className="flex items-center justify-center relative px-4 h-14 bg-topo text-white shrink-0">
+        <div className="flex items-center justify-center relative px-4 h-14 bg-white text-tinta border-b border-[#EFEFEF] shrink-0">
           <h2 id="titulo-sacola" className="text-[16px] font-bold">
             Sua sacola
           </h2>
           <button
             ref={botaoFechar}
             type="button"
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full text-white"
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full text-tinta"
             onClick={fecharSacola}
             aria-label="Fechar sacola"
           >

@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Search, ShoppingBag, X } from 'lucide-react';
@@ -54,7 +54,8 @@ const CampoBusca: React.FC = () => {
         autoComplete="off"
         value={texto}
         onChange={(e) => buscar(e.target.value)}
-        className="w-full h-11 pr-11 pl-12 rounded-lg bg-white text-[16px] text-tinta outline-none placeholder:text-[14px] placeholder:text-[#9B9B9B] [&::-webkit-search-cancel-button]:hidden"
+        autoFocus={naBusca && !termoUrl}
+        className="w-full h-12 pr-11 pl-12 rounded-xl bg-bloco text-[16px] text-tinta outline-none placeholder:text-[14px] placeholder:text-[#9B9B9B] [&::-webkit-search-cancel-button]:hidden"
         placeholder="Pesquise sua bebida favorita"
       />
       {texto && (
@@ -71,33 +72,14 @@ const CampoBusca: React.FC = () => {
   );
 };
 
+/** Topo claro como o app do Zé: logo, nome e status no meio, sacola à direita. A busca fica só na aba Busca. */
 export const Header: React.FC = () => {
   const { home, status } = useCardapio();
   const { quantidadeTotal, abrirSacola } = useCart();
   const hidratado = useHidratado();
   const pathname = usePathname();
   const { loja, config } = home;
-
-  // Rolou a página: a linha da logo recolhe e sobra só a busca (com a sacola ao lado).
-  // Histerese para não piscar perto do limite.
-  const [compacto, setCompacto] = useState(false);
-  useEffect(() => {
-    const aoRolar = () => setCompacto((atual) => (atual ? window.scrollY > 120 : window.scrollY > 200));
-    window.addEventListener('scroll', aoRolar, { passive: true });
-    return () => window.removeEventListener('scroll', aoRolar);
-  }, []);
-
-  const botaoSacola = (
-    <button
-      type="button"
-      onClick={abrirSacola}
-      className="relative w-11 h-11 rounded-full flex items-center justify-center shrink-0 text-white"
-      aria-label={`Abrir sacola${hidratado && quantidadeTotal ? ` (${quantidadeTotal} itens)` : ''}`}
-    >
-      <ShoppingBag className="w-6 h-6" aria-hidden="true" />
-      {hidratado && <Badge count={quantidadeTotal} />}
-    </button>
-  );
+  const naBusca = pathname === '/busca';
 
   if (ROTAS_CHECKOUT.includes(pathname)) {
     return config.aviso_topo ? (
@@ -110,41 +92,42 @@ export const Header: React.FC = () => {
       {config.aviso_topo && (
         <div className="bg-tinta text-white text-[13px] font-medium text-center px-4 py-2">{config.aviso_topo}</div>
       )}
-      <header className="bg-topo text-white pt-3 pb-3 px-4 sticky top-0 z-40 shadow-md">
-        <div
-          className={`flex items-center gap-3 max-w-[1100px] mx-auto overflow-hidden transition-all duration-200 ${
-            compacto ? 'max-h-0 opacity-0 mb-0' : 'max-h-12 opacity-100 mb-3'
-          }`}
-          aria-hidden={compacto}
-        >
-          <Link href="/" className="flex items-center gap-3 min-w-0 flex-1" aria-label={`${loja.nome} — início`}>
-            <span className="w-11 h-11 rounded-full bg-primaria flex items-center justify-center overflow-hidden shrink-0 font-black text-primaria-texto" aria-hidden="true">
-              {loja.logo_url ? (
-                <Image src={loja.logo_url} alt="" width={96} height={96} priority className="w-10 h-10 object-contain" />
-              ) : (
-                loja.nome.charAt(0)
-              )}
-            </span>
-            <span className="min-w-0">
-              <span className="block text-[15px] font-bold leading-tight truncate">{loja.nome}</span>
-              <span className={`flex items-center gap-1 text-[14px] font-bold leading-tight mt-0.5 ${status.aberta ? 'text-primaria' : 'text-[#FF8A80]'}`}>
-                <span className="truncate">
-                  {status.aberta ? 'Aberto' : 'Fechado'}
-                  {status.fechaEm ?? status.detalhe ? ` · ${status.fechaEm ?? status.detalhe}` : ''}
-                </span>
+      <header className="bg-white text-tinta px-4 sticky top-0 z-40 border-b border-[#EFEFEF]">
+        <div className="h-16 flex items-center gap-3 max-w-[1100px] mx-auto">
+          <Link href="/" className="w-11 h-11 rounded-full bg-primaria flex items-center justify-center overflow-hidden shrink-0 font-black text-primaria-texto" aria-label={`${loja.nome} — início`}>
+            {loja.logo_url ? (
+              <Image src={loja.logo_url} alt="" width={96} height={96} priority className="w-10 h-10 object-contain" />
+            ) : (
+              loja.nome.charAt(0)
+            )}
+          </Link>
+          <div className="min-w-0 flex-1 text-center">
+            <span className="block text-[17px] font-bold leading-tight truncate">{loja.nome}</span>
+            <span className={`inline-flex items-center gap-1.5 text-[13px] font-medium leading-tight mt-0.5 ${status.aberta ? 'text-sucesso' : 'text-perigo'}`}>
+              <span className={`w-2 h-2 rounded-full ${status.aberta ? 'bg-sucesso' : 'bg-perigo'}`} aria-hidden="true" />
+              <span className="truncate">
+                {status.aberta ? 'Aberto' : 'Fechado'}
+                {status.fechaEm ?? status.detalhe ? ` · ${status.fechaEm ?? status.detalhe}` : ''}
               </span>
             </span>
-          </Link>
-          {!compacto && botaoSacola}
+          </div>
+          <button
+            type="button"
+            onClick={abrirSacola}
+            className="relative w-11 h-11 rounded-full bg-bloco flex items-center justify-center shrink-0 text-tinta"
+            aria-label={`Abrir sacola${hidratado && quantidadeTotal ? ` (${quantidadeTotal} itens)` : ''}`}
+          >
+            <ShoppingBag className="w-5 h-5" aria-hidden="true" />
+            {hidratado && <Badge count={quantidadeTotal} />}
+          </button>
         </div>
-        <div className="flex items-center gap-2 max-w-[1100px] mx-auto">
-          <div className="flex-1 min-w-0">
-            <Suspense fallback={<div className="h-11 rounded-lg bg-white" />}>
+        {naBusca && (
+          <div className="max-w-[1100px] mx-auto pb-3">
+            <Suspense fallback={<div className="h-12 rounded-xl bg-bloco" />}>
               <CampoBusca />
             </Suspense>
           </div>
-          {compacto && botaoSacola}
-        </div>
+        )}
       </header>
     </>
   );

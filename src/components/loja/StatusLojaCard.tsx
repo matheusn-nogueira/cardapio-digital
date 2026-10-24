@@ -57,7 +57,7 @@ export const StatusLojaCard: React.FC = () => {
 
       <dl className={`grid gap-2 ${COLUNAS[fatos.length] ?? 'grid-cols-3'}`}>
         {fatos.map((f) => (
-          <div key={f.rotulo} className="rounded-lg bg-bloco px-2 py-2.5 flex flex-col items-center text-center">
+          <div key={f.rotulo} className="rounded-xl border border-[#EFEFEF] px-2 py-2.5 flex flex-col items-center text-center">
             <dt className="flex items-center gap-1 text-[10.5px] uppercase tracking-wide text-rotulo">
               {f.icone}
               <span>{f.rotulo}</span>

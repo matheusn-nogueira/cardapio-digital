@@ -103,8 +103,8 @@ export const MarcasLista: React.FC<{ marcas: string[] }> = ({ marcas }) => {
   if (!lista.length) return null;
   const duasLinhas = lista.length >= MINIMO_DUAS_LINHAS;
   return (
-    <section className="pt-4 pb-6" aria-labelledby="titulo-marcas">
-      <h2 id="titulo-marcas" className="px-4 text-[14px] font-medium uppercase tracking-wide text-rotulo mb-3">
+    <section className="pt-2 pb-7" aria-labelledby="titulo-marcas">
+      <h2 id="titulo-marcas" className="px-4 text-[21px] font-bold text-tinta tracking-tight mb-3">
         Marcas que temos
       </h2>
       <ul
