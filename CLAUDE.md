@@ -18,6 +18,10 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
 - Mensagem de commit em pt-BR, no formato `tipo: resumo` (`feat:`, `fix:`), sem `Co-Authored-By`.
 - Nunca commitar `.env*` (o `.env.local.example` fica fora do git de propósito).
 
+## Logos das marcas
+
+`public/marcas/` tem os logos baixados da Wikipédia por `scripts/baixar-logos-marcas.py` (um argumento `"Marca=wiki:Artigo"` por marca; a Wikipédia devolve 429 com pedidos seguidos, por isso o script pausa). O manifesto `src/data/marcas-logos.json` diz qual marca tem logo; marca sem logo vira letreiro na cor da marca. Marca nova no catálogo: rodar o script para ela e commitar o arquivo e o manifesto.
+
 ## Regras do domínio
 
 - Preço por quantidade: o cliente escolhe unidades e a sacola monta a combinação de blocos mais barata (`src/lib/precoQuantidade.ts`), mesma regra do ERP e do banco (`erp_melhor_preco`). Se mudar aqui, mude lá.

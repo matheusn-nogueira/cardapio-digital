@@ -1,6 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
+import logos from '@/data/marcas-logos.json';
 import type { Produto } from '@/lib/tipos';
+
+// Logos baixados pelo scripts/baixar-logos-marcas.py (public/marcas/); marca sem logo vira letreiro.
+const LOGOS = logos as Record<string, { arquivo: string; fonte: string }>;
 
 /**
  * Marcas reais do catálogo (campo `marca`), ignorando as que são só o nome
@@ -91,6 +95,22 @@ export const MarcasLista: React.FC<{ marcas: string[] }> = ({ marcas }) => {
         }`}
       >
         {marcas.map((marca, i) => {
+          const logo = LOGOS[marca];
+          if (logo) {
+            return (
+              <li key={marca} className="snap-start">
+                <Link
+                  href={`/busca?marca=${encodeURIComponent(marca)}`}
+                  aria-label={marca}
+                  className="flex items-center justify-center w-[104px] h-[84px] rounded-xl bg-[#F3F3F3] p-3"
+                >
+                  {/* svg/png estático: <img> simples, sem otimizador */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`/marcas/${logo.arquivo}`} alt="" className="max-w-full max-h-full object-contain" />
+                </Link>
+              </li>
+            );
+          }
           const [fundo, texto] = coresDaMarca(marca, i);
           // palavra comprida ("Antarctica") diminui em vez de quebrar no meio
           const comprida = marca.split(/\s+/).some((p) => p.length > 8);

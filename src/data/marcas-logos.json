@@ -1,0 +1,34 @@
+{
+  "Amstel": {
+    "arquivo": "amstel.png",
+    "fonte": "https://en.wikipedia.org/wiki/File:AMSTELLOGO.PNG"
+  },
+  "Brahma": {
+    "arquivo": "brahma.svg",
+    "fonte": "https://en.wikipedia.org/wiki/File:Logotipo_da_Brahma_(2025).svg"
+  },
+  "Budweiser": {
+    "arquivo": "budweiser.svg",
+    "fonte": "https://en.wikipedia.org/wiki/File:Budweiser_Anheuser-Busch_logo.svg"
+  },
+  "Corona": {
+    "arquivo": "corona.svg",
+    "fonte": "https://en.wikipedia.org/wiki/File:Corona_Extra.svg"
+  },
+  "Heineken": {
+    "arquivo": "heineken.svg",
+    "fonte": "https://en.wikipedia.org/wiki/File:Heineken_Logo.svg"
+  },
+  "Skol": {
+    "arquivo": "skol.svg",
+    "fonte": "https://en.wikipedia.org/wiki/File:Skol_logo_(2016).svg"
+  },
+  "Spaten": {
+    "arquivo": "spaten.svg",
+    "fonte": "https://de.wikipedia.org/wiki/Datei:Logo_Spaten.svg"
+  },
+  "Stella Artois": {
+    "arquivo": "stella-artois.svg",
+    "fonte": "https://en.wikipedia.org/wiki/File:Stella_Artois_logo.svg"
+  }
+}
