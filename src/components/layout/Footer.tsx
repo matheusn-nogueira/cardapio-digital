@@ -23,7 +23,7 @@ export const Footer: React.FC = () => {
   const espacoSacola = ['/checkout', '/payment', '/confirmation'].includes(pathname) ? '' : 'pb-28';
 
   return (
-    <footer className={`bg-tinta text-white ${espacoSacola}`}>
+    <footer className={`bg-topo text-white ${espacoSacola}`}>
       <div className="max-w-[1100px] mx-auto px-4 py-8 grid gap-7 sm:grid-cols-3">
         <div>
           <h2 className="text-[17px] font-black">{loja.nome}</h2>

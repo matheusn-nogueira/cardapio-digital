@@ -36,7 +36,7 @@ export const Toast: React.FC = () => {
     <div
       role="status"
       aria-live="polite"
-      className={`fixed bottom-24 left-1/2 -translate-x-1/2 z-[300] max-w-[calc(100vw-32px)] bg-tinta text-white py-3 px-5 rounded-xl text-[14px] font-medium shadow-[0_4px_16px_rgba(0,0,0,0.2)] transition-all duration-300 pointer-events-none text-center
+      className={`fixed bottom-24 left-1/2 -translate-x-1/2 z-[300] max-w-[calc(100vw-32px)] bg-topo text-white py-3 px-5 rounded-lg text-[14px] font-medium shadow-[0_4px_16px_rgba(0,0,0,0.2)] transition-all duration-300 pointer-events-none text-center
         ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-[80px] opacity-0'}`}
     >
       {message}

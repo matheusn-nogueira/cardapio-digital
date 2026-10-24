@@ -15,8 +15,8 @@ export const PaymentOption: React.FC<PaymentOptionProps> = ({ id, icon, label, d
       type="button"
       role="radio"
       aria-checked={isSelected}
-      className={`w-full text-left flex items-center gap-3 p-3.5 bg-white rounded-xl mb-2 border-2 transition-colors
-        ${isSelected ? 'border-tinta' : 'border-borda'}`}
+      className={`w-full text-left flex items-center gap-3 p-3.5 rounded-lg mb-2 border-2 transition-colors
+        ${isSelected ? 'border-primaria bg-[color-mix(in_srgb,var(--cor-primaria)_12%,white)]' : 'border-borda bg-white'}`}
       onClick={() => onSelect(id)}
     >
       <span className="w-7 h-7 shrink-0 flex items-center justify-center" aria-hidden="true">

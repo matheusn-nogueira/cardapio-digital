@@ -8,7 +8,7 @@ export default function Erro({ reset }: { error: Error & { digest?: string }; re
       <button
         type="button"
         onClick={reset}
-        className="mt-5 h-12 px-6 rounded-xl bg-primaria text-primaria-texto font-bold text-[15px]"
+        className="mt-5 h-12 px-6 rounded-lg bg-primaria text-primaria-texto font-bold text-[15px]"
       >
         Tentar de novo
       </button>

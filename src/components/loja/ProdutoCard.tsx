@@ -40,7 +40,7 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
 
   return (
     <article
-      className={`relative bg-white rounded-lg shadow-[0_1px_4px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden ${
+      className={`relative bg-white rounded-lg shadow-cartao flex flex-col overflow-hidden ${
         formato === 'carrossel' ? 'w-[136px] shrink-0 snap-start' : 'w-full'
       }`}
     >

@@ -36,7 +36,7 @@ export const ProdutoModal: React.FC = () => {
         role="dialog"
         aria-modal="true"
         aria-labelledby="titulo-produto-modal"
-        className="relative w-full sm:max-w-[440px] max-h-[92vh] overflow-y-auto bg-fundo rounded-t-3xl sm:rounded-3xl p-4 pb-6 animate-sobe"
+        className="relative w-full sm:max-w-[440px] max-h-[92vh] overflow-y-auto bg-white rounded-t-2xl sm:rounded-2xl p-4 pb-6 animate-sobe"
       >
         <div className="sticky top-0 z-10 flex justify-end -mb-10">
           <button
@@ -44,7 +44,7 @@ export const ProdutoModal: React.FC = () => {
             type="button"
             onClick={fecharProduto}
             aria-label="Fechar"
-            className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center"
+            className="w-10 h-10 rounded-full bg-white shadow-cartao flex items-center justify-center"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>

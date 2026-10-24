@@ -68,7 +68,7 @@ const OpcaoVersao: React.FC<{
     role="radio"
     aria-checked={selecionada}
     onClick={aoEscolher}
-    className={`w-full flex items-center gap-3 text-left p-3 rounded-xl border-2 transition-colors ${
+    className={`w-full flex items-center gap-3 text-left p-3 rounded-lg border-2 transition-colors ${
       selecionada ? 'border-primaria bg-primaria/10' : 'border-borda bg-white'
     }`}
   >
@@ -135,13 +135,13 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
 
   return (
     <div className="flex flex-col">
-      <div className="w-full h-[220px] sm:h-[260px] bg-white rounded-2xl overflow-hidden flex items-center justify-center p-3">
+      <div className="w-full h-[220px] sm:h-[260px] bg-white rounded-lg border border-[#EFEFEF] overflow-hidden flex items-center justify-center p-3">
         <ImagemProduto produto={produto} tamanho="grande" />
       </div>
 
       <div className="mt-4 flex flex-wrap gap-1.5">
         {produto.selo && (
-          <span className="bg-tinta text-white text-[11px] font-bold px-1.5 py-0.5 rounded-md">{produto.selo}</span>
+          <span className="bg-desconto text-white text-[11px] font-bold px-1.5 py-0.5 rounded-md">{produto.selo}</span>
         )}
         {produto.retornavel && (
           <span className="bg-[#E7F6EC] text-sucesso text-[11px] font-bold px-1.5 py-0.5 rounded-md">Retornável</span>
@@ -197,12 +197,12 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
             {tabela.map((o) => {
               const porUnidade = precoPorUnidade(o, 'pix');
               return (
-                <li key={o.qtd} className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white border border-borda">
+                <li key={o.qtd} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white border border-borda">
                   <span className="flex-1 min-w-0">
                     <span className="flex flex-wrap items-center gap-1.5">
                       <span className="text-[14px] font-semibold">{rotuloOferta(o)}</span>
                       {ofertaPromocional(o) && (
-                        <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-perigo text-white">Promo</span>
+                        <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-desconto text-white">Promo</span>
                       )}
                     </span>
                     {porUnidade != null && (
@@ -220,13 +220,13 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
       )}
 
       <div className="mt-4 flex items-center gap-3 flex-wrap">
-        <div className="flex items-center rounded-full border border-borda bg-white">
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={() => mudar(quantidade - 1)}
             disabled={quantidade <= 1}
             aria-label="Diminuir quantidade"
-            className="w-11 h-11 flex items-center justify-center disabled:opacity-30"
+            className="w-11 h-11 rounded-full bg-bloco flex items-center justify-center disabled:opacity-30"
           >
             <Minus className="w-4 h-4" aria-hidden="true" />
           </button>
@@ -241,7 +241,7 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
             type="button"
             onClick={() => mudar(quantidade + 1)}
             aria-label="Aumentar quantidade"
-            className="w-11 h-11 flex items-center justify-center"
+            className="w-11 h-11 rounded-full bg-primaria text-primaria-texto flex items-center justify-center"
           >
             <Plus className="w-4 h-4" aria-hidden="true" />
           </button>
@@ -289,7 +289,7 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
       <button
         type="button"
         onClick={confirmar}
-        className="mt-4 w-full h-13 py-3.5 rounded-xl bg-primaria text-primaria-texto font-bold text-[15px] flex items-center justify-between px-5 active:scale-[0.99] transition-transform"
+        className="mt-4 w-full h-13 py-3.5 rounded-lg bg-primaria text-primaria-texto font-bold text-[15px] flex items-center justify-between px-5 active:scale-[0.99] transition-transform"
       >
         <span>Adicionar {!variante && quantidade > 1 ? `${quantidade} un` : ''}</span>
         <span className="tabular-nums">{formatarPreco(total)}</span>

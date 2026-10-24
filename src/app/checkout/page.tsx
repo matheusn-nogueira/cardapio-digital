@@ -45,7 +45,7 @@ export default function CheckoutPage() {
         <CabecalhoCheckout voltarPara="/" etapa="Entrega" />
         <div className="text-center px-6 py-16">
           <p className="text-[17px] font-bold">Sua sacola está vazia</p>
-          <Link href="/" className="mt-4 inline-flex h-12 px-6 items-center rounded-xl bg-primaria text-primaria-texto font-bold">
+          <Link href="/" className="mt-4 inline-flex h-12 px-6 items-center rounded-lg bg-primaria text-primaria-texto font-bold">
             Ver o cardápio
           </Link>
         </div>
@@ -76,20 +76,20 @@ export default function CheckoutPage() {
           <h1 className="text-[20px] font-black mb-3">Para onde vamos levar?</h1>
 
           {!status.aberta && (
-            <div className="mb-3 rounded-xl bg-[#FFF1F1] border border-[#F5C2C2] p-3 text-[14px]">
+            <div className="mb-3 rounded-lg bg-[#FFF1F1] border border-[#F5C2C2] p-3 text-[14px]">
               <strong className="text-perigo">{status.titulo}.</strong> {home.config.mensagem_fechado}
               {status.detalhe ? ` ${status.detalhe}.` : ''}
             </div>
           )}
 
           {precosMudaram && (
-            <p className="mb-3 rounded-xl bg-[#FFF8E1] border border-[#F1D58A] p-3 text-[14px]" role="status">
+            <p className="mb-3 rounded-lg bg-[#FFF8E1] border border-[#F1D58A] p-3 text-[14px]" role="status">
               Alguns preços da sua sacola foram atualizados. Confira o resumo do pedido.
             </p>
           )}
 
-          <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm" aria-labelledby="titulo-dados">
-            <h2 id="titulo-dados" className="text-[15px] font-bold mb-3 flex items-center gap-2">
+          <section className="bg-white rounded-lg p-4 mb-3 shadow-cartao" aria-labelledby="titulo-dados">
+            <h2 id="titulo-dados" className="text-[14px] font-medium uppercase tracking-wide text-rotulo mb-3 flex items-center gap-2">
               <User className="w-5 h-5" aria-hidden="true" /> Seus dados
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -147,7 +147,7 @@ export default function CheckoutPage() {
 
             <button
               type="button"
-              className="w-full h-13 py-3.5 rounded-xl bg-primaria text-primaria-texto text-[15px] font-bold disabled:bg-[#DDD] disabled:text-suave"
+              className="w-full h-13 py-3.5 rounded-lg bg-primaria text-primaria-texto text-[15px] font-bold disabled:bg-[#DDD] disabled:text-suave"
               disabled={pendencias.length > 0}
               onClick={() => router.push('/payment')}
             >

@@ -45,7 +45,7 @@ export default function ConfirmationPage() {
         <CabecalhoCheckout voltarPara="/" />
         <div className="text-center px-6 py-16">
           <p className="text-[17px] font-bold">Nenhum pedido recente por aqui</p>
-          <Link href="/" className="mt-4 inline-flex h-12 px-6 items-center rounded-xl bg-primaria text-primaria-texto font-bold">
+          <Link href="/" className="mt-4 inline-flex h-12 px-6 items-center rounded-lg bg-primaria text-primaria-texto font-bold">
             Ver o cardápio
           </Link>
         </div>
@@ -83,11 +83,11 @@ export default function ConfirmationPage() {
             Esse pedido já tinha chegado na loja na primeira tentativa. Nada foi enviado em dobro.
           </p>
         )}
-        <p className="mt-4 inline-flex items-center gap-2 py-2.5 px-4 bg-[#E7F6EC] rounded-xl text-[14px] font-bold text-sucesso">
+        <p className="mt-4 inline-flex items-center gap-2 py-2.5 px-4 bg-[#E7F6EC] rounded-lg text-[14px] font-bold text-sucesso">
           Entrega estimada: {config.tempo_entrega_min}–{config.tempo_entrega_max} min
         </p>
 
-        <section className="bg-white rounded-2xl p-4 mt-5 text-left shadow-sm text-[14px]">
+        <section className="bg-white rounded-lg p-4 mt-5 text-left shadow-cartao text-[14px]">
           <div className="flex justify-between">
             <span>Subtotal</span>
             <span>{formatarPreco(pedido.subtotal)}</span>
@@ -107,8 +107,8 @@ export default function ConfirmationPage() {
         </section>
 
         {pedido.pagamento === 'pix' && (
-          <section className="bg-white rounded-2xl p-4 mt-3 text-left shadow-sm" aria-labelledby="titulo-pix">
-            <h2 id="titulo-pix" className="text-[15px] font-bold">
+          <section className="bg-white rounded-lg p-4 mt-3 text-left shadow-cartao" aria-labelledby="titulo-pix">
+            <h2 id="titulo-pix" className="text-[14px] font-medium uppercase tracking-wide text-rotulo">
               Pagamento via Pix
             </h2>
             {config.chave_pix ? (
@@ -139,7 +139,7 @@ export default function ConfirmationPage() {
             href={whatsapp}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-5 w-full h-13 py-3.5 rounded-xl bg-[#1F9D55] text-white font-bold text-[15px] flex items-center justify-center gap-2"
+            className="mt-5 w-full h-13 py-3.5 rounded-lg bg-[#1F9D55] text-white font-bold text-[15px] flex items-center justify-center gap-2"
           >
             <MessageCircle className="w-5 h-5" aria-hidden="true" /> Falar no WhatsApp
           </a>
@@ -148,7 +148,7 @@ export default function ConfirmationPage() {
         <Link
           href="/"
           onClick={() => armazemUltimoPedido.gravar(null)}
-          className="mt-3 w-full h-13 py-3.5 rounded-xl bg-primaria text-primaria-texto font-bold text-[15px] flex items-center justify-center"
+          className="mt-3 w-full h-13 py-3.5 rounded-lg bg-primaria text-primaria-texto font-bold text-[15px] flex items-center justify-center"
         >
           Fazer novo pedido
         </Link>

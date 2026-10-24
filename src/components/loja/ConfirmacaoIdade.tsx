@@ -16,13 +16,13 @@ export const ConfirmacaoIdade: React.FC = () => {
   if (!hidratado || !home.config.pedir_confirmacao_idade || confirmado) return null;
 
   return (
-    <div className="fixed inset-0 z-[400] bg-tinta/95 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[400] bg-topo/95 flex items-center justify-center p-4">
       <div
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="titulo-idade"
         aria-describedby="texto-idade"
-        className="bg-white rounded-3xl p-6 w-full max-w-[380px] text-center animate-sobe"
+        className="bg-white rounded-2xl p-6 w-full max-w-[380px] text-center animate-sobe"
       >
         <div className="text-[44px]" aria-hidden="true">
           🔞
@@ -38,7 +38,7 @@ export const ConfirmacaoIdade: React.FC = () => {
             <button
               type="button"
               onClick={() => setRecusou(false)}
-              className="mt-5 w-full h-12 rounded-xl border-2 border-tinta font-bold text-[15px]"
+              className="mt-5 w-full h-12 rounded-lg border-2 border-tinta font-bold text-[15px]"
             >
               Voltar
             </button>
@@ -56,14 +56,14 @@ export const ConfirmacaoIdade: React.FC = () => {
                 type="button"
                 autoFocus
                 onClick={() => gravarConfirmado(true)}
-                className="w-full h-12 rounded-xl bg-primaria text-primaria-texto font-bold text-[15px]"
+                className="w-full h-12 rounded-lg bg-primaria text-primaria-texto font-bold text-[15px]"
               >
                 Sim, tenho 18 anos ou mais
               </button>
               <button
                 type="button"
                 onClick={() => setRecusou(true)}
-                className="w-full h-12 rounded-xl border-2 border-borda font-bold text-[15px] text-tinta"
+                className="w-full h-12 rounded-lg border-2 border-borda font-bold text-[15px] text-tinta"
               >
                 Não
               </button>

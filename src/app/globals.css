@@ -23,6 +23,7 @@
   --color-rotulo: #6B6B6B;
   --color-bloco: #F2F2F2;
   --color-desconto: #E8343B;
+  --shadow-cartao: 0 1px 4px rgba(0, 0, 0, 0.12);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-roboto), Arial, Helvetica, sans-serif;

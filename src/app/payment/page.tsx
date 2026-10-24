@@ -84,7 +84,7 @@ export default function PaymentPage() {
         <CabecalhoCheckout voltarPara="/" etapa="Pagamento" />
         <div className="text-center px-6 py-16">
           <p className="text-[17px] font-bold">Sua sacola está vazia</p>
-          <Link href="/" className="mt-4 inline-flex h-12 px-6 items-center rounded-xl bg-primaria text-primaria-texto font-bold">
+          <Link href="/" className="mt-4 inline-flex h-12 px-6 items-center rounded-lg bg-primaria text-primaria-texto font-bold">
             Ver o cardápio
           </Link>
         </div>
@@ -218,7 +218,7 @@ export default function PaymentPage() {
         <div className="flex-1 min-w-0">
           <h1 className="text-[20px] font-black mb-3">Como você vai pagar?</h1>
 
-          <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm flex items-start gap-3">
+          <section className="bg-white rounded-lg p-4 mb-3 shadow-cartao flex items-start gap-3">
             <MapPin className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />
             <div className="flex-1 min-w-0 text-[14px]">
               <p className="font-bold">
@@ -255,14 +255,14 @@ export default function PaymentPage() {
           </div>
 
           {cartao && subtotal !== subtotalPix && (
-            <p className="rounded-xl bg-[#FFF8E1] border border-[#F1D58A] p-3 text-[13px] mb-3" role="status">
+            <p className="rounded-lg bg-[#FFF8E1] border border-[#F1D58A] p-3 text-[13px] mb-3" role="status">
               No cartão alguns itens têm outro preço: o subtotal passa de {formatarPreco(subtotalPix)} para{' '}
               <strong>{formatarPreco(subtotal)}</strong>.
             </p>
           )}
 
           {pagamento === 'dinheiro' && (
-            <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm">
+            <div className="bg-white rounded-lg p-4 mb-3 shadow-cartao">
               <label htmlFor="troco" className="block text-[14px] font-bold mb-1">
                 Troco para quanto? <span className="font-normal text-suave text-[13px]">(deixe vazio se não precisar)</span>
               </label>
@@ -284,7 +284,7 @@ export default function PaymentPage() {
         <div className="lg:w-[320px] shrink-0">
           <div className="lg:sticky lg:top-20 space-y-3">
             {precosMudaram && !valoresNovos && (
-              <p className="rounded-xl bg-[#FFF8E1] border border-[#F1D58A] p-3 text-[13px]" role="status">
+              <p className="rounded-lg bg-[#FFF8E1] border border-[#F1D58A] p-3 text-[13px]" role="status">
                 Alguns preços da sua sacola foram atualizados. O resumo abaixo já mostra os valores atuais.
               </p>
             )}
@@ -306,7 +306,7 @@ export default function PaymentPage() {
             )}
 
             {valoresNovos ? (
-              <div className="rounded-xl bg-[#FFF8E1] border border-[#F1D58A] p-3 text-[14px]" role="alert">
+              <div className="rounded-lg bg-[#FFF8E1] border border-[#F1D58A] p-3 text-[14px]" role="alert">
                 <p className="font-bold">Os valores do pedido mudaram</p>
                 <p className="text-[13px] mt-0.5">Confira os valores atuais antes de enviar:</p>
                 <dl className="mt-2 space-y-0.5 tabular-nums">
@@ -325,7 +325,7 @@ export default function PaymentPage() {
                 </dl>
                 <button
                   type="button"
-                  className="mt-3 w-full h-12 rounded-xl bg-primaria text-primaria-texto text-[15px] font-black flex items-center justify-center gap-2 disabled:bg-[#DDD] disabled:text-suave"
+                  className="mt-3 w-full h-12 rounded-lg bg-primaria text-primaria-texto text-[15px] font-black flex items-center justify-center gap-2 disabled:bg-[#DDD] disabled:text-suave"
                   disabled={bloqueios.length > 0 || enviando}
                   onClick={() => finalizar(valoresNovos.total)}
                 >
@@ -344,7 +344,7 @@ export default function PaymentPage() {
             ) : (
               <>
                 {erro && (
-                  <div className="rounded-xl bg-[#FFF1F1] border border-[#F5C2C2] p-3 text-[14px]" role="alert">
+                  <div className="rounded-lg bg-[#FFF1F1] border border-[#F5C2C2] p-3 text-[14px]" role="alert">
                     <p className="text-perigo font-medium">{erro.texto}</p>
                     {erro.deRede && (
                       <p className="text-[13px] text-tinta/80 mt-1">
@@ -365,7 +365,7 @@ export default function PaymentPage() {
 
                 <button
                   type="button"
-                  className="w-full h-14 rounded-xl bg-primaria text-primaria-texto text-[16px] font-black flex items-center justify-center gap-2 disabled:bg-[#DDD] disabled:text-suave"
+                  className="w-full h-14 rounded-lg bg-primaria text-primaria-texto text-[16px] font-black flex items-center justify-center gap-2 disabled:bg-[#DDD] disabled:text-suave"
                   disabled={travado}
                   onClick={() => finalizar()}
                 >

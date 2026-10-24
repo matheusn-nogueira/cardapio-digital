@@ -13,7 +13,7 @@ import { apenasDigitos, formatarPreco, mascararCep } from '@/lib/formatacao';
 import type { Endereco } from '@/lib/tipos';
 
 export const classeCampo =
-  'w-full h-12 px-3.5 border border-borda rounded-xl text-[16px] text-tinta bg-white outline-none focus:border-tinta aria-[invalid=true]:border-perigo';
+  'w-full h-12 px-3.5 border border-borda rounded-lg text-[16px] text-tinta bg-white outline-none focus:border-tinta aria-[invalid=true]:border-perigo';
 
 export const Campo: React.FC<{
   id: string;
@@ -112,8 +112,8 @@ export const FormularioEndereco: React.FC = () => {
   const valorFrete = freteValido ? freteFinal(freteValido.frete, subtotal, home.config.frete_gratis_acima) : null;
 
   return (
-    <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm" aria-labelledby="titulo-endereco">
-      <h2 id="titulo-endereco" className="text-[15px] font-bold mb-3 flex items-center gap-2">
+    <section className="bg-white rounded-lg p-4 mb-3 shadow-cartao" aria-labelledby="titulo-endereco">
+      <h2 id="titulo-endereco" className="text-[14px] font-medium uppercase tracking-wide text-rotulo mb-3 flex items-center gap-2">
         <MapPin className="w-5 h-5" aria-hidden="true" /> Endereço de entrega
       </h2>
 
@@ -223,16 +223,16 @@ export const FormularioEndereco: React.FC = () => {
       <div className="mt-4" aria-live="polite">
         {freteValido ? (
           freteValido.bloqueado ? (
-            <p className="rounded-xl bg-[#FFF1F1] border border-[#F5C2C2] p-3 text-[14px] text-perigo font-medium">
+            <p className="rounded-lg bg-[#FFF1F1] border border-[#F5C2C2] p-3 text-[14px] text-perigo font-medium">
               Infelizmente não entregamos nesse endereço
               {freteValido.distancia_km != null ? ` (${freteValido.distancia_km.toLocaleString('pt-BR')} km da loja)` : ''}.
             </p>
           ) : freteValido.frete == null ? (
-            <p className="rounded-xl bg-[#FFF8E1] border border-[#F1D58A] p-3 text-[14px]">
+            <p className="rounded-lg bg-[#FFF8E1] border border-[#F1D58A] p-3 text-[14px]">
               Não achamos esse endereço no mapa. Você pode seguir: a loja confirma o frete com você antes da entrega.
             </p>
           ) : (
-            <p className="rounded-xl bg-[#E7F6EC] border border-[#B7E1C4] p-3 text-[14px] text-sucesso font-medium">
+            <p className="rounded-lg bg-[#E7F6EC] border border-[#B7E1C4] p-3 text-[14px] text-sucesso font-medium">
               Entregamos aí! Frete: {valorFrete === 0 ? 'grátis' : formatarPreco(valorFrete ?? 0)}
               {freteValido.distancia_km != null && (
                 <span className="font-normal text-tinta/70"> · {freteValido.distancia_km.toLocaleString('pt-BR')} km</span>
@@ -244,7 +244,7 @@ export const FormularioEndereco: React.FC = () => {
             type="button"
             onClick={aoCalcularFrete}
             disabled={!podeCalcular || calculando}
-            className="w-full h-12 rounded-xl border-2 border-tinta text-tinta font-bold text-[15px] flex items-center justify-center gap-2 disabled:opacity-40"
+            className="w-full h-12 rounded-lg border-2 border-tinta text-tinta font-bold text-[15px] flex items-center justify-center gap-2 disabled:opacity-40"
           >
             {calculando && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
             {calculando ? 'Calculando frete…' : podeCalcular ? 'Confirmar endereço e calcular frete' : 'Preencha rua e número'}
