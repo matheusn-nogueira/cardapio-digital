@@ -1,8 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  descontoDoBloco,
   detalheVariante,
   melhorBloco,
+  precoCheio,
   precoOferta,
   rotuloOferta,
   rotuloPadrao,
@@ -64,4 +66,12 @@ test('variantes: bloco quente de produto gelado e unidade mais cara (vasilhame)'
   const v = (o: Oferta) => ({ ...o, id: 'x' });
   assert.equal(rotuloPadrao({ ofertas: [un, pack], variantes: [v(packQuente)] }), 'Gelada');
   assert.equal(rotuloPadrao({ ofertas: [liquido], variantes: [v(vasilhame)] }), 'Somente o líquido');
+});
+
+test('desconto e preço cheio do bloco em relação às unidades avulsas', () => {
+  const pack = oferta({ nome: 'Pack Amstel', qtd: 12, preco: 54 });
+  assert.equal(precoCheio(pack, 4.5), 54);
+  assert.equal(descontoDoBloco(pack, 4.5), 0);
+  assert.equal(descontoDoBloco(oferta({ nome: 'Pack Amstel', qtd: 12, preco: 50.76 }), 4.5), 6);
+  assert.equal(descontoDoBloco(oferta({ qtd: 1, preco: 4 }), 4.5), 0);
 });

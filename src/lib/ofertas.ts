@@ -66,6 +66,19 @@ export function precoPorUnidade(oferta: Oferta, forma: FormaPagamento | null | u
   return precoOferta(oferta, forma) / oferta.qtd;
 }
 
+/** Preço "cheio" do bloco: as mesmas unidades compradas avulsas (o "de" do preço riscado). */
+export function precoCheio(oferta: Oferta, precoUnidade: number): number {
+  return Math.round(oferta.qtd * precoUnidade * 100) / 100;
+}
+
+/** Desconto do bloco em relação às unidades avulsas, em % inteiro (0 quando não compensa). */
+export function descontoDoBloco(oferta: Oferta, precoUnidade: number): number {
+  if (oferta.qtd <= 1 || precoUnidade <= 0) return 0;
+  const cheio = precoCheio(oferta, precoUnidade);
+  if (oferta.preco >= cheio) return 0;
+  return Math.round((1 - oferta.preco / cheio) * 100);
+}
+
 
 // --- versões de escolha explícita (variantes) ---
 

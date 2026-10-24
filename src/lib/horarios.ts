@@ -52,8 +52,25 @@ export interface StatusLoja {
   titulo: string;
   /** "Fecha às 02:00", "Abre hoje às 18:00"… */
   detalhe: string | null;
+  /** "Fecha em 3h 24min" (só aberta e com turno conhecido); null nos outros casos. */
+  fechaEm: string | null;
   /** "Hoje: 18:00 às 02:00" */
   horarioHoje: string;
+}
+
+/** Minutos até o fim do turno (turno que vira a meia-noite conta até o dia seguinte). */
+export function minutosAteFechar(turno: Horario, agora: MomentoLocal): number {
+  const falta = minutosDe(turno.fecha) - agora.minutos;
+  return viraMeiaNoite(turno) && agora.minutos >= minutosDe(turno.abre) ? falta + 24 * 60 : falta;
+}
+
+/** "Fecha em 3h 24min", "Fecha em 45 min", "Fecha em instantes". */
+export function textoFechaEm(minutos: number): string {
+  if (minutos < 1) return 'Fecha em instantes';
+  const h = Math.floor(minutos / 60);
+  const m = minutos % 60;
+  if (h === 0) return `Fecha em ${m} min`;
+  return m === 0 ? `Fecha em ${h}h` : `Fecha em ${h}h ${m}min`;
 }
 
 export function descreverStatus(
@@ -68,30 +85,37 @@ export function descreverStatus(
   const horarioHoje = `Hoje: ${faixaHorario(hoje)}`;
 
   if (aberta) {
-    if (config.status_loja === 'aberto') return { aberta, titulo: 'Aberto agora', detalhe: null, horarioHoje };
+    if (config.status_loja === 'aberto') {
+      return { aberta, titulo: 'Aberto agora', detalhe: null, fechaEm: null, horarioHoje };
+    }
     // Turno de ontem que atravessou a meia-noite ainda valendo?
     const turno =
       ontem && ontem.aberto && viraMeiaNoite(ontem) && agora.minutos < minutosDe(ontem.fecha) ? ontem : hoje;
+    // turno já vencido (status manual ou página antiga) fica só com "Fecha às"
+    const falta = turno?.aberto ? minutosAteFechar(turno, agora) : null;
     return {
       aberta,
       titulo: 'Aberto agora',
       detalhe: turno?.aberto ? `Fecha às ${hhmm(turno.fecha)}` : null,
+      fechaEm: falta != null && falta >= 0 ? textoFechaEm(falta) : null,
       horarioHoje,
     };
   }
 
-  if (config.status_loja === 'fechado') return { aberta, titulo: 'Fechado agora', detalhe: null, horarioHoje };
+  if (config.status_loja === 'fechado') {
+    return { aberta, titulo: 'Fechado agora', detalhe: null, fechaEm: null, horarioHoje };
+  }
 
   if (hoje?.aberto && agora.minutos < minutosDe(hoje.abre)) {
-    return { aberta, titulo: 'Fechado agora', detalhe: `Abre hoje às ${hhmm(hoje.abre)}`, horarioHoje };
+    return { aberta, titulo: 'Fechado agora', detalhe: `Abre hoje às ${hhmm(hoje.abre)}`, fechaEm: null, horarioHoje };
   }
   for (let i = 1; i <= 7; i++) {
     const dia = (agora.dia + i) % 7;
     const h = porDia.get(dia);
     if (h?.aberto) {
       const quando = i === 1 ? 'amanhã' : NOMES_DIAS[dia];
-      return { aberta, titulo: 'Fechado agora', detalhe: `Abre ${quando} às ${hhmm(h.abre)}`, horarioHoje };
+      return { aberta, titulo: 'Fechado agora', detalhe: `Abre ${quando} às ${hhmm(h.abre)}`, fechaEm: null, horarioHoje };
     }
   }
-  return { aberta, titulo: 'Fechado agora', detalhe: null, horarioHoje };
+  return { aberta, titulo: 'Fechado agora', detalhe: null, fechaEm: null, horarioHoje };
 }

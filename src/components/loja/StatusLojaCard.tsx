@@ -34,6 +34,7 @@ export const StatusLojaCard: React.FC = () => {
           <li className="flex items-center gap-1.5">
             <Bike className="w-4 h-4" aria-hidden="true" /> Entrega em {config.tempo_entrega_min}–{config.tempo_entrega_max} min
           </li>
+          {home.frete_minimo != null && home.frete_minimo > 0 && <li>Entrega a partir de {formatarPreco(home.frete_minimo)}</li>}
           {config.pedido_minimo > 0 && <li>Pedido mínimo {formatarPreco(config.pedido_minimo)}</li>}
           {config.frete_gratis_acima != null && config.frete_gratis_acima > 0 && (
             <li className="text-sucesso font-medium">Frete grátis acima de {formatarPreco(config.frete_gratis_acima)}</li>

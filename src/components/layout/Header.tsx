@@ -104,7 +104,7 @@ export const Header: React.FC = () => {
               <span className={`flex items-center gap-1 text-[14px] font-bold leading-tight mt-0.5 ${status.aberta ? 'text-primaria' : 'text-[#FF8A80]'}`}>
                 <span className="truncate">
                   {status.aberta ? 'Aberto' : 'Fechado'}
-                  {status.detalhe ? ` · ${status.detalhe}` : ''}
+                  {status.fechaEm ?? status.detalhe ? ` · ${status.fechaEm ?? status.detalhe}` : ''}
                 </span>
               </span>
             </span>

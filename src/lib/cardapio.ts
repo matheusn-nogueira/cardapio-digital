@@ -77,6 +77,7 @@ export function normalizarHome(bruto: Record<string, unknown>): DadosHome {
       chave_pix: cfg.chave_pix?.trim() || null,
     },
     aberta: bruto.aberta === true,
+    frete_minimo: null,
     horarios: lista<Horario>(bruto.horarios),
     banners: lista<Banner>(bruto.banners).map((b) => ({ ...b, ordem: num(b.ordem) })),
     categorias: lista<Categoria>(bruto.categorias).map((c) => ({
@@ -182,10 +183,32 @@ export function paraCliente(p: ProdutoOrdenavel): Produto {
   return produto;
 }
 
+/**
+ * Menor taxa de entrega: o frete calculado no ponto da própria loja (faixa de 0 km).
+ * null quando a loja não tem localização, não há faixa ou o banco não responde.
+ */
+async function buscarFreteMinimo(loja: Loja): Promise<number | null> {
+  if (loja.latitude == null || loja.longitude == null) return null;
+  try {
+    const resposta = await fetch(urlRest('rpc/cardapio_calcular_frete'), {
+      method: 'POST',
+      headers: cabecalhosSupabase({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ p_lat: loja.latitude, p_lng: loja.longitude }),
+      next: { revalidate: REVALIDAR_SEGUNDOS * 5 },
+    });
+    if (!resposta.ok) return null;
+    const d = (await resposta.json()) as { frete?: unknown; bloqueado?: unknown };
+    return d.bloqueado === true ? null : numOuNulo(d.frete);
+  } catch {
+    return null;
+  }
+}
+
 export const buscarHome = cache(async (): Promise<DadosHome> => {
   const linhas = await consultar<{ dados: Record<string, unknown> }[]>('cardapio_vw_home?select=dados');
   if (!linhas[0]?.dados) throw new Error('cardapio_vw_home vazia');
-  return normalizarHome(linhas[0].dados);
+  const home = normalizarHome(linhas[0].dados);
+  return { ...home, frete_minimo: await buscarFreteMinimo(home.loja) };
 });
 
 export const buscarProdutos = cache(async (): Promise<Produto[]> => {

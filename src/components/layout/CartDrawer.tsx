@@ -10,6 +10,7 @@ import { progressoMinimo } from '@/lib/carrinho';
 import { detalheVariante, descreverVariante } from '@/lib/ofertas';
 import { subtotalCarrinho, totalDaLinha } from '@/lib/precoQuantidade';
 import { ImagemProduto } from '@/components/loja/ImagemProduto';
+import { PecaTambem } from '@/components/loja/PecaTambem';
 import { ResumoCombinacao, SeloTemperatura } from '@/components/loja/ProdutoDetalhe';
 
 /** Barra de progresso com texto (pedido mínimo / frete grátis). */
@@ -217,6 +218,7 @@ export const CartDrawer: React.FC = () => {
               })}
             </ul>
           )}
+          {!vazia && <PecaTambem />}
         </div>
 
         <div className="bg-white p-4 pb-[max(16px,env(safe-area-inset-bottom))] shrink-0 border-t border-borda">

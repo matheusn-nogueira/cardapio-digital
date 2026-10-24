@@ -5,8 +5,10 @@ import { Minus, Plus, Snowflake } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatarPreco } from '@/lib/formatacao';
 import {
+  descontoDoBloco,
   detalheVariante,
   ofertaPromocional,
+  precoCheio,
   precoPorUnidade,
   rotuloOferta,
   rotuloPadrao,
@@ -171,14 +173,17 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
               icone={temNatural ? <Snowflake className="w-3.5 h-3.5" aria-hidden="true" /> : undefined}
             />
             {produto.variantes.map((v) => {
-              const detalhe = detalheVariante(v);
+              // pack com preço fechado mostra quanto sai cada unidade
+              const detalhe = [detalheVariante(v), v.qtd > 1 ? `${formatarPreco(v.preco / v.qtd)}/un` : null]
+                .filter(Boolean)
+                .join(' · ');
               return (
                 <OpcaoVersao
                   key={v.id}
                   selecionada={variante?.id === v.id}
                   aoEscolher={() => escolher(v.id)}
                   titulo={rotuloVariante(v)}
-                  detalhe={detalhe}
+                  detalhe={detalhe || null}
                   preco={formatarPreco(v.preco)}
                 />
               );
@@ -196,13 +201,19 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
           <ul className="flex flex-col gap-1.5">
             {tabela.map((o) => {
               const porUnidade = precoPorUnidade(o, 'pix');
+              // preço riscado = as mesmas unidades avulsas; selo com o desconto do bloco
+              const desconto = descontoDoBloco(o, unidadePadrao);
               return (
                 <li key={o.qtd} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white border border-borda">
                   <span className="flex-1 min-w-0">
                     <span className="flex flex-wrap items-center gap-1.5">
                       <span className="text-[14px] font-semibold">{rotuloOferta(o)}</span>
-                      {ofertaPromocional(o) && (
-                        <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-desconto text-white">Promo</span>
+                      {desconto > 0 ? (
+                        <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-desconto text-white">-{desconto}%</span>
+                      ) : (
+                        ofertaPromocional(o) && (
+                          <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-desconto text-white">Promo</span>
+                        )
                       )}
                     </span>
                     {porUnidade != null && (
@@ -211,7 +222,12 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
                       </span>
                     )}
                   </span>
-                  <span className="text-[15px] font-bold shrink-0 tabular-nums">{formatarPreco(o.preco)}</span>
+                  <span className="shrink-0 text-right tabular-nums">
+                    {desconto > 0 && (
+                      <span className="block text-[11px] text-suave line-through">{formatarPreco(precoCheio(o, unidadePadrao))}</span>
+                    )}
+                    <span className="text-[15px] font-bold">{formatarPreco(o.preco)}</span>
+                  </span>
                 </li>
               );
             })}

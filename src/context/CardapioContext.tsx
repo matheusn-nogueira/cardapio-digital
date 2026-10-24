@@ -1,7 +1,8 @@
 'use client';
 
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import type { StatusLoja } from '@/lib/horarios';
+import { descreverStatus, type StatusLoja } from '@/lib/horarios';
+import { useMinutoAtual } from '@/lib/relogio';
 import type { Categoria, DadosHome, Produto } from '@/lib/tipos';
 
 interface CardapioContextType {
@@ -26,6 +27,13 @@ export const CardapioProvider: React.FC<{
 }> = ({ home, status, produtos, children }) => {
   const [produtoAbertoId, setProdutoAbertoId] = useState<string | null>(null);
 
+  // "Fecha em 3h 24min" precisa andar: o status do servidor vale na hidratação; depois recalcula a cada minuto.
+  const minuto = useMinutoAtual();
+  const statusAoVivo = useMemo(
+    () => (minuto == null ? status : descreverStatus(home.aberta, home.config, home.horarios)),
+    [minuto, status, home.aberta, home.config, home.horarios],
+  );
+
   const produtoPorId = useMemo(() => new Map(produtos.map((p) => [p.id, p])), [produtos]);
   const categoriaPorNome = useMemo(() => {
     const mapa = new Map<string, Categoria>();
@@ -40,7 +48,7 @@ export const CardapioProvider: React.FC<{
   const valor = useMemo(
     () => ({
       home,
-      status,
+      status: statusAoVivo,
       produtos,
       produtoPorId,
       categoriaDoProduto,
@@ -48,7 +56,7 @@ export const CardapioProvider: React.FC<{
       abrirProduto,
       fecharProduto,
     }),
-    [home, status, produtos, produtoPorId, categoriaDoProduto, produtoAbertoId, abrirProduto, fecharProduto],
+    [home, statusAoVivo, produtos, produtoPorId, categoriaDoProduto, produtoAbertoId, abrirProduto, fecharProduto],
   );
 
   return <CardapioContext.Provider value={valor}>{children}</CardapioContext.Provider>;

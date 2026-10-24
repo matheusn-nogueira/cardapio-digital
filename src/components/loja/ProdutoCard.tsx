@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { formatarPreco } from '@/lib/formatacao';
-import { melhorBloco, rotuloOferta } from '@/lib/ofertas';
+import { descontoDoBloco, melhorBloco, precoPorUnidade, rotuloOferta } from '@/lib/ofertas';
 import { melhorPreco } from '@/lib/precoQuantidade';
 import type { Produto } from '@/lib/tipos';
 import { toastEvent } from '@/components/ui/Toast';
@@ -23,6 +23,9 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
   // preço de 1 unidade pela mesma regra da sacola; o melhor bloco chama atenção para o desconto
   const unidade = melhorPreco(produto, 1, false).total;
   const bloco = melhorBloco(produto.ofertas);
+  // selo "-6%" só quando o pack sai mais barato que as unidades avulsas
+  const desconto = bloco ? descontoDoBloco(bloco, unidade) : 0;
+  const porUnidade = bloco ? precoPorUnidade(bloco, 'pix') : null;
   const naSacola = unidadesDoProduto(produto.id);
   const temNatural = !produto.quente && produto.variantes.some((v) => v.quente);
 
@@ -53,6 +56,9 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
         <div className="relative w-full aspect-square p-3 bg-white">
           <ImagemProduto produto={produto} />
           <div className="absolute top-2 left-2 flex flex-col items-start gap-1">
+            {desconto > 0 && (
+              <span className="bg-desconto text-white text-[11px] font-bold px-1.5 py-0.5 rounded-md">-{desconto}%</span>
+            )}
             {produto.selo && (
               <span className="bg-desconto text-white text-[11px] font-bold px-1.5 py-0.5 rounded-md">{produto.selo}</span>
             )}
@@ -66,9 +72,9 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
         <div className="flex flex-col flex-1 border-t border-[#EFEFEF] px-2.5 pt-2 pb-2.5">
           <span className="text-[14px] text-[#4A4A4A] leading-snug line-clamp-2 min-h-[2.5em]">{produto.nome}</span>
           <span className="text-[18px] font-bold text-tinta leading-tight tabular-nums mt-1.5">{formatarPreco(unidade)}</span>
-          {bloco ? (
+          {bloco && porUnidade != null ? (
             <span className="text-[11px] font-bold text-sucesso leading-tight mt-0.5 pr-10">
-              {rotuloOferta(bloco)} por {formatarPreco(bloco.preco)}
+              {rotuloOferta(bloco)} · {formatarPreco(porUnidade)}/un
             </span>
           ) : produto.quente ? (
             <span className="text-[11px] font-medium text-suave leading-tight mt-0.5 pr-10">Natural (sem gelar)</span>

@@ -118,6 +118,8 @@ export interface DadosHome {
   loja: Loja;
   config: ConfigCardapio;
   aberta: boolean;
+  /** Menor taxa de entrega (faixa mais perto da loja); null = sem faixas ou loja sem localização. */
+  frete_minimo: number | null;
   horarios: Horario[];
   banners: Banner[];
   categorias: Categoria[];
