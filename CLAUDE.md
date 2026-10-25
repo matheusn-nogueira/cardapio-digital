@@ -36,14 +36,19 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
   - `{"nome": "regex"}`: o nome do produto precisa casar (sem diferenciar maiúsculas).
   - `{"excluir_nome": "regex"}`: o nome do produto não pode casar.
   - Regex inválida no banco é ignorada, não derruba o cardápio.
-- Organização na lógica do 99Food (25/10/2026), na ordem:
-  - Promoções Geladas, Cervejas (todas), Sem Álcool, Ultra;
-  - uma categoria por marca, filtrando pelo começo do nome (`^brahma`), e Outras Cervejas com `excluir_nome` das marcas;
-  - Gelo e Carvão;
-  - destilados por tipo (Whisky, Gin, Vodka e Cachaça, Licores e Conhaque);
-  - as de sempre.
-  - Churrasco ficou desativada.
-  - Categoria sem produto não aparece.
+- Mesmas categorias e mesma ordem do cardápio da loja no 99Food (definida em 22/10/2026 pelo que mais sai no MenuDino):
+  - Promoções Geladas;
+  - marcas que mais vendem: Império, Amstel, Heineken, Brahma, Antarctica;
+  - demais marcas: Spaten, Budweiser, Stella Artois, Corona, Skol, Michelob Ultra, Outras Cervejas;
+  - Cervejas (todas, que o 99 não tem), Ultra, Sem Álcool;
+  - Gelo e Carvão, logo depois da cerveja, porque é o complemento dela;
+  - Drinks Prontos, Whisky, Gin, Vodka e Cachaça, Licores e Conhaque, Destilados (todos), Vinhos e Espumantes;
+  - Energéticos logo depois dos destilados, porque quem leva destilado leva energético; depois Refrigerantes e Águas;
+  - Bomboniere (compra por impulso) e Tabacaria no fim.
+- Cada marca filtra pelo começo do nome (`^brahma`), e Outras Cervejas usa `excluir_nome` com as marcas.
+- Churrasco ficou desativada.
+- Categoria sem produto não aparece.
+- Mudou a ordem no 99? Atualizar o `UPDATE … ordem` do SQL e rodar de novo; ele é idempotente.
 - Marca nova com categoria própria: inserir a linha com o filtro e acrescentar a marca ao `excluir_nome` de Outras Cervejas.
 - Um produto aparece em várias categorias (Brahma e Cervejas). Para breadcrumb e "Peça também", vale a categoria sem filtro (`categoriaDoProduto` em `CardapioContext`).
 
