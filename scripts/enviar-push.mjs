@@ -74,7 +74,7 @@ const mortos = [];
 const falhas = [];
 for (const i of inscritos) {
   try {
-    await webpush.sendNotification({ endpoint: i.endpoint, keys: { p256dh: i.p256dh, auth: i.auth } }, mensagem, { TTL: 6 * 60 * 60 });
+    await webpush.sendNotification({ endpoint: i.endpoint, keys: { p256dh: i.p256dh, auth: i.auth } }, mensagem, { TTL: 6 * 60 * 60, urgency: 'high' });
     ok++;
   } catch (e) {
     if (e.statusCode === 404 || e.statusCode === 410) mortos.push(i.id);
