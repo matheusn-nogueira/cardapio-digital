@@ -102,7 +102,18 @@ export interface Categoria {
   cor_fundo: string;
   /** Valores de `produto.categoria` que entram nesta categoria do cardápio. */
   categorias_produto: string[];
+  /** Recorte opcional dentro de `categorias_produto` (promoções, marca, sem álcool…). */
+  filtro?: FiltroCategoria | null;
   ordem: number;
+}
+
+export interface FiltroCategoria {
+  /** Só produtos com oferta "[Promo]". */
+  promo?: boolean;
+  /** Regex (sem diferenciar maiúsculas) que o nome do produto precisa casar. */
+  nome?: string;
+  /** Regex que o nome do produto NÃO pode casar. */
+  excluir_nome?: string;
 }
 
 export interface Vitrine {

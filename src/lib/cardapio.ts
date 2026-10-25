@@ -1,7 +1,7 @@
 // Leitura do cardápio no servidor (Server Components), com revalidação curta.
 import { cache } from 'react';
 import { normalizarTexto } from './formatacao';
-import { separarVariantes } from './ofertas';
+import { ofertaPromocional, separarVariantes } from './ofertas';
 import { ofertasDeVenda } from './precoQuantidade';
 import { cabecalhosSupabase, urlRest } from './supabase';
 import type {
@@ -220,9 +220,27 @@ export const buscarProdutos = cache(async (): Promise<Produto[]> => {
     .map(paraCliente);
 });
 
+function regex(padrao: string | undefined): RegExp | null {
+  if (!padrao) return null;
+  try {
+    return new RegExp(padrao, 'i');
+  } catch {
+    return null; // regex inválida no banco não derruba o cardápio: o filtro é ignorado
+  }
+}
+
 export function produtosDaCategoria(produtos: Produto[], categoria: Categoria): Produto[] {
   const nomes = new Set(categoria.categorias_produto);
-  return produtos.filter((p) => nomes.has(p.categoria));
+  const f = categoria.filtro;
+  const casa = regex(f?.nome);
+  const exclui = regex(f?.excluir_nome);
+  return produtos.filter(
+    (p) =>
+      nomes.has(p.categoria) &&
+      (!f?.promo || p.ofertas.some(ofertaPromocional)) &&
+      (!casa || casa.test(p.nome)) &&
+      (!exclui || !exclui.test(p.nome)),
+  );
 }
 
 /** Foto que representa a categoria no atalho da home: a do primeiro produto dela com imagem. */

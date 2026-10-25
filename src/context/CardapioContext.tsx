@@ -37,7 +37,9 @@ export const CardapioProvider: React.FC<{
   const produtoPorId = useMemo(() => new Map(produtos.map((p) => [p.id, p])), [produtos]);
   const categoriaPorNome = useMemo(() => {
     const mapa = new Map<string, Categoria>();
-    for (const c of home.categorias) for (const nome of c.categorias_produto) if (!mapa.has(nome)) mapa.set(nome, c);
+    // categoria "de verdade" do produto: as sem filtro (Cervejas) antes dos recortes (Promoções, Brahma…)
+    const ordenadas = [...home.categorias].sort((a, b) => Number(!!a.filtro) - Number(!!b.filtro));
+    for (const c of ordenadas) for (const nome of c.categorias_produto) if (!mapa.has(nome)) mapa.set(nome, c);
     return mapa;
   }, [home.categorias]);
 
