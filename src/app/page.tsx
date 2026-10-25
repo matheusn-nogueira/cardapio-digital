@@ -9,6 +9,9 @@ import { buscarHome, buscarProdutos, imagemDaCategoria, produtosDaCategoria } fr
 
 export const revalidate = 60;
 
+/** Produtos por prateleira de categoria; o resto fica na seta "ver todos". */
+const ITENS_POR_PRATELEIRA = 10;
+
 export default async function Home() {
   const [home, produtos] = await Promise.all([buscarHome(), buscarProdutos()]);
   // atalhos com foto: a da categoria no ERP ou, sem ela, a de um produto da categoria
@@ -25,6 +28,11 @@ export default async function Home() {
     />
   );
   const [primeira, ...demais] = home.vitrines;
+  // o cardápio inteiro, como no 99 e no Zé: uma prateleira por categoria (menos as que já viraram vitrine)
+  const jaNaVitrine = new Set(home.vitrines.map((v) => v.categoria_id).filter(Boolean));
+  const prateleiras = categorias
+    .filter((c) => !jaNaVitrine.has(c.id))
+    .map((c) => ({ ...c, ids: produtosDaCategoria(produtos, c).slice(0, ITENS_POR_PRATELEIRA).map((p) => p.id) }));
 
   return (
     // Ordem do app do Zé: chips de categoria, recomendados, marcas, destaques e o resto das prateleiras
@@ -37,7 +45,12 @@ export default async function Home() {
       <div className="pt-5">{primeira && vitrine(primeira)}</div>
       <MarcasLista marcas={marcas} />
       <BannerCarrossel banners={home.banners} />
-      <div className="pt-3 pb-1">{demais.map(vitrine)}</div>
+      <div className="pt-3 pb-1">
+        {demais.map(vitrine)}
+        {prateleiras.map((c) => (
+          <Vitrine key={c.id} titulo={c.nome} ids={c.ids} linkVerTodos={`/categoria/${c.id}`} />
+        ))}
+      </div>
     </main>
   );
 }
