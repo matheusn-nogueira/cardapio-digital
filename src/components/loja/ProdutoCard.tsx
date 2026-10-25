@@ -1,14 +1,13 @@
 'use client';
 
 import React from 'react';
-import { Plus } from 'lucide-react';
+import { Minus, Plus, Trash2 } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { formatarPreco } from '@/lib/formatacao';
 import { descontoDoBloco, melhorBloco, precoPorUnidade } from '@/lib/ofertas';
 import { melhorPreco } from '@/lib/precoQuantidade';
 import type { Produto } from '@/lib/tipos';
-import { toastEvent } from '@/components/ui/Toast';
 import { ImagemProduto } from './ImagemProduto';
 
 interface ProdutoCardProps {
@@ -19,17 +18,20 @@ interface ProdutoCardProps {
 
 /**
  * Card como no app do Zé: foto num bloco cinza-claro com o "+" quadrado amarelo no canto,
- * e embaixo o preço antes do nome. Com desconto no pack ("Leve + por -"), o preço em verde
+ * e embaixo o preço antes do nome. Como no iFood, o "+" põe 1 un na sacola e vira um contador
+ * sobre a foto (lixeira no 1, menos, quantidade, mais), sem abrir a ficha. Com desconto no pack ("Leve + por -"), o preço em verde
  * é o da unidade no pack, com o preço avulso riscado e a pílula "-N%".
  */
 export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'grade' }) => {
   const { abrirProduto } = useCardapio();
-  const { adicionar, unidadesDoProduto } = useCart();
+  const { adicionar, alterar, remover, unidadesDoProduto, quantidadeNaLinha } = useCart();
   const unidade = melhorPreco(produto, 1, false).total;
   const bloco = melhorBloco(produto.ofertas);
   const desconto = bloco ? descontoDoBloco(bloco, unidade) : 0;
   const porUnidade = bloco && desconto > 0 ? precoPorUnidade(bloco, 'pix') : null;
   const naSacola = unidadesDoProduto(produto.id);
+  // o contador mexe só na versão padrão; versões escolhidas na ficha (natural em pack…) ficam na sacola
+  const naLinha = quantidadeNaLinha(produto.id);
   const temNatural = !produto.quente && produto.variantes.some((v) => v.quente);
 
   // versão que muda o produto (ex.: galão com vasilhame) pede escolha; natural não (padrão = gelada)
@@ -42,8 +44,8 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
       return;
     }
     adicionar(produto.id, 1);
-    toastEvent.show(`${produto.nome} na sacola`);
   };
+  const diminuir = () => (naLinha <= 1 ? remover(produto.id) : alterar(produto.id, naLinha - 1));
 
   const selo = porUnidade != null ? 'Leve + por -' : produto.selo;
 
@@ -70,20 +72,44 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
             </span>
           )}
         </div>
-        <button
-          type="button"
-          onClick={aoAdicionar}
-          aria-label={pedeEscolha ? `Escolher versão de ${produto.nome}` : `Adicionar 1 unidade de ${produto.nome} à sacola`}
-          className="absolute -bottom-1 -right-1 w-12 h-12 rounded-2xl bg-primaria text-primaria-texto flex items-center justify-center active:scale-95 transition-transform"
-        >
-          <Plus className="w-6 h-6" strokeWidth={2.5} aria-hidden="true" />
-          {naSacola > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 rounded-full bg-tinta text-white text-[11px] font-bold flex items-center justify-center">
-              {naSacola}
-              <span className="sr-only"> na sacola</span>
+        {naLinha > 0 && !pedeEscolha ? (
+          <div className="absolute left-1.5 right-1.5 bottom-1.5 h-11 rounded-full bg-white shadow-cartao flex items-center justify-between px-1 animate-fade-in">
+            <button
+              type="button"
+              onClick={diminuir}
+              aria-label={naLinha <= 1 ? `Tirar ${produto.nome} da sacola` : `Tirar 1 unidade de ${produto.nome}`}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-desconto active:scale-90 transition-transform"
+            >
+              {naLinha <= 1 ? <Trash2 className="w-[18px] h-[18px]" aria-hidden="true" /> : <Minus className="w-5 h-5" strokeWidth={2.5} aria-hidden="true" />}
+            </button>
+            <span className="text-[16px] font-bold tabular-nums" aria-live="polite" aria-label={`${naLinha} na sacola`}>
+              {naLinha}
             </span>
-          )}
-        </button>
+            <button
+              type="button"
+              onClick={() => adicionar(produto.id, 1)}
+              aria-label={`Adicionar mais 1 unidade de ${produto.nome}`}
+              className="w-9 h-9 rounded-full bg-primaria text-primaria-texto flex items-center justify-center active:scale-90 transition-transform"
+            >
+              <Plus className="w-5 h-5" strokeWidth={2.5} aria-hidden="true" />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={aoAdicionar}
+            aria-label={pedeEscolha ? `Escolher versão de ${produto.nome}` : `Adicionar 1 unidade de ${produto.nome} à sacola`}
+            className="absolute -bottom-1 -right-1 w-12 h-12 rounded-2xl bg-primaria text-primaria-texto flex items-center justify-center active:scale-95 transition-transform"
+          >
+            <Plus className="w-6 h-6" strokeWidth={2.5} aria-hidden="true" />
+            {naSacola > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 rounded-full bg-tinta text-white text-[11px] font-bold flex items-center justify-center">
+                {naSacola}
+                <span className="sr-only"> na sacola</span>
+              </span>
+            )}
+          </button>
+        )}
       </div>
 
       {/* a ação de abrir já está no botão da foto; aqui é só o texto, clicável por conveniência */}
