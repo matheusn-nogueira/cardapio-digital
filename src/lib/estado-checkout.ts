@@ -127,6 +127,8 @@ export const armazemChavePedido = criarArmazem<string | null>('cdf:chave-pedido'
 });
 
 export interface PedidoConfirmado {
+  /** id do pedido no banco (liga a inscrição de push ao pedido); ausente em pedidos salvos antes. */
+  pedidoId?: string;
   numero: number;
   subtotal: number;
   frete: number;

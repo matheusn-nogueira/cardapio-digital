@@ -162,6 +162,7 @@ export default function PaymentPage() {
       });
       const resposta = await finalizarPedido(payload);
       armazemUltimoPedido.gravar({
+        pedidoId: resposta.pedido_id,
         numero: resposta.numero,
         subtotal: resposta.subtotal,
         frete: resposta.frete,

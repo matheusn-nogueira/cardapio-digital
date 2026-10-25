@@ -58,3 +58,15 @@ export async function salvarInscricao(): Promise<void> {
   });
   if (!r.ok) throw new Error(`inscricao ${r.status}`);
 }
+
+/** Liga a inscrição deste aparelho ao pedido, para receber os avisos de status dele. */
+export async function vincularPedido(pedidoId: string): Promise<void> {
+  const registro = await navigator.serviceWorker.getRegistration('/');
+  const inscricao = await registro?.pushManager.getSubscription();
+  if (!inscricao) return;
+  await fetch(urlRest('rpc/cardapio_push_vincular_pedido'), {
+    method: 'POST',
+    headers: cabecalhosSupabase({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ p_endpoint: inscricao.endpoint, p_pedido: pedidoId }),
+  });
+}

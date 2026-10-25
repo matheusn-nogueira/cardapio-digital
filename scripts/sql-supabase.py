@@ -25,9 +25,11 @@ def token():
 
 
 def main():
-    if len(sys.argv) != 2:
+    completo = '--completo' in sys.argv  # imprime o resultado inteiro (JSON) em vez do resumo
+    args = [a for a in sys.argv[1:] if a != '--completo']
+    if len(args) != 1:
         sys.exit(__doc__)
-    sql = open(sys.argv[1], encoding='utf-8').read()
+    sql = open(args[0], encoding='utf-8').read()
     req = urllib.request.Request(
         f'https://api.supabase.com/v1/projects/{REF}/database/query',
         data=json.dumps({'query': sql}).encode(),
@@ -35,7 +37,8 @@ def main():
                  'User-Agent': 'casadosfundos-cardapio/1.0'},
     )
     with urllib.request.urlopen(req, timeout=60) as r:
-        print(f'{sys.argv[1]}: aplicado (HTTP {r.status})', r.read().decode()[:300])
+        corpo = r.read().decode()
+        print(corpo if completo else f'{args[0]}: aplicado (HTTP {r.status}) {corpo[:300]}')
 
 
 if __name__ == '__main__':

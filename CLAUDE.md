@@ -23,7 +23,8 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
 - Quem aceita vira linha em `cardapio_push_inscricoes` (SQL em `supabase/cardapio_push.sql`, aplicado com `python3 -I scripts/sql-supabase.py <arquivo>`). O site só inscreve/cancela pelas funções `cardapio_push_*`; a tabela não é legível pela chave anon.
 - Convite (`ConvitePush`): na confirmação do pedido e, para quem abriu o cardápio instalado, na home depois de 25 s. "Agora não" pausa 14 dias.
 - Disparo: `node scripts/enviar-push.mjs "Título" "Texto" /caminho` mostra a prévia e quantos recebem; com `--enviar` manda. `--contar` só conta. A chave privada VAPID está só no `.env.local` deste repo; a pública fica em `src/lib/push.ts`.
-- No iPhone só funciona com o cardápio adicionado à tela de início (iOS 16.4+).
+- No iPhone só funciona com o cardápio adicionado à tela de início (iOS 16.4+). Na confirmação, iPhone no navegador vê o passo a passo de instalar em vez do convite.
+- Aviso de status do pedido (`supabase/cardapio_push_pedido.sql`): na confirmação o site liga a inscrição ao pedido (`cardapio_push_vincular_pedido`); o gatilho `cardapio_push_status` em `orders` (só pedidos do site; em_preparo, saiu_entrega, entregue, cancelado) chama a Edge Function `supabase/functions/cardapio-push-pedido` com o segredo do Vault `cardapio_push_webhook`. Fica separado do aviso por WhatsApp (`erp_aviso_status_pedido`). Publicar ou trocar o segredo: `python3 -I scripts/configurar-push-pedido.py`.
 
 ## Logos das marcas
 
