@@ -60,8 +60,8 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
 - O manifesto `src/data/marcas-logos.json` diz qual marca tem logo. O logo do Império veio do site da marca. Antarctica e Michelob ainda estão sem logo.
 - Marca nova no catálogo: rodar o script para ela e commitar o arquivo e o manifesto.
 - `MarcasLista`:
-  - quadrados de 92 px na cor da marca (`CORES_MARCA`);
-  - logo em silhueta branca no fundo escuro, ou original (`LOGO_ORIGINAL`);
+  - quadrados de 92 px com cara de lata: a cor da lata de cada marca (`CORES_MARCA`) e um brilho de alumínio por cima (`BRILHO_LATA`);
+  - logo como impresso na lata: silhueta branca no fundo escuro, original (`LOGO_ORIGINAL`) ou com contorno branco (`LOGO_CONTORNO`, a gravata da Budweiser na lata vermelha);
   - com 4 ou mais marcas com logo, mostra só essas;
   - `NAO_E_MARCA` tira valores que são categoria.
 
