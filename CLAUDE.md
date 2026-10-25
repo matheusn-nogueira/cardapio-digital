@@ -25,8 +25,9 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
 
 - Leitura do catálogo no servidor: `src/lib/cardapio.ts` (normaliza home e produtos, `produtosDaCategoria`, foto da categoria e da marca, frete mínimo). Tipos em `src/lib/tipos.ts`.
 - Estado no cliente: `src/context/` (cardápio e sacola) e `criarArmazem`/`useArmazem` em `src/lib/armazenamento.ts`, que guardam no `localStorage` com chaves `cdf:*` (sacola, endereço, último pedido, convites e pop-ups já vistos).
-- Home (`src/app/page.tsx`): pop-ups de promoção, chips de categoria, banner do app, status da loja, marcas, carrossel, vitrines e, no fim, uma prateleira por categoria (até 10 produtos e a seta para a categoria), pulando as que já são vitrine. Peças fixas em todas as páginas ficam no `src/app/layout.tsx` (topo, barra de abas, sacola flutuante, convite de push, modal de produto, confirmação de idade).
+- Home (`src/app/page.tsx`): pop-ups de promoção, chips de categoria, carrossel único de banners (os do ERP mais o de instalar o app, passando a cada 5 s), status da loja, marcas, vitrines e, no fim, uma prateleira por categoria (até 10 produtos e a seta para a categoria), pulando as que já são vitrine. Peças fixas em todas as páginas ficam no `src/app/layout.tsx` (topo, barra de abas, sacola flutuante, convite de push, modal de produto, confirmação de idade).
 - Componentes da loja em `src/components/loja/`; topo e abas em `src/components/layout/`; checkout em `src/components/checkout/`.
+- Ficha do produto (`ProdutoDetalhe` na folha `ProdutoModal`) enxuta como no Zé: foto pequena, preço da unidade na quantidade escolhida com o desconto, contador, atalhos +6/+12 e "Adicionar (N) • total". Descrição e tabela "Quanto mais, mais barato" só na página `/produto/[id]`.
 - Pop-ups de promoção (`PopupPromo`), no máximo uma vez por dia cada: a lista da categoria 1,5 s depois de abrir a home, e a oferta especial (maior desconto em pack) quando a pessoa faz menção de sair (mouse pelo topo no computador; 45 s parada com a sacola vazia no celular).
 
 ## Categorias
@@ -76,7 +77,7 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
   - `src/lib/instalacao.ts` detecta app instalado, plataforma e o prompt de instalar do Android.
 - Convites:
   - `ConvitePush` (folha amarela): aparece na confirmação do pedido e na home do app instalado, em 3 s na primeira abertura e em 25 s nas seguintes. No iPhone pelo navegador, na confirmação, vira o passo a passo de instalar. "Agora não" pausa 14 dias.
-  - `BannerApp` (na home, para quem está no navegador): no Android, "Instalar app" ou "Só as notificações"; no iPhone, os passos de instalar; nos outros, "Ativar notificações". Fechar esconde por 7 dias.
+  - `BannerApp` vira um slide do carrossel de banners da home (só para quem está no navegador): no Android, "Instalar app" ou "Só as notificações"; no iPhone, os passos de instalar; nos outros, "Ativar notificações". Fechar esconde por 7 dias.
 - Aviso de status do pedido (`supabase/cardapio_push_pedido.sql`):
   - na confirmação, o site liga a inscrição ao pedido (`cardapio_push_vincular_pedido`, só pedidos do site com menos de 1 dia);
   - o gatilho `cardapio_push_status` em `orders` (em_preparo, saiu_entrega, entregue, cancelado) chama a Edge Function `supabase/functions/cardapio-push-pedido` pelo `pg_net`, com o segredo do Vault `cardapio_push_webhook`;
