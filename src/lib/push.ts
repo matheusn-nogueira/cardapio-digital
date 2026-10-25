@@ -36,6 +36,15 @@ function chaveEmBytes(base64: string): Uint8Array<ArrayBuffer> {
 export async function ativarPush(): Promise<boolean> {
   const permissao = await Notification.requestPermission();
   if (permissao !== 'granted') return false;
+  await salvarInscricao();
+  return true;
+}
+
+/**
+ * Com a permissão já dada: garante a inscrição e (re)grava no banco. Roda a cada
+ * abertura, então uma gravação que falhou antes se resolve sozinha.
+ */
+export async function salvarInscricao(): Promise<void> {
   const registro = await registrarServiceWorker();
   await navigator.serviceWorker.ready;
   const inscricao =
@@ -46,6 +55,5 @@ export async function ativarPush(): Promise<boolean> {
     headers: cabecalhosSupabase({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ p: { ...inscricao.toJSON(), user_agent: navigator.userAgent } }),
   });
-  if (!r.ok) throw new Error('inscricao');
-  return true;
+  if (!r.ok) throw new Error(`inscricao ${r.status}`);
 }
