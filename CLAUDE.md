@@ -1,34 +1,84 @@
 # Cardápio digital da Casa dos Fundos
 
-Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp-consumer-2.0`, views `cardapio_vw_*`). Visual inspirado no Zé Delivery.
+Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp-consumer-2.0`, projeto `dkbvmqnrdgnhiyhtgsjy`, views `cardapio_vw_*`). Visual copiado do **app** do Zé Delivery: topo branco, chips de categoria, cards chapados, títulos em frase com seta, barra de abas no rodapé. Produção: `https://cardapio.casadosfundos.cloud`.
 
 ## Comandos
 
 - `npm run dev`: servidor local.
 - `npm test`: testes dos módulos puros em `src/lib/__testes__` (`node --test`).
 - `npx eslint src` e `npx tsc --noEmit`: rodar antes de commitar.
+- `python3 -I scripts/sql-supabase.py <arquivo.sql>`: roda SQL no banco pela API de gestão do Supabase (token do `.env.local` do `pdv-balcao`, nunca impresso). `--completo` mostra o JSON inteiro da resposta. Serve tanto para aplicar os `.sql` de `supabase/` quanto para consultas avulsas (escrever o SQL num arquivo temporário).
 
 ## Commit e deploy
 
 - Commit e push direto no `main`, sem pedir confirmação. Pode acumular mudanças relacionadas num commit só.
-- O deploy é pelo EasyPanel (imagem do `Dockerfile`, serviço `casa-dos-fundos/cardapio-digital`, produção em `https://cardapio.casadosfundos.cloud`). O painel **não** faz deploy sozinho no push. Depois do push, disparar e esperar com o script do PDV, que chama a API do painel e confere a página publicada:
+- O deploy é pelo EasyPanel (imagem do `Dockerfile`, serviço `casa-dos-fundos/cardapio-digital`). O painel **não** faz deploy sozinho no push. Depois do push, disparar e esperar com o script do PDV, que chama a API do painel e confere a página publicada:
   `python3 -u ~/Pessoal/pdv-balcao/scripts/deploy-easypanel.py cardapio-digital`
-  O script carrega as credenciais do `.env.local` do `pdv-balcao` (nunca imprimir). Das 17h até o fechamento (22h; 0h sex e sáb) ele recusa, porque o build roda no mesmo servidor do caixa; `--forcar` só em emergência. Só dar push e deploy com testes, lint e tipos passando.
+  O script carrega as credenciais do `.env.local` do `pdv-balcao` (nunca imprimir). Das 17h até o fechamento (22h; 0h sex e sáb) ele recusa, porque o build roda no mesmo servidor do caixa; `--forcar` só em emergência ou quando o usuário pedir. Se a ferramenta bloquear o `--forcar`, rodar no terminal do usuário. Só dar push e deploy com testes, lint e tipos passando.
+- O script confirma o deploy pela assinatura da home. Mudança que não altera a home (só `public/sw.js`, rota de API) faz ele esperar à toa: conferir com `curl` no arquivo mudado e parar o script.
+- Mudança só de banco (SQL, cadastro) não precisa de deploy: o site relê as views a cada 60 s (`REVALIDAR_SEGUNDOS`). Quando o código novo depende de coluna nova, aplicar o SQL que só **acrescenta** antes, ou subir o código tolerante (campo opcional) primeiro.
 - Nunca rodar `npm run build` com o `npm run dev` aberto: os dois escrevem em `.next/` e o dev quebra. Parar o dev antes, ou reiniciá-lo depois.
 - Mensagem de commit em pt-BR, no formato `tipo: resumo` (`feat:`, `fix:`), sem `Co-Authored-By`.
-- Nunca commitar `.env*` (o `.env.local.example` fica fora do git de propósito).
+- Nunca commitar `.env*` (o `.env.local.example` fica fora do git de propósito) nem `supabase/.temp/`.
+
+## Onde está cada coisa
+
+- Leitura do catálogo no servidor: `src/lib/cardapio.ts` (normaliza home e produtos, `produtosDaCategoria`, foto da categoria e da marca, frete mínimo). Tipos em `src/lib/tipos.ts`.
+- Estado no cliente: `src/context/` (cardápio e sacola) e `criarArmazem`/`useArmazem` em `src/lib/armazenamento.ts`, que guardam no `localStorage` com chaves `cdf:*` (sacola, endereço, último pedido, convites e pop-ups já vistos).
+- Home (`src/app/page.tsx`): pop-ups de promoção, chips de categoria, banner do app, status da loja, marcas, carrossel e vitrines. Peças fixas em todas as páginas ficam no `src/app/layout.tsx` (topo, barra de abas, sacola flutuante, convite de push, modal de produto, confirmação de idade).
+- Componentes da loja em `src/components/loja/`; topo e abas em `src/components/layout/`; checkout em `src/components/checkout/`.
+- Pop-ups de promoção (`PopupPromo`), no máximo uma vez por dia cada: a lista da categoria 1,5 s depois de abrir a home, e a oferta especial (maior desconto em pack) quando a pessoa faz menção de sair (mouse pelo topo no computador; 45 s parada com a sacola vazia no celular).
+
+## Categorias
+
+- Vêm de `cardapio_categorias` no ERP (editáveis por lá): `categorias_produto` diz quais valores de `produto.categoria` entram, e `filtro` (jsonb, opcional) recorta dentro deles. Ver `supabase/cardapio_categorias_99.sql`.
+  - `{"promo": true}`: só produtos com oferta "[Promo]".
+  - `{"nome": "regex"}`: o nome do produto precisa casar (sem diferenciar maiúsculas).
+  - `{"excluir_nome": "regex"}`: o nome do produto não pode casar.
+  - Regex inválida no banco é ignorada, não derruba o cardápio.
+- Organização na lógica do 99Food (25/10/2026), na ordem:
+  - Promoções Geladas, Cervejas (todas), Sem Álcool, Ultra;
+  - uma categoria por marca, filtrando pelo começo do nome (`^brahma`), e Outras Cervejas com `excluir_nome` das marcas;
+  - Gelo e Carvão;
+  - destilados por tipo (Whisky, Gin, Vodka e Cachaça, Licores e Conhaque);
+  - as de sempre.
+  - Churrasco ficou desativada.
+  - Categoria sem produto não aparece.
+- Marca nova com categoria própria: inserir a linha com o filtro e acrescentar a marca ao `excluir_nome` de Outras Cervejas.
+- Um produto aparece em várias categorias (Brahma e Cervejas). Para breadcrumb e "Peça também", vale a categoria sem filtro (`categoriaDoProduto` em `CardapioContext`).
+
+## Marcas
+
+- A marca do produto é a coluna `products.system_category` do ERP (a view a expõe como `marca`). Em 25/10/2026 todas as cervejas ficaram com marca preenchida. "Bebidas Quentes (Mais Barato)" e "Sucesso de vendas" estão nessa coluna, mas são etiquetas, não marcas.
+- `public/marcas/` tem os logos baixados da Wikipédia por `scripts/baixar-logos-marcas.py`. O script recebe um argumento `"Marca=wiki:Artigo"` por marca e pausa entre pedidos, porque a Wikipédia devolve 429 com pedidos seguidos e às vezes acha o logo errado: conferir a imagem.
+- O manifesto `src/data/marcas-logos.json` diz qual marca tem logo. O logo do Império veio do site da marca. Antarctica e Michelob ainda estão sem logo.
+- Marca nova no catálogo: rodar o script para ela e commitar o arquivo e o manifesto.
+- `MarcasLista`:
+  - quadrados de 92 px na cor da marca (`CORES_MARCA`);
+  - logo em silhueta branca no fundo escuro, ou original (`LOGO_ORIGINAL`);
+  - com 4 ou mais marcas com logo, mostra só essas;
+  - `NAO_E_MARCA` tira valores que são categoria.
 
 ## Notificações push
 
-- Quem aceita vira linha em `cardapio_push_inscricoes` (SQL em `supabase/cardapio_push.sql`, aplicado com `python3 -I scripts/sql-supabase.py <arquivo>`). O site só inscreve/cancela pelas funções `cardapio_push_*`; a tabela não é legível pela chave anon.
-- Convite (`ConvitePush`): na confirmação do pedido e, para quem abriu o cardápio instalado, na home depois de 25 s. "Agora não" pausa 14 dias.
-- Disparo: `node scripts/enviar-push.mjs "Título" "Texto" /caminho` mostra a prévia e quantos recebem; com `--enviar` manda. `--contar` só conta. A chave privada VAPID está só no `.env.local` deste repo; a pública fica em `src/lib/push.ts`.
-- No iPhone só funciona com o cardápio adicionado à tela de início (iOS 16.4+). Na confirmação, iPhone no navegador vê o passo a passo de instalar em vez do convite.
-- Aviso de status do pedido (`supabase/cardapio_push_pedido.sql`): na confirmação o site liga a inscrição ao pedido (`cardapio_push_vincular_pedido`); o gatilho `cardapio_push_status` em `orders` (só pedidos do site; em_preparo, saiu_entrega, entregue, cancelado) chama a Edge Function `supabase/functions/cardapio-push-pedido` com o segredo do Vault `cardapio_push_webhook`. Fica separado do aviso por WhatsApp (`erp_aviso_status_pedido`). Publicar ou trocar o segredo: `python3 -I scripts/configurar-push-pedido.py`.
-
-## Logos das marcas
-
-`public/marcas/` tem os logos baixados da Wikipédia por `scripts/baixar-logos-marcas.py` (um argumento `"Marca=wiki:Artigo"` por marca; a Wikipédia devolve 429 com pedidos seguidos, por isso o script pausa). O manifesto `src/data/marcas-logos.json` diz qual marca tem logo; marca sem logo vira letreiro na cor da marca. Marca nova no catálogo: rodar o script para ela e commitar o arquivo e o manifesto.
+- Quem aceita vira linha em `cardapio_push_inscricoes` (SQL em `supabase/cardapio_push.sql`). O site só inscreve ou cancela pelas funções `cardapio_push_*`; a tabela não é legível pela chave anon. A inscrição é regravada a cada abertura com permissão concedida, e o `public/sw.js` refaz a inscrição sozinho quando o navegador a troca (`pushsubscriptionchange`).
+- Disparo manual: `node scripts/enviar-push.mjs "Título" "Texto" /caminho` mostra a prévia e quantos recebem. Com `--enviar` manda; com `--contar` só conta. O envio vai com prioridade alta, porque o Android segura as de prioridade normal com a tela apagada, e as inscrições que respondem 404 ou 410 são desativadas.
+- Chaves VAPID: a privada está só no `.env.local` deste repo e nos segredos da Edge Function; a pública fica em `src/lib/push.ts`.
+- O ícone pequeno da notificação no Android é `src/app/badge/route.tsx`: um sino branco em fundo transparente. O Android pinta de branco o que não é transparente.
+- Plataformas:
+  - Android/Chrome recebe push sem instalar.
+  - iPhone só recebe com o cardápio adicionado à tela de início (iOS 16.4+).
+  - `src/lib/instalacao.ts` detecta app instalado, plataforma e o prompt de instalar do Android.
+- Convites:
+  - `ConvitePush` (folha amarela): aparece na confirmação do pedido e na home do app instalado, em 3 s na primeira abertura e em 25 s nas seguintes. No iPhone pelo navegador, na confirmação, vira o passo a passo de instalar. "Agora não" pausa 14 dias.
+  - `BannerApp` (na home, para quem está no navegador): no Android, "Instalar app" ou "Só as notificações"; no iPhone, os passos de instalar; nos outros, "Ativar notificações". Fechar esconde por 7 dias.
+- Aviso de status do pedido (`supabase/cardapio_push_pedido.sql`):
+  - na confirmação, o site liga a inscrição ao pedido (`cardapio_push_vincular_pedido`, só pedidos do site com menos de 1 dia);
+  - o gatilho `cardapio_push_status` em `orders` (em_preparo, saiu_entrega, entregue, cancelado) chama a Edge Function `supabase/functions/cardapio-push-pedido` pelo `pg_net`, com o segredo do Vault `cardapio_push_webhook`;
+  - fica separado do aviso por WhatsApp (`erp_aviso_status_pedido`);
+  - publicar a função ou trocar o segredo: `python3 -I scripts/configurar-push-pedido.py`;
+  - a função foi testada direto, mas a mudança de status de um pedido real feito pelo site ainda não.
+- `supabase/` fica fora do `tsconfig` e do eslint, porque a Edge Function é Deno.
 
 ## Regras do domínio
 
@@ -37,3 +87,9 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
 - Variantes (natural, vasilhame) têm preço fechado e ficam fora da combinação automática.
 - Status aberto/fechado quem decide é o banco; o site só descreve o turno (`src/lib/horarios.ts`) e faz "Fecha em" andar no cliente (`src/lib/relogio.ts`).
 - "Entrega a partir de R$ X" é o frete calculado pela função do banco no ponto da loja.
+
+## Pendências conhecidas
+
+- Testar o push de status com um pedido real feito pelo site e movido no ERP.
+- Testar os fluxos de iPhone (instalar e convite no app instalado).
+- Logos de Antarctica e Michelob.
