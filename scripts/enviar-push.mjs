@@ -82,7 +82,12 @@ for (const i of inscritos) {
   }
 }
 const ids = (lista) => lista.map(literal).join(',');
-if (ok) await sql(`update cardapio_push_inscricoes set ultimo_envio = now(), falhas = 0 where ativo and id not in (${ids([...mortos, ...falhas]) || "''"})`);
+const comErro = [...mortos, ...falhas];
+if (ok) {
+  await sql(
+    `update cardapio_push_inscricoes set ultimo_envio = now(), falhas = 0 where ativo${comErro.length ? ` and id not in (${ids(comErro)})` : ''}`,
+  );
+}
 if (mortos.length) await sql(`update cardapio_push_inscricoes set ativo = false, cancelado_em = now() where id in (${ids(mortos)})`);
 if (falhas.length) await sql(`update cardapio_push_inscricoes set falhas = falhas + 1 where id in (${ids(falhas)})`);
 console.log(`Enviadas: ${ok}. Desativadas (saíram): ${mortos.length}. Falharam: ${falhas.length}.`);
