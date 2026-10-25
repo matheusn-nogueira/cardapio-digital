@@ -2,6 +2,7 @@ import { BannerCarrossel } from '@/components/loja/BannerCarrossel';
 import { CategoriasLista } from '@/components/loja/CategoriasLista';
 import { MarcasLista, marcasDoCatalogo } from '@/components/loja/MarcasLista';
 import { PopupPromo } from '@/components/loja/PopupPromo';
+import { BannerApp } from '@/components/loja/BannerApp';
 import { StatusLojaCard } from '@/components/loja/StatusLojaCard';
 import { Vitrine } from '@/components/loja/Vitrine';
 import { buscarHome, buscarProdutos, imagemDaCategoria, produtosDaCategoria } from '@/lib/cardapio';
@@ -31,6 +32,7 @@ export default async function Home() {
       <h1 className="sr-only">{home.loja.nome} — cardápio</h1>
       <PopupPromo />
       <CategoriasLista categorias={categorias} />
+      <BannerApp />
       <StatusLojaCard />
       <div className="pt-5">{primeira && vitrine(primeira)}</div>
       <MarcasLista marcas={marcas} />

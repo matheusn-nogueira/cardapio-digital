@@ -53,7 +53,8 @@ export async function salvarInscricao(): Promise<void> {
   const r = await fetch(urlRest('rpc/cardapio_push_inscrever'), {
     method: 'POST',
     headers: cabecalhosSupabase({ 'Content-Type': 'application/json' }),
-    body: JSON.stringify({ p: { ...inscricao.toJSON(), user_agent: navigator.userAgent } }),
+    // "app" ou "navegador" na frente do user agent: dá para ver de onde vêm os inscritos
+    body: JSON.stringify({ p: { ...inscricao.toJSON(), user_agent: `${appInstalado() ? 'app' : 'navegador'} · ${navigator.userAgent}` } }),
   });
   if (!r.ok) throw new Error(`inscricao ${r.status}`);
 }
