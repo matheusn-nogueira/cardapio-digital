@@ -18,6 +18,13 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
 - Mensagem de commit em pt-BR, no formato `tipo: resumo` (`feat:`, `fix:`), sem `Co-Authored-By`.
 - Nunca commitar `.env*` (o `.env.local.example` fica fora do git de propósito).
 
+## Notificações push
+
+- Quem aceita vira linha em `cardapio_push_inscricoes` (SQL em `supabase/cardapio_push.sql`, aplicado com `python3 -I scripts/sql-supabase.py <arquivo>`). O site só inscreve/cancela pelas funções `cardapio_push_*`; a tabela não é legível pela chave anon.
+- Convite (`ConvitePush`): na confirmação do pedido e, para quem abriu o cardápio instalado, na home depois de 25 s. "Agora não" pausa 14 dias.
+- Disparo: `node scripts/enviar-push.mjs "Título" "Texto" /caminho` mostra a prévia e quantos recebem; com `--enviar` manda. `--contar` só conta. A chave privada VAPID está só no `.env.local` deste repo; a pública fica em `src/lib/push.ts`.
+- No iPhone só funciona com o cardápio adicionado à tela de início (iOS 16.4+).
+
 ## Logos das marcas
 
 `public/marcas/` tem os logos baixados da Wikipédia por `scripts/baixar-logos-marcas.py` (um argumento `"Marca=wiki:Artigo"` por marca; a Wikipédia devolve 429 com pedidos seguidos, por isso o script pausa). O manifesto `src/data/marcas-logos.json` diz qual marca tem logo; marca sem logo vira letreiro na cor da marca. Marca nova no catálogo: rodar o script para ela e commitar o arquivo e o manifesto.
