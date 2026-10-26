@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { descreverStatus, minutosAteFechar, textoFechaEm } from '../horarios.ts';
+import { descreverStatus, horarioResumido, minutosAteFechar, textoFechaEm } from '../horarios.ts';
 import type { Horario } from '../tipos.ts';
 
 const horario = (dia_semana: number, abre: string, fecha: string, aberto = true): Horario => ({ dia_semana, aberto, abre, fecha });
@@ -43,4 +43,14 @@ test('status manual "aberto" ou loja fechada não trazem "fecha em"', () => {
   const fechada = descreverStatus(false, cfg, [horario(6, '11:00:00', '23:59:00')], { dia: 6, minutos: 9 * 60 });
   assert.equal(fechada.detalhe, 'Abre hoje às 11:00');
   assert.equal(fechada.fechaEm, null);
+});
+
+test('horário resumido do rodapé junta os dias com o mesmo horário', () => {
+  const semana = [0, 1, 2, 3, 4].map((d) => horario(d, '11:00:00', '22:00:00')).concat([5, 6].map((d) => horario(d, '11:00:00', '23:59:00')));
+  assert.deepEqual(horarioResumido(semana), [
+    { dias: 'Domingo a quinta', faixa: '11h às 22h' },
+    { dias: 'Sexta e sábado', faixa: '11h à 0h' },
+  ]);
+  const comFolga = semana.map((h) => (h.dia_semana === 1 ? { ...h, aberto: false } : h));
+  assert.deepEqual(horarioResumido(comFolga).map((g) => g.dias), ['Domingo', 'Segunda', 'Terça a quinta', 'Sexta e sábado']);
 });

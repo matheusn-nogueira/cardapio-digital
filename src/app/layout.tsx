@@ -74,7 +74,7 @@ export default async function RootLayout({
 
   return (
     <html lang="pt-BR" className={`${roboto.variable} ${robotoCondensed.variable} scroll-smooth`} style={tema}>
-      <body className="font-sans text-[16px] text-tinta bg-fundo antialiased overflow-x-hidden">
+      <body className="font-sans text-[16px] text-tinta bg-fundo antialiased">
         <AppProviders home={home} status={status} produtos={produtos}>
           <Header />
           {children}

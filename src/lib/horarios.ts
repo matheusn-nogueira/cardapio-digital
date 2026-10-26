@@ -119,3 +119,41 @@ export function descreverStatus(
   }
   return { aberta, titulo: 'Fechado agora', detalhe: null, fechaEm: null, horarioHoje };
 }
+
+/** "11h", "11h30", e o fim do dia (23:59) como "0h". */
+export function horaCurta(hora: string): string {
+  const [h, m] = hhmm(hora).split(':').map(Number);
+  if (h === 23 && m === 59) return '0h';
+  return m ? `${h}h${String(m).padStart(2, '0')}` : `${h}h`;
+}
+
+/**
+ * Horário da semana em poucas linhas, juntando os dias seguidos com o mesmo horário:
+ * "Domingo a quinta: 11h às 22h", "Sexta e sábado: 11h à 0h". Dia fechado vira "Fechado".
+ */
+export function horarioResumido(horarios: Horario[]): { dias: string; faixa: string }[] {
+  const porDia = new Map(horarios.map((h) => [h.dia_semana, h]));
+  const faixaDo = (dia: number) => {
+    const h = porDia.get(dia);
+    if (!h || !h.aberto) return 'Fechado';
+    const fim = horaCurta(h.fecha);
+    return `${horaCurta(h.abre)} ${fim === '0h' ? 'à' : 'às'} ${fim}`;
+  };
+  const grupos: { de: number; ate: number; faixa: string }[] = [];
+  for (let dia = 0; dia < 7; dia++) {
+    const faixa = faixaDo(dia);
+    const ultimo = grupos[grupos.length - 1];
+    if (ultimo && ultimo.faixa === faixa) ultimo.ate = dia;
+    else grupos.push({ de: dia, ate: dia, faixa });
+  }
+  const nome = (d: number) => NOMES_DIAS[d].charAt(0).toUpperCase() + NOMES_DIAS[d].slice(1);
+  return grupos.map((g) => ({
+    dias:
+      g.de === g.ate
+        ? nome(g.de)
+        : g.ate === g.de + 1
+          ? `${nome(g.de)} e ${NOMES_DIAS[g.ate]}`
+          : `${nome(g.de)} a ${NOMES_DIAS[g.ate]}`,
+    faixa: g.faixa,
+  }));
+}

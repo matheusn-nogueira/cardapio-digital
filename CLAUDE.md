@@ -34,6 +34,9 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
   - card: etiqueta "3 por R$ 11,00" (a "[Promo]" do ERP primeiro): verde quando sai mais barato que as avulsas; escura quando é "[Promo]" de preço redondo (4 por R$ 10,00 = 4 × R$ 2,50; o dono confirmou que essas estão certas, a promoção às vezes é só para arredondar). Pack sem desconto e sem "[Promo]" não ganha etiqueta. "Promoção aplicada" e o aviso "Leve mais…" só com economia de verdade;
   - sacola: como o total foi montado ("3 por R$ 11,00 + 1 avulsa R$ 4,00") e o aviso com o preço do que falta, "Leve mais 2 por R$ 7,00", com o botão "+2";
   - o preço continua automático (a combinação mais barata), igual ao ERP e ao banco.
+- Rodapé (`Footer`) claro e enxuto desde 26/10/2026: loja e bairro, horário resumido (`horarioResumido`: "Domingo a quinta: 11h às 22h"), formas de pagamento com os logos, WhatsApp como link e o aviso legal. Some nas etapas do checkout.
+- Confirmação de idade na chegada desligada pelo dono em 26/10/2026 (`cardapio_config.pedir_confirmacao_idade = false`; o componente `ConfirmacaoIdade` continua no código). O aviso legal segue no rodapé e no resumo do pedido.
+- `body` usa `overflow-x: clip` (com `hidden` de reserva): `overflow-x: hidden` fazia o corpo da página rolar sozinho e atrapalhava a captura de tela com rolagem do celular.
 - Sacola (`CartDrawer`): "Esvaziar" no topo, do lado oposto do X, com confirmação na própria sacola ("Tirar todos os itens da sacola?"), não um "desfazer" que some rápido.
 - **Checkout em 3 etapas** (26/10/2026), uma coisa por tela, para os dois públicos (quem tem prática e quem tem pouca). Regras puras em `src/lib/etapasCheckout.ts` (testadas):
   1. `/checkout`: nome e WhatsApp.

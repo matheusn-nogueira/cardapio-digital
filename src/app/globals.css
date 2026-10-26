@@ -63,6 +63,11 @@ body {
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+  /* corta o que vaza para o lado sem virar caixa de rolagem: com overflow-x: hidden o corpo
+     da página passava a rolar sozinho e a captura de tela com rolagem do celular não pegava
+     a página inteira. "hidden" fica para navegador antigo que não conhece "clip". */
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 :focus-visible {
