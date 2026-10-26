@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Check, Copy, MessageCircle } from 'lucide-react';
+import { Check, Copy, MessageCircle, Navigation } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useArmazem, useHidratado } from '@/lib/armazenamento';
 import { armazemUltimoPedido, nomePagamento, PedidoConfirmado } from '@/lib/estado-checkout';
@@ -30,6 +30,10 @@ export default function ConfirmationPage() {
   const [pedido] = useArmazem(armazemUltimoPedido);
   const [copiado, setCopiado] = useState(false);
   const { config, loja } = home;
+  const rotaLoja =
+    loja.latitude != null && loja.longitude != null
+      ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${loja.latitude},${loja.longitude}`)}`
+      : null;
 
   if (!hidratado) {
     return (
@@ -88,6 +92,20 @@ export default function ConfirmationPage() {
             ? 'Avisamos pelo WhatsApp quando estiver pronto para retirar'
             : `Entrega estimada: ${config.tempo_entrega_min}–${config.tempo_entrega_max} min`}
         </p>
+        {/* "Como chegar" só depois do pedido feito (na etapa 2 tirava a pessoa do site antes de fechar) */}
+        {pedido.endereco.startsWith('Retirada') && rotaLoja && (
+          <div className="mt-3">
+            <p className="text-[14px] text-suave">{[loja.endereco, loja.bairro].filter(Boolean).join(' · ')}</p>
+            <a
+              href={rotaLoja}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex items-center gap-2 h-11 px-5 rounded-xl border border-borda bg-white text-[15px] font-bold"
+            >
+              <Navigation className="w-4 h-4" aria-hidden="true" /> Como chegar
+            </a>
+          </div>
+        )}
 
         <section className="bg-white rounded-lg p-4 mt-5 text-left shadow-cartao text-[14px]">
           <div className="flex justify-between">

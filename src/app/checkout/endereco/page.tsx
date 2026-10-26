@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Bike, Loader2, LocateFixed, MapPin, Navigation, Store } from 'lucide-react';
+import { Bike, Loader2, LocateFixed, MapPin, Store } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { useArmazem, useHidratado } from '@/lib/armazenamento';
@@ -36,8 +36,6 @@ export default function EtapaEndereco() {
   const { linhas } = useCart();
   const { home } = useCardapio();
   const [retirada, gravarRetirada] = useArmazem(armazemRetirada);
-  const pontoLoja = home.loja.latitude != null && home.loja.longitude != null ? `${home.loja.latitude},${home.loja.longitude}` : null;
-  const rotaLoja = pontoLoja ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pontoLoja)}` : null;
   const [endereco, gravarEndereco] = useArmazem(armazemEndereco);
   const freteSalvo = useFrete();
   const [estadoCep, setEstadoCep] = useState<EstadoBusca>('ocioso');
@@ -259,16 +257,6 @@ export default function EtapaEndereco() {
             <p className="text-[14px] text-suave mt-1">
               {[home.loja.endereco, home.loja.bairro].filter(Boolean).join(' · ')}. Avisamos pelo WhatsApp quando estiver separado.
             </p>
-            {rotaLoja && (
-              <a
-                href={rotaLoja}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 inline-flex items-center gap-2 text-[15px] font-bold underline"
-              >
-                <Navigation className="w-4 h-4" aria-hidden="true" /> Como chegar
-              </a>
-            )}
           </div>
         ) : (
           <>
