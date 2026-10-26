@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Minus, Plus, ShoppingBag, Trash2, X } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
@@ -40,9 +40,11 @@ export const BarraProgresso: React.FC<{ percentual: number; texto: string; compl
 export const CartDrawer: React.FC = () => {
   const router = useRouter();
   const { home, status } = useCardapio();
-  const { linhas, indisponiveis, subtotal, alterar, remover, removerIndisponiveis, sacolaAberta, fecharSacola } =
+  const { linhas, indisponiveis, subtotal, alterar, remover, removerIndisponiveis, sacolaAberta, fecharSacola, limpar } =
     useCart();
   const botaoFechar = useRef<HTMLButtonElement>(null);
+  // "Esvaziar" pede confirmação na própria sacola (um toque sem querer apagaria tudo)
+  const [confirmandoLimpar, setConfirmandoLimpar] = useState(false);
   const { config } = home;
 
   useEffect(() => {
@@ -59,6 +61,7 @@ export const CartDrawer: React.FC = () => {
       document.body.style.overflow = overflowAnterior;
       window.removeEventListener('keydown', aoTeclar);
       anterior?.focus?.();
+      setConfirmandoLimpar(false); // reabrir a sacola não traz a confirmação de volta
     };
   }, [sacolaAberta, fecharSacola]);
 
@@ -88,6 +91,15 @@ export const CartDrawer: React.FC = () => {
         className="fixed top-0 right-0 bottom-0 z-[101] w-[400px] max-w-full bg-fundo flex flex-col shadow-[-4px_0_20px_rgba(0,0,0,0.12)] animate-entra-direita"
       >
         <div className="flex items-center justify-center relative px-4 h-14 bg-white text-tinta border-b border-[#EFEFEF] shrink-0">
+          {linhas.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setConfirmandoLimpar(true)}
+              className="absolute left-2 top-1/2 -translate-y-1/2 h-11 px-2.5 text-[14px] font-bold text-perigo"
+            >
+              Esvaziar
+            </button>
+          )}
           <h2 id="titulo-sacola" className="text-[16px] font-bold">
             Sua sacola
           </h2>
@@ -103,6 +115,30 @@ export const CartDrawer: React.FC = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto px-3.5 pb-3">
+          {confirmandoLimpar && linhas.length > 0 && (
+            <div className="mt-3 rounded-xl bg-white border-2 border-perigo/40 p-3.5" role="alertdialog" aria-label="Esvaziar a sacola">
+              <p className="text-[15px] font-bold">Tirar todos os itens da sacola?</p>
+              <div className="flex gap-2 mt-3">
+                <button
+                  type="button"
+                  onClick={() => setConfirmandoLimpar(false)}
+                  className="flex-1 h-11 rounded-xl border border-borda bg-white text-[15px] font-bold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    limpar();
+                    setConfirmandoLimpar(false);
+                  }}
+                  className="flex-1 h-11 rounded-xl bg-perigo text-white text-[15px] font-bold"
+                >
+                  Esvaziar sacola
+                </button>
+              </div>
+            </div>
+          )}
           {!status.aberta && (
             <div className="mt-3 rounded-lg bg-[#FFF1F1] border border-[#F5C2C2] p-3 text-[13px]">
               <strong className="text-perigo">Estamos fechados agora.</strong> Você pode montar a sacola, mas só dá para
