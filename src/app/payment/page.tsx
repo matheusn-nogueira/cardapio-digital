@@ -152,12 +152,12 @@ function EtapaPagamento() {
 
   const bloqueios = [
     !aberta && `A loja está fechada agora.${status.detalhe ? ` ${status.detalhe}.` : ''}`,
-    !dadosOk && 'Faltam dados de contato ou endereço.',
+    !dadosOk && 'Falta seu nome, WhatsApp ou endereço. Toque em Alterar.',
     dadosOk && !frete && 'Confirme o endereço para calcular a entrega (toque em Alterar).',
-    frete?.bloqueado && 'Endereço fora da área de entrega.',
+    frete?.bloqueado && 'Ainda não entregamos nesse endereço.',
     !minimo.atingido && `Faltam ${formatarPreco(minimo.falta)} para o pedido mínimo de ${formatarPreco(config.pedido_minimo)}.`,
     !pagamento && FALTA_PAGAMENTO,
-    pagamento === 'dinheiro' && troco != null && troco < total && 'O troco precisa ser para um valor maior que o total.',
+    pagamento === 'dinheiro' && troco != null && troco < total && `O troco precisa ser para mais de ${formatarPreco(total)} (o total).`,
   ].filter(Boolean) as string[];
 
   /** Envia o pedido. `totalConfirmado` = o cliente aceitou os valores novos do banco. */
@@ -340,7 +340,7 @@ function EtapaPagamento() {
       {pagamento === 'dinheiro' && (
         <div className="bg-white rounded-xl p-4 mt-1 shadow-cartao">
           <label htmlFor="troco" className="block text-[15px] font-bold mb-1.5">
-            Troco para quanto? <span className="font-normal text-suave text-[14px]">(deixe vazio se não precisar)</span>
+            Precisa de troco? Para quanto? <span className="block font-normal text-suave text-[14px]">Deixe em branco se não precisar.</span>
           </label>
           <div className="relative">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-suave text-[17px]">R$</span>
@@ -417,7 +417,7 @@ function EtapaPagamento() {
         )}
 
         {indisponiveis > 0 && <p className="text-[13px] text-suave mt-2">Itens que saíram do cardápio não entram no pedido.</p>}
-        <p className="mt-4 text-[11px] text-suave leading-[1.4]">Venda e consumo de bebida alcoólica proibidos para menores de 18 anos.</p>
+        <p className="mt-4 text-[11px] text-suave leading-[1.4]">Venda e consumo de bebida alcoólica proibidos para menores de 18 anos. Beba com moderação.</p>
       </div>
 
       {/* total sempre visível, colado no botão */}

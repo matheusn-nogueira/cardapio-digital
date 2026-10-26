@@ -58,7 +58,7 @@ export const SlideApp: React.FC<{ modo: ModoBanner }> = ({ modo }) => {
     setOcupado(true);
     try {
       const aceitou = await ativarPush();
-      toastEvent.show(aceitou ? 'Pronto! Você vai receber nossas promoções.' : 'Tudo bem, sem notificações.');
+      toastEvent.show(aceitou ? 'Pronto! Avisamos cada passo do seu pedido.' : 'Tudo bem, sem notificações.');
       if (aceitou && modo === 'notificar') fechar();
     } catch {
       toastEvent.show('Não deu para ativar agora. Tente de novo mais tarde.');
@@ -68,13 +68,13 @@ export const SlideApp: React.FC<{ modo: ModoBanner }> = ({ modo }) => {
   };
 
   const titulo =
-    modo === 'notificar' ? 'Receba as promoções no celular' : `Baixe o app da ${home.loja.nome}`;
+    modo === 'notificar' ? 'Acompanhe seu pedido pelo celular' : `Instale o app da ${home.loja.nome}`;
   const texto =
     modo === 'ios'
-      ? 'É o único jeito de receber nossas promoções no iPhone.'
+      ? 'No iPhone, é o único jeito de receber os avisos do seu pedido.'
       : modo === 'instalar'
-        ? 'Abre direto da tela de início e avisa das promoções.'
-        : 'Fique sabendo das ofertas antes de todo mundo.';
+        ? 'Abre direto da tela de início e avisa quando seu pedido sair.'
+        : 'Receba um aviso quando seu pedido sair para entrega.';
   const passo = (n: number, conteudo: React.ReactNode) => (
     <li className="flex items-center gap-2">
       <span className="w-5 h-5 rounded-full bg-primaria text-primaria-texto text-[11px] font-bold flex items-center justify-center shrink-0">{n}</span>

@@ -142,7 +142,7 @@ export const CartDrawer: React.FC = () => {
           {!status.aberta && (
             <div className="mt-3 rounded-lg bg-[#FFF1F1] border border-[#F5C2C2] p-3 text-[13px]">
               <strong className="text-perigo">Estamos fechados agora.</strong> Você pode montar a sacola, mas só dá para
-              finalizar quando abrirmos{status.detalhe ? ` (${status.detalhe.toLowerCase()})` : ''}.
+              fazer o pedido quando abrirmos{status.detalhe ? ` (${status.detalhe.toLowerCase()})` : ''}.
             </div>
           )}
 
@@ -165,8 +165,8 @@ export const CartDrawer: React.FC = () => {
                   completo={freteGratis.atingido}
                   texto={
                     freteGratis.atingido
-                      ? 'Você ganhou frete grátis!'
-                      : `Faltam ${formatarPreco(freteGratis.falta)} para frete grátis`
+                      ? 'Entrega grátis garantida'
+                      : `Faltam ${formatarPreco(freteGratis.falta)} para a entrega grátis`
                   }
                 />
               )}
@@ -190,7 +190,7 @@ export const CartDrawer: React.FC = () => {
             <div className="text-center py-16 px-5 text-suave">
               <ShoppingBag className="w-12 h-12 mx-auto mb-3 opacity-40" aria-hidden="true" />
               <p className="text-[15px] font-medium mb-1 text-tinta">Sua sacola está vazia</p>
-              <p className="text-[13px]">Que tal colocar algumas bebidas para gelar?</p>
+              <p className="text-[13px]">Escolha suas bebidas no cardápio e elas aparecem aqui.</p>
             </div>
           ) : (
             <ul>
@@ -270,7 +270,7 @@ export const CartDrawer: React.FC = () => {
             <span>{formatarPreco(subtotal)}</span>
           </div>
           <p className="text-[12px] text-suave mt-1">
-            Frete calculado no próximo passo.
+            A taxa de entrega aparece no próximo passo.
             {subtotalCartao !== subtotal && ` No cartão (na entrega) o subtotal fica ${formatarPreco(subtotalCartao)}.`}
           </p>
 
@@ -283,7 +283,7 @@ export const CartDrawer: React.FC = () => {
             {vazia
               ? 'Sacola vazia'
               : minimo.atingido
-                ? 'Continuar'
+                ? 'Fechar pedido'
                 : `Faltam ${formatarPreco(minimo.falta)} para o mínimo`}
           </button>
         </div>

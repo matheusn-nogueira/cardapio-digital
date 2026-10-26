@@ -229,7 +229,7 @@ export const PopupPromo: React.FC = () => {
             >
               Ver {lista.titulo.toLowerCase()}
             </Link>
-            <p className="text-[10px] text-tinta/70 text-center mt-2">Preços válidos no delivery, sujeitos a disponibilidade.</p>
+            <p className="text-[10px] text-tinta/70 text-center mt-2">Preços do delivery, enquanto durar o estoque.</p>
           </div>
         </div>
       )}
@@ -277,7 +277,7 @@ export const PopupPromo: React.FC = () => {
                 </p>
               ) : null;
             })()}
-            <p className="text-[10px] italic mt-1 text-tinta/70">Preço válido no delivery, sujeito a disponibilidade.</p>
+            <p className="text-[10px] italic mt-1 text-tinta/70">Preço do delivery, enquanto durar o estoque.</p>
             <button
               type="button"
               onClick={() => {
@@ -286,7 +286,7 @@ export const PopupPromo: React.FC = () => {
               }}
               className="mt-4 w-full h-14 rounded-xl bg-tinta text-white font-condensed font-bold uppercase text-[22px]"
             >
-              Aproveitar
+              Ver oferta
             </button>
           </div>
         </div>

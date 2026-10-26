@@ -82,7 +82,7 @@ export const Footer: React.FC = () => {
         >
           18+
         </span>
-        <span>Beba com moderação. Venda de bebidas alcoólicas proibida para menores de 18 anos.</span>
+        <span>Venda e consumo de bebida alcoólica proibidos para menores de 18 anos. Beba com moderação.</span>
       </div>
     </footer>
   );

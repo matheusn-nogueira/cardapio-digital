@@ -26,11 +26,11 @@ export const StatusLojaCard: React.FC = () => {
     {
       icone: <Bike className="w-4 h-4" aria-hidden="true" />,
       valor: `${config.tempo_entrega_min}–${config.tempo_entrega_max} min`,
-      rotulo: 'entrega',
+      rotulo: 'tempo',
     },
   ];
   if (home.frete_minimo != null && home.frete_minimo > 0) {
-    fatos.push({ icone: <Truck className="w-4 h-4" aria-hidden="true" />, valor: formatarPreco(home.frete_minimo), rotulo: 'frete desde' });
+    fatos.push({ icone: <Truck className="w-4 h-4" aria-hidden="true" />, valor: `desde ${formatarPreco(home.frete_minimo)}`, rotulo: 'entrega' });
   }
   fatos.push({
     icone: <Clock className="w-4 h-4" aria-hidden="true" />,

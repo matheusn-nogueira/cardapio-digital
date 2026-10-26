@@ -56,7 +56,7 @@ const CampoBusca: React.FC = () => {
         onChange={(e) => buscar(e.target.value)}
         autoFocus={naBusca && !termoUrl}
         className="w-full h-12 pr-11 pl-12 rounded-xl bg-bloco text-[16px] text-tinta outline-none placeholder:text-[14px] placeholder:text-[#9B9B9B] [&::-webkit-search-cancel-button]:hidden"
-        placeholder="Pesquise sua bebida favorita"
+        placeholder="Busque por bebida ou marca"
       />
       {texto && (
         <button

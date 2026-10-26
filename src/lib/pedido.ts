@@ -17,7 +17,7 @@ export const MENSAGENS_ERRO_PEDIDO: Record<string, string> = {
   CARRINHO_VAZIO: 'Sua sacola está vazia. Adicione algum produto para fazer o pedido.',
   OFERTA_INDISPONIVEL: 'Algum produto da sua sacola ficou indisponível. Revise a sacola e tente de novo.',
   PEDIDO_MINIMO: 'Seu pedido ainda não atingiu o valor mínimo. Adicione mais itens para continuar.',
-  FORA_DA_AREA: 'Infelizmente ainda não entregamos nesse endereço. Confira o endereço ou chame a gente no WhatsApp.',
+  FORA_DA_AREA: 'Ainda não entregamos nesse endereço. Confira a rua e o número ou chame a loja no WhatsApp.',
   DADOS_INVALIDOS: 'Confira seu nome, WhatsApp e o endereço (rua e número) e tente de novo.',
   PAGAMENTO_INVALIDO: 'Essa forma de pagamento não está disponível agora. Escolha outra.',
   PRECO_MUDOU: 'Os valores do pedido mudaram. Confira o novo total antes de enviar.',

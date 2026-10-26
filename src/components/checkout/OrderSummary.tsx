@@ -89,10 +89,10 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ forma, freteBase, mo
         <span>{formatarPreco(total)}</span>
       </div>
       {frete === null && (
-        <p className="mt-1.5 text-[12px] text-suave">O frete será confirmado pela loja antes da entrega.</p>
+        <p className="mt-1.5 text-[12px] text-suave">A loja confirma a taxa de entrega com você pelo WhatsApp.</p>
       )}
       <p className="mt-2.5 text-[11px] text-suave leading-[1.4]">
-        Venda e consumo de bebida alcoólica proibidos para menores de 18 anos.
+        Venda e consumo de bebida alcoólica proibidos para menores de 18 anos. Beba com moderação.
       </p>
     </section>
   );

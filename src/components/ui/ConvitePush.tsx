@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Bell, Bike, Percent, Share, SquarePlus, Tag, X } from 'lucide-react';
+import { Bell, Bike, Check, Share, SquarePlus, X } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { criarArmazem, useArmazem, useHidratado } from '@/lib/armazenamento';
 import { armazemUltimoPedido } from '@/lib/estado-checkout';
@@ -76,9 +76,10 @@ const ConviteInstalarIphone: React.FC<{ nomeLoja: string; aoFechar: () => void }
 );
 
 const BENEFICIOS = [
-  { icone: Percent, texto: 'Ofertas relâmpago antes de todo mundo' },
-  { icone: Tag, texto: 'Cupons exclusivos para quem ativa' },
-  { icone: Bike, texto: 'Aviso quando seu pedido sair para entrega' },
+  // a notificação é para acompanhar o pedido (dono, 26/10/2026): nada de prometer oferta ou cupom
+  { icone: Check, texto: 'Aviso quando a loja começar a separar seu pedido' },
+  { icone: Bike, texto: 'Aviso quando ele sair para entrega' },
+  { icone: Bell, texto: 'Sem precisar ficar abrindo o WhatsApp' },
 ];
 
 export const ConvitePush: React.FC = () => {
@@ -165,7 +166,7 @@ export const ConvitePush: React.FC = () => {
         aceitou
           ? pedidoId
             ? 'Pronto! Avisamos quando seu pedido sair.'
-            : 'Pronto! Você vai receber nossas promoções.'
+            : 'Pronto! Avisamos cada passo do seu próximo pedido.'
           : 'Tudo bem, sem notificações.',
       );
       if (!aceitou) gravarDispensado(Date.now());
@@ -203,7 +204,7 @@ export const ConvitePush: React.FC = () => {
             <Bell className="w-10 h-10 origin-top animate-[balanca_1.2s_ease-in-out_2]" strokeWidth={2.2} />
           </span>
           <h2 id="titulo-convite-push" className="relative mt-4 font-condensed font-bold uppercase text-[30px] leading-[0.95] text-tinta">
-            {naConfirmacao ? 'Acompanhe seu pedido' : 'Não perca nenhuma promoção'}
+            {naConfirmacao ? 'Acompanhe seu pedido' : 'Acompanhe seus pedidos'}
           </h2>
           <p className="relative mt-1.5 text-[14px] font-medium text-tinta/80">Ative as notificações da {home.loja.nome}</p>
         </div>
@@ -231,7 +232,7 @@ export const ConvitePush: React.FC = () => {
           <button type="button" onClick={dispensar} className="w-full h-11 mt-1 text-[14px] font-bold text-suave">
             Agora não
           </button>
-          <p className="text-[11px] text-suave text-center">Só mandamos o que vale a pena. Dá para desligar quando quiser.</p>
+          <p className="text-[11px] text-suave text-center">Só avisamos sobre os seus pedidos. Dá para desligar quando quiser.</p>
         </div>
       </div>
     </div>

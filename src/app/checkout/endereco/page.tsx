@@ -238,7 +238,7 @@ export default function EtapaEndereco() {
           erro={
             erros.cep ??
             (estadoCep === 'nao-achou'
-              ? 'Esse CEP não traz a rua. Digite a rua abaixo.'
+              ? 'Esse CEP vale para várias ruas. Digite a sua abaixo.'
               : estadoCep === 'erro'
                 ? 'Não deu para buscar o CEP agora. Digite a rua abaixo.'
                 : null)

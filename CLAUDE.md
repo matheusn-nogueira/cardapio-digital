@@ -49,6 +49,16 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
 - WhatsApp da loja é a 4ª aba da barra de baixo (`BarraInferior`), com nome escrito e o ícone no mesmo traço dos outros (Tabler, em verde escuro). Não é botão flutuante: cobria produto e disputava com "Ver sacola" (decisão do dono, 26/10/2026).
 - Pop-ups de promoção (`PopupPromo`), no máximo uma vez por dia cada: a lista da categoria 1,5 s depois de abrir a home (nunca na visita em que a pessoa acabou de confirmar a idade: dois modais seguidos na chegada), e a oferta especial (maior desconto em pack) quando a pessoa faz menção de sair (mouse pelo topo no computador; 45 s sem rolar nem tocar, com a sacola vazia, no celular).
 
+## Textos (tom de voz, revisão de 26/10/2026)
+
+- Fala com "você", de perto, sem gíria forçada e sem emoji ("pra", "precinho" só nos pop-ups de promoção).
+- Instrução no imperativo formal ("Digite o CEP", "Confira sua internet"); botão diz a ação, no infinitivo, como no iFood ("Fazer pedido", "Fechar pedido", "Ver o cardápio").
+- Erro diz o que houve e o que fazer, sem "Infelizmente" e sem exclamação.
+- Um nome para cada coisa: **sacola** (não carrinho), **entrega/taxa de entrega** (não frete), **pedido**.
+- Notificação é para acompanhar o pedido (dono): o convite não promete oferta nem cupom.
+- Aviso legal único: "Venda e consumo de bebida alcoólica proibidos para menores de 18 anos. Beba com moderação."
+- Textos do banco (ERP): banner da home (hoje "Império Latão: 3 por R$ 11,00", que leva a Promoções Geladas; o botão diz "Ver promoções" para categoria e "Ver produto" para produto) e `cardapio_config.mensagem_fechado`.
+
 ## Categorias
 
 - Vêm de `cardapio_categorias` no ERP (editáveis por lá): `categorias_produto` diz quais valores de `produto.categoria` entram, e `filtro` (jsonb, opcional) recorta dentro deles. Ver `supabase/cardapio_categorias_99.sql`.

@@ -47,7 +47,7 @@ const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean; comLink: boo
           {banner.subtitulo && <p className="text-white/90 text-[13px] mt-1.5 leading-snug">{banner.subtitulo}</p>}
           {comLink && (
             <span className="inline-flex items-center h-9 px-5 mt-3 rounded-lg bg-primaria text-primaria-texto text-[14px] font-bold">
-              Saiba mais
+              {banner.link_tipo === 'categoria' ? 'Ver promoções' : banner.link_tipo === 'produto' ? 'Ver produto' : 'Saiba mais'}
             </span>
           )}
         </div>

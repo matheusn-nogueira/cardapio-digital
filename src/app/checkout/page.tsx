@@ -83,7 +83,7 @@ function EtapaDados() {
         }}
         noValidate
       >
-        <h1 className="text-[24px] font-black leading-tight mb-5">Como podemos te chamar?</h1>
+        <h1 className="text-[24px] font-black leading-tight mb-5">Para quem é o pedido?</h1>
 
         {!status.aberta && (
           <div className="mb-4 rounded-xl bg-[#FFF1F1] border border-[#F5C2C2] p-3 text-[15px]">
@@ -93,7 +93,7 @@ function EtapaDados() {
         )}
 
         <div className="space-y-5">
-          <Campo id="nome" rotulo="Seu nome" erro={erros.nome}>
+          <Campo id="nome" rotulo="Nome" erro={erros.nome}>
             <input
               ref={nomeRef}
               id="nome"
@@ -120,7 +120,7 @@ function EtapaDados() {
             id="telefone"
             rotulo={
               <span className="inline-flex items-center gap-1.5">
-                <LogoWhatsApp className="w-[18px] h-[18px]" /> Seu WhatsApp
+                <LogoWhatsApp className="w-[18px] h-[18px]" /> WhatsApp
               </span>
             }
             erro={erros.telefone}
