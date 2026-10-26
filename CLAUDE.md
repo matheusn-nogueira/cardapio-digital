@@ -62,7 +62,8 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
 ## Categorias
 
 - Vêm de `cardapio_categorias` no ERP (editáveis por lá): `categorias_produto` diz quais valores de `produto.categoria` entram, e `filtro` (jsonb, opcional) recorta dentro deles. Ver `supabase/cardapio_categorias_99.sql`.
-  - `{"promo": true}`: só produtos com oferta "[Promo]".
+  - `{"promo": true}`: só produtos com oferta "[Promo]" que ganham etiqueta no card (desconto de verdade ou preço redondo); o desconto de verdade vem primeiro.
+  - A vitrine "Cervejas geladas" foi desligada em 26/10/2026 (redundante com Promoções Geladas no topo); a categoria Cervejas segue como prateleira comum.
   - `{"nome": "regex"}`: o nome do produto precisa casar (sem diferenciar maiúsculas).
   - `{"excluir_nome": "regex"}`: o nome do produto não pode casar.
   - Regex inválida no banco é ignorada, não derruba o cardápio.

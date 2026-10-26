@@ -2,7 +2,7 @@
 import { cache } from 'react';
 import { normalizarTexto } from './formatacao';
 import { ofertaPromocional, separarVariantes } from './ofertas';
-import { ofertasDeVenda } from './precoQuantidade';
+import { blocoEmDestaque, ofertasDeVenda } from './precoQuantidade';
 import { cabecalhosSupabase, urlRest } from './supabase';
 import type {
   Banner,
@@ -239,13 +239,18 @@ export function produtosDaCategoria(produtos: Produto[], categoria: Categoria): 
   const f = categoria.filtro;
   const casa = regex(f?.nome);
   const exclui = regex(f?.excluir_nome);
-  return produtos.filter(
+  const lista = produtos.filter(
     (p) =>
       nomes.has(p.categoria) &&
-      (!f?.promo || p.ofertas.some(ofertaPromocional)) &&
+      // promoção = o que ganha etiqueta no card ("3 por R$ 11,00"): desconto de verdade ou
+      // "[Promo]" de preço redondo; "[Promo]" mais cara que as avulsas fica de fora
+      (!f?.promo || (p.ofertas.some(ofertaPromocional) && blocoEmDestaque(p) != null)) &&
       (!casa || casa.test(p.nome)) &&
       (!exclui || !exclui.test(p.nome)),
   );
+  // nas promoções, o desconto de verdade (etiqueta verde) vem antes do preço redondo
+  if (f?.promo) lista.sort((a, b) => Number(!blocoEmDestaque(a)?.desconto) - Number(!blocoEmDestaque(b)?.desconto));
+  return lista;
 }
 
 /** Foto que representa a categoria no atalho da home: a do primeiro produto dela com imagem. */
