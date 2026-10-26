@@ -1,5 +1,6 @@
 // Chamadas feitas pelo navegador (checkout): status atualizado da loja, preços
 // atuais, CEP, geocodificação (pelo nosso servidor), frete e envio do pedido.
+import type { StatusPedido } from './andamento';
 import type { EnderecoDoPonto } from './etapasCheckout';
 import { classificarOfertas, COLUNAS_PRODUTO, normalizarHome, normalizarProduto, paraCliente } from './cardapio';
 import type { MapaOfertas } from './carrinho';
@@ -64,6 +65,24 @@ export async function geocodificar(e: Endereco): Promise<{ lat: number; lng: num
     const lat = Number(d.lat);
     const lng = Number(d.lng);
     return d.lat != null && d.lng != null && Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Status do pedido do site para a tela de confirmação (só nas primeiras 24 h). null = sem resposta. */
+export async function buscarStatusPedido(id: string): Promise<{ status: StatusPedido; retirada: boolean } | null> {
+  try {
+    const r = await fetch(urlRest('rpc/cardapio_status_pedido'), {
+      method: 'POST',
+      cache: 'no-store',
+      signal: AbortSignal.timeout(10_000),
+      headers: cabecalhosSupabase({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ p_id: id }),
+    });
+    if (!r.ok) return null;
+    const d = (await r.json()) as { status?: StatusPedido; retirada?: boolean } | null;
+    return d?.status ? { status: d.status, retirada: d.retirada === true } : null;
   } catch {
     return null;
   }

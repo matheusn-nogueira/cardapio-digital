@@ -2,27 +2,13 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Check, Copy, MessageCircle, Navigation } from 'lucide-react';
+import { Check, Copy, Navigation } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useArmazem, useHidratado } from '@/lib/armazenamento';
-import { armazemUltimoPedido, nomePagamento, PedidoConfirmado } from '@/lib/estado-checkout';
-import { formatarPreco, linkWhatsapp } from '@/lib/formatacao';
+import { armazemUltimoPedido, nomePagamento } from '@/lib/estado-checkout';
+import { formatarPreco } from '@/lib/formatacao';
+import { AndamentoPedido } from '@/components/checkout/AndamentoPedido';
 import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
-
-function mensagemWhatsapp(p: PedidoConfirmado): string {
-  return [
-    `Olá! Acabei de fazer o pedido #${p.numero} pelo cardápio online.`,
-    `Nome: ${p.nomeCliente}`,
-    '',
-    ...p.itens.map((i) => `• ${i}`),
-    '',
-    `Total: ${formatarPreco(p.total)} (${nomePagamento(p.pagamento)})`,
-    p.trocoPara ? `Troco para ${formatarPreco(p.trocoPara)}` : null,
-    p.endereco.startsWith('Retirada') ? p.endereco : `Entrega: ${p.endereco}`,
-  ]
-    .filter((linha) => linha !== null)
-    .join('\n');
-}
 
 export default function ConfirmationPage() {
   const hidratado = useHidratado();
@@ -57,7 +43,8 @@ export default function ConfirmationPage() {
     );
   }
 
-  const whatsapp = linkWhatsapp(config.whatsapp || loja.telefone, mensagemWhatsapp(pedido));
+  // pedido de retirada: o endereço guardado começa com "Retirada na loja"
+  const retirada = pedido.endereco.startsWith('Retirada');
 
   const copiarPix = async () => {
     if (!config.chave_pix) return;
@@ -87,13 +74,44 @@ export default function ConfirmationPage() {
             Esse pedido já tinha chegado na loja na primeira tentativa. Nada foi enviado em dobro.
           </p>
         )}
-        <p className="mt-4 inline-flex items-center gap-2 py-2.5 px-4 bg-[#E7F6EC] rounded-lg text-[14px] font-bold text-sucesso">
-          {pedido.endereco.startsWith('Retirada')
-            ? 'Avisamos pelo WhatsApp quando estiver pronto para retirar'
-            : `Entrega estimada: ${config.tempo_entrega_min}–${config.tempo_entrega_max} min`}
-        </p>
+        {/* Pix primeiro: pagar é a ação de agora */}
+        {pedido.pagamento === 'pix' && (
+          <section className="bg-white rounded-xl p-4 mt-5 text-left shadow-cartao" aria-labelledby="titulo-pix">
+            <h2 id="titulo-pix" className="text-[15px] font-bold">
+              Pague com Pix
+            </h2>
+            {config.chave_pix ? (
+              <>
+                <p className="text-[13px] text-suave mt-1">Faça o Pix de {formatarPreco(pedido.total)} para a chave abaixo.</p>
+                <div className="mt-3 flex items-center gap-2">
+                  <code className="flex-1 min-w-0 break-all bg-fundo rounded-lg px-3 py-2.5 text-[14px]">{config.chave_pix}</code>
+                  <button
+                    type="button"
+                    onClick={copiarPix}
+                    className="h-11 px-3 rounded-lg border-2 border-tinta font-bold text-[13px] flex items-center gap-1.5 shrink-0"
+                  >
+                    {copiado ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
+                    {copiado ? 'Copiado' : 'Copiar'}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <p className="text-[13px] text-suave mt-1">A chave Pix chega junto com a confirmação da loja.</p>
+            )}
+          </section>
+        )}
+
+        <AndamentoPedido
+          pedidoId={pedido.pedidoId}
+          retirada={retirada}
+          previsao={
+            retirada
+              ? 'Avisamos quando estiver pronto para retirar.'
+              : `Entrega estimada: ${config.tempo_entrega_min}–${config.tempo_entrega_max} min`
+          }
+        />
         {/* "Como chegar" só depois do pedido feito (na etapa 2 tirava a pessoa do site antes de fechar) */}
-        {pedido.endereco.startsWith('Retirada') && rotaLoja && (
+        {retirada && rotaLoja && (
           <div className="mt-3">
             <p className="text-[14px] text-suave">{[loja.endereco, loja.bairro].filter(Boolean).join(' · ')}</p>
             <a
@@ -113,7 +131,7 @@ export default function ConfirmationPage() {
             <span>{formatarPreco(pedido.subtotal)}</span>
           </div>
           <div className="flex justify-between mt-1">
-            <span>{pedido.endereco.startsWith('Retirada') ? 'Retirada na loja' : 'Entrega'}</span>
+            <span>{retirada ? 'Retirada na loja' : 'Entrega'}</span>
             <span>{pedido.frete === 0 ? 'Grátis' : formatarPreco(pedido.frete)}</span>
           </div>
           <div className="flex justify-between mt-2 pt-2 border-t border-borda font-black text-[16px]">
@@ -125,45 +143,6 @@ export default function ConfirmationPage() {
             {pedido.trocoPara ? ` · troco para ${formatarPreco(pedido.trocoPara)}` : ''}
           </p>
         </section>
-
-        {pedido.pagamento === 'pix' && (
-          <section className="bg-white rounded-lg p-4 mt-3 text-left shadow-cartao" aria-labelledby="titulo-pix">
-            <h2 id="titulo-pix" className="text-[14px] font-medium uppercase tracking-wide text-rotulo">
-              Pagamento via Pix
-            </h2>
-            {config.chave_pix ? (
-              <>
-                <p className="text-[13px] text-suave mt-1">
-                  Faça o Pix de {formatarPreco(pedido.total)} para a chave abaixo e mande o comprovante no WhatsApp.
-                </p>
-                <div className="mt-3 flex items-center gap-2">
-                  <code className="flex-1 min-w-0 break-all bg-fundo rounded-lg px-3 py-2.5 text-[14px]">{config.chave_pix}</code>
-                  <button
-                    type="button"
-                    onClick={copiarPix}
-                    className="h-11 px-3 rounded-lg border-2 border-tinta font-bold text-[13px] flex items-center gap-1.5 shrink-0"
-                  >
-                    {copiado ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
-                    {copiado ? 'Copiado' : 'Copiar'}
-                  </button>
-                </div>
-              </>
-            ) : (
-              <p className="text-[13px] text-suave mt-1">Chame a gente no WhatsApp para receber a chave Pix.</p>
-            )}
-          </section>
-        )}
-
-        {whatsapp && (
-          <a
-            href={whatsapp}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-5 w-full h-13 py-3.5 rounded-lg bg-[#1F9D55] text-white font-bold text-[15px] flex items-center justify-center gap-2"
-          >
-            <MessageCircle className="w-5 h-5" aria-hidden="true" /> Falar no WhatsApp
-          </a>
-        )}
 
         <Link
           href="/"
