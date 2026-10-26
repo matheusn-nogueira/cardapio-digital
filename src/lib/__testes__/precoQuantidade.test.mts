@@ -3,7 +3,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   atalhosDoProduto,
+  blocoEmDestaque,
   descreverCombinacao,
+  descreverPromocao,
+  proximaPromocao,
   melhorPreco,
   ofertasDeVenda,
   subtotalCarrinho,
@@ -102,4 +105,38 @@ test('variante: preço fechado do bloco × blocos (cartão usa preço cartão), 
   assert.equal(totalDaLinha(linhaNatural, true), 91);
   // 6 geladas (2× 3 por 13) + 2 packs naturais
   assert.equal(subtotalCarrinho([{ produto: brahma, variante: null, quantidade: 6 }, linhaNatural], false), 114);
+});
+
+// Caso real (26/10/2026): Império Latão a R$ 4,00 e "[Promo] 3x" por R$ 11,00. A 4ª lata
+// a R$ 4,00 parecia erro: a tela passa a dizer "3 por R$ 11,00" e quanto custa a próxima.
+const imperio = {
+  preco: 4,
+  preco_cartao: 4,
+  quente: false,
+  ofertas: [
+    { nome: 'Cerveja Império Latão 473ml', qtd: 1, preco: 4, preco_cartao: 4, quente: false },
+    { nome: '[Promo] 3x Império Latão 473ml', qtd: 3, preco: 11, preco_cartao: 11, quente: false },
+  ],
+};
+
+test('promoção dita como no mercado: 3 por R$ 11,00', () => {
+  assert.deepEqual(blocoEmDestaque(imperio), { qtd: 3, preco: 11, promo: true });
+  const fmt = (v: number) => `R$ ${v.toFixed(2).replace('.', ',')}`;
+  assert.equal(descreverPromocao(melhorPreco(imperio, 4, false).partes, fmt), '3 por R$ 11,00 + 1 avulsa R$ 4,00');
+  assert.equal(descreverPromocao(melhorPreco(imperio, 6, false).partes, fmt), '2× 3 por R$ 11,00');
+  assert.equal(descreverPromocao(melhorPreco(imperio, 2, false).partes, fmt), null);
+});
+
+test('aviso da sacola: quanto custa a próxima promoção', () => {
+  assert.deepEqual(proximaPromocao(imperio, 1), { mais: 2, custo: 7 });
+  assert.deepEqual(proximaPromocao(imperio, 2), { mais: 1, custo: 3 });
+  assert.equal(proximaPromocao(imperio, 3), null); // acabou de fechar
+  assert.deepEqual(proximaPromocao(imperio, 4), { mais: 2, custo: 7 });
+  assert.deepEqual(proximaPromocao(imperio, 5), { mais: 1, custo: 3 });
+});
+
+test('bloco sem desconto (3x pelo mesmo preço de 3 avulsas) não vira promoção', () => {
+  const amstel = { ...imperio, preco: 4.5, ofertas: [{ ...imperio.ofertas[0], preco: 4.5 }, { ...imperio.ofertas[1], preco: 13.5 }] };
+  assert.equal(blocoEmDestaque(amstel), null);
+  assert.equal(proximaPromocao(amstel, 2), null);
 });

@@ -138,3 +138,67 @@ export function totalDaLinha(linha: LinhaPreco, cartao: boolean): number {
 export function subtotalCarrinho(linhas: LinhaPreco[], cartao: boolean): number {
   return linhas.reduce((soma, l) => soma + centavos(totalDaLinha(l, cartao)), 0) / 100;
 }
+
+// ---- Promoção dita como no mercado (26/10/2026) ----
+// "3 por R$ 11,00" em vez de "R$ 3,67/un.": o preço por unidade da promoção não é o de
+// nenhuma lata de verdade, e a 4ª lata a R$ 4,00 parecia erro.
+
+export interface BlocoComDesconto {
+  qtd: number;
+  preco: number;
+  /** oferta "[Promo]" do ERP (vem antes na etiqueta do card) */
+  promo: boolean;
+}
+
+/** Blocos que saem mais baratos que as unidades avulsas, do menor para o maior (um por tamanho). */
+export function blocosComDesconto(produto: ProdutoPreco, cartao = false): BlocoComDesconto[] {
+  const unidade = melhorPreco(produto, 1, cartao).total;
+  const porTamanho = new Map<number, BlocoComDesconto>();
+  for (const o of ofertasDeVenda(produto)) {
+    if (o.qtd <= 1) continue;
+    const preco = precoDoBloco(o, cartao);
+    if (centavos(preco) >= centavos(unidade * o.qtd)) continue;
+    const atual = porTamanho.get(o.qtd);
+    if (!atual || preco < atual.preco) porTamanho.set(o.qtd, { qtd: o.qtd, preco, promo: /^\s*\[promo\]/i.test(o.nome) });
+  }
+  return [...porTamanho.values()].sort((a, b) => a.qtd - b.qtd);
+}
+
+/** O bloco da etiqueta do card: a promoção do ERP, senão o menor bloco com desconto. */
+export function blocoEmDestaque(produto: ProdutoPreco): BlocoComDesconto | null {
+  const blocos = blocosComDesconto(produto);
+  return blocos.find((b) => b.promo) ?? blocos[0] ?? null;
+}
+
+/**
+ * Quanto falta para a próxima promoção, para o aviso da sacola: "Leve mais 2 por R$ 7,00".
+ * Procura até (menor bloco - 1) unidades a mais, no máximo 3, e só avisa quando elas saem
+ * mais baratas que avulsas. null quando não há o que sugerir (ex.: acabou de fechar a promoção).
+ */
+export function proximaPromocao(produto: ProdutoPreco, unidades: number, cartao = false): { mais: number; custo: number } | null {
+  const blocos = blocosComDesconto(produto, cartao);
+  if (!blocos.length || unidades < 1) return null;
+  const unidade = melhorPreco(produto, 1, cartao).total;
+  const atual = melhorPreco(produto, unidades, cartao).total;
+  const maximo = Math.min(blocos[0].qtd - 1, 3);
+  for (let mais = 1; mais <= maximo; mais++) {
+    const custo = centavos(melhorPreco(produto, unidades + mais, cartao).total - atual);
+    if (custo < centavos(unidade * mais)) return { mais, custo: custo / 100 };
+  }
+  return null;
+}
+
+/**
+ * Como o total foi montado, em palavras de mercado: "3 por R$ 11,00 + 1 avulsa R$ 4,00".
+ * null quando é tudo avulso. `formatar` vem de fora para o módulo continuar puro.
+ */
+export function descreverPromocao(partes: PartePreco[], formatar: (v: number) => string): string | null {
+  if (!partes.some((p) => p.qtd > 1)) return null;
+  return partes
+    .map((p) =>
+      p.qtd > 1
+        ? `${p.vezes > 1 ? `${p.vezes}× ` : ''}${p.qtd} por ${formatar(p.preco)}`
+        : `${p.vezes} ${p.vezes > 1 ? 'avulsas' : 'avulsa'} ${formatar(Math.round(p.preco * p.vezes * 100) / 100)}`,
+    )
+    .join(' + ');
+}

@@ -8,7 +8,6 @@ import { CartDrawer } from '@/components/layout/CartDrawer';
 import { FloatingCart } from '@/components/ui/FloatingCart';
 import { BarraInferior } from '@/components/layout/BarraInferior';
 import { ConvitePush } from '@/components/ui/ConvitePush';
-import { BotaoWhatsApp } from '@/components/ui/BotaoWhatsApp';
 import { Toast } from '@/components/ui/Toast';
 import { ProdutoModal } from '@/components/loja/ProdutoModal';
 import { ConfirmacaoIdade } from '@/components/loja/ConfirmacaoIdade';
@@ -82,7 +81,6 @@ export default async function RootLayout({
           <Footer />
           <FloatingCart />
           <BarraInferior />
-          <BotaoWhatsApp />
           <ConvitePush />
           <CartDrawer />
           <ProdutoModal />

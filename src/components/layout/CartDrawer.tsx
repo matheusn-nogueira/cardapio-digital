@@ -176,7 +176,14 @@ export const CartDrawer: React.FC = () => {
                           </span>
                         )}
                       </div>
-                      {!variante && <ResumoCombinacao produto={produto} unidades={quantidade} className="mt-0.5" />}
+                      {!variante && (
+                        <ResumoCombinacao
+                          produto={produto}
+                          unidades={quantidade}
+                          aoSomar={(n) => alterar(chave, quantidade + n)}
+                          className="mt-1"
+                        />
+                      )}
                       <div className="flex items-center justify-between mt-2 gap-2">
                         <div className="flex items-center gap-1">
                           <button

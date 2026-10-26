@@ -16,7 +16,14 @@ import {
   descreverVariante,
   tabelaDePrecos,
 } from '@/lib/ofertas';
-import { atalhosDoProduto, descreverCombinacao, melhorPreco, UNIDADES_MAXIMAS } from '@/lib/precoQuantidade';
+import {
+  blocoEmDestaque,
+  blocosComDesconto,
+  descreverPromocao,
+  melhorPreco,
+  proximaPromocao,
+  UNIDADES_MAXIMAS,
+} from '@/lib/precoQuantidade';
 import type { Produto, Variante } from '@/lib/tipos';
 import { toastEvent } from '@/components/ui/Toast';
 import { ImagemProduto } from './ImagemProduto';
@@ -31,21 +38,38 @@ export const SeloTemperatura: React.FC<{ quente: boolean }> = ({ quente }) => {
   );
 };
 
-/** "1 pack de 12 + 1 un · economia de R$ 2,00" — explica o preço da quantidade. */
-export const ResumoCombinacao: React.FC<{ produto: Produto; unidades: number; className?: string }> = ({
-  produto,
-  unidades,
-  className = '',
-}) => {
+/**
+ * Explica o preço da quantidade em palavras de mercado ("3 por R$ 11,00 + 1 avulsa R$ 4,00") e,
+ * com `aoSomar`, avisa quanto custa fechar a próxima promoção ("Leve mais 2 por R$ 7,00").
+ * Usado na ficha do produto e na sacola (26/10/2026).
+ */
+export const ResumoCombinacao: React.FC<{
+  produto: Produto;
+  unidades: number;
+  className?: string;
+  aoSomar?: (unidades: number) => void;
+}> = ({ produto, unidades, className = '', aoSomar }) => {
   const preco = melhorPreco(produto, unidades, false);
-  const combinacao = descreverCombinacao(preco.partes);
-  // combinação sem desconto (pack pelo mesmo preço das unidades) não precisa de explicação
-  if (!combinacao || preco.economia <= 0) return null;
+  const combinacao = preco.economia > 0 ? descreverPromocao(preco.partes, formatarPreco) : null;
+  const proxima = aoSomar ? proximaPromocao(produto, unidades) : null;
+  if (!combinacao && !proxima) return null;
   return (
-    <p className={`text-[12px] text-suave ${className}`}>
-      {combinacao}
-      <span className="text-sucesso font-medium"> · economia de {formatarPreco(preco.economia)}</span>
-    </p>
+    <div className={className}>
+      {combinacao && <p className="text-[13px] text-sucesso font-medium">Promoção aplicada: {combinacao}</p>}
+      {proxima && aoSomar && (
+        <button
+          type="button"
+          onClick={() => aoSomar(proxima.mais)}
+          className="mt-1.5 w-full flex items-center justify-between gap-2 rounded-xl bg-[#E7F6EC] text-[#0B5D3B] px-3 py-2 text-left text-[13px]"
+        >
+          <span>
+            Leve <strong>mais {proxima.mais} por {formatarPreco(proxima.custo)}</strong>
+            {unidades >= (blocoEmDestaque(produto)?.qtd ?? Infinity) ? ' e feche outra promoção' : ' e feche a promoção'}
+          </span>
+          <span className="shrink-0 rounded-lg bg-sucesso text-white font-bold px-2.5 py-1">+{proxima.mais}</span>
+        </button>
+      )}
+    </div>
   );
 };
 
@@ -67,7 +91,8 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
   const variante: Variante | null = produto.variantes.find((v) => v.id === varianteId) ?? null;
   const tabela = tabelaDePrecos(produto.ofertas);
   const temBlocos = tabela.some((o) => o.qtd > 1);
-  const atalhos = atalhosDoProduto(produto);
+  // atalhos = os blocos de verdade do produto ("3 por R$ 11,00", "Pack 12"): tocar põe essa quantidade
+  const atalhos = blocosComDesconto(produto).slice(0, 3);
 
   // padrão: quantidade em unidades; variante: em blocos com preço fechado
   const preco = variante ? null : melhorPreco(produto, quantidade, false);
@@ -95,9 +120,9 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
   };
 
   const unidadePadrao = melhorPreco(produto, 1, false).total;
-  // como no Zé: o preço mostrado é o da unidade na quantidade escolhida (cai com os packs)
-  const precoMostrado = variante ? variante.preco : Math.round((total / quantidade) * 100) / 100;
-  const desconto = !variante && unidadePadrao > 0 ? Math.round((1 - precoMostrado / unidadePadrao) * 100) : 0;
+  // preço da unidade (o que cada lata avulsa custa); a promoção aparece como "3 por R$ 11,00"
+  // nos atalhos e no resumo, não como um preço por unidade quebrado (R$ 3,67)
+  const precoMostrado = variante ? variante.preco : unidadePadrao;
   const natural = produto.quente || variante?.quente === true;
   const etiqueta = 'text-[13px] font-semibold px-2 py-1 rounded-lg inline-flex items-center gap-1.5';
   const titulo = React.createElement(
@@ -115,15 +140,7 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
         <div className="min-w-0">
           {titulo}
           <p className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1.5">
-            <span className={`text-[24px] font-bold tabular-nums leading-none ${desconto > 0 ? 'text-sucesso' : 'text-tinta'}`}>
-              {formatarPreco(precoMostrado)}
-            </span>
-            {desconto > 0 && (
-              <>
-                <span className="text-[14px] text-suave line-through tabular-nums">{formatarPreco(unidadePadrao)}</span>
-                <span className="text-[13px] font-bold px-2 py-0.5 rounded-lg bg-sucesso text-white">-{desconto}%</span>
-              </>
-            )}
+            <span className="text-[24px] font-bold tabular-nums leading-none text-tinta">{formatarPreco(precoMostrado)}</span>
             {variante && variante.qtd > 1 && <span className="text-[13px] text-suave">{detalheVariante(variante)}</span>}
           </p>
           <div className="flex flex-wrap gap-1.5 mt-2.5">
@@ -200,18 +217,23 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
 
         {!variante && atalhos.length > 0 && (
           <div className="flex gap-2.5 mt-3">
-            {atalhos.map((n) => (
-              <button
-                key={n}
-                type="button"
-                onClick={() => mudar(quantidade === 1 ? n : quantidade + n)}
-                className="flex-1 h-12 rounded-2xl border border-[#D6D6D6] bg-white text-[15px] font-bold flex items-center justify-center gap-2"
-                aria-label={`${quantidade === 1 ? 'Levar' : 'Somar mais'} ${n} unidades`}
-              >
-                <Plus className="w-5 h-5" aria-hidden="true" />
-                {n} un.
-              </button>
-            ))}
+            {atalhos.map((b) => {
+              const escolhido = quantidade === b.qtd;
+              return (
+                <button
+                  key={b.qtd}
+                  type="button"
+                  onClick={() => mudar(b.qtd)}
+                  aria-pressed={escolhido}
+                  className={`flex-1 min-h-12 rounded-2xl border-2 px-2 py-1.5 text-[14px] font-bold leading-tight flex flex-col items-center justify-center ${
+                    escolhido ? 'border-sucesso bg-[#E7F6EC] text-[#0B5D3B]' : 'border-[#D6D6D6] bg-white text-tinta'
+                  }`}
+                >
+                  <span>{b.qtd} por</span>
+                  <span className="tabular-nums">{formatarPreco(b.preco)}</span>
+                </button>
+              );
+            })}
           </div>
         )}
 
@@ -256,6 +278,7 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
           </section>
         )}
 
+        {/* na ficha os atalhos já mostram a promoção; o aviso "Leve mais 2" fica só na sacola */}
         {!variante && <ResumoCombinacao produto={produto} unidades={quantidade} className="mt-3 text-center" />}
         {totalCartao !== total && (
           <p className="text-[12px] text-suave mt-1 text-center">No cartão (na entrega): {formatarPreco(totalCartao)}</p>

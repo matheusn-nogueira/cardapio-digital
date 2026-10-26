@@ -5,8 +5,7 @@ import { Minus, Plus, Trash2 } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { formatarPreco } from '@/lib/formatacao';
-import { descontoDoBloco, melhorBloco, precoPorUnidade } from '@/lib/ofertas';
-import { melhorPreco } from '@/lib/precoQuantidade';
+import { blocoEmDestaque, melhorPreco } from '@/lib/precoQuantidade';
 import type { Produto } from '@/lib/tipos';
 import { ImagemProduto } from './ImagemProduto';
 
@@ -23,8 +22,8 @@ interface ProdutoCardProps {
  * Revisão de usabilidade (26/10/2026):
  * - o "+" tem 36 px à vista (o toque vale 44 px), para não cobrir a foto;
  * - um selo só por card ("Leve + por -", o selo do ERP ou "Natural"); "Também natural" fica na ficha;
- * - o preço é o que o "+" cobra (1 un); a oferta do pack vai na etiqueta verde da foto
- *   ("Leve 3: R$ 4,33/un.");
+ * - o preço é o que o "+" cobra (1 un); a promoção vai na etiqueta verde da foto, dita como no
+ *   mercado ("3 por R$ 11,00"), nunca como preço por unidade quebrado;
  * - texto de altura fixa (preço + nome em 2 linhas): todas as prateleiras ficam da mesma altura
  *   e o espaço entre elas é sempre o mesmo.
  */
@@ -32,9 +31,8 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
   const { abrirProduto } = useCardapio();
   const { adicionar, alterar, remover, unidadesDoProduto, quantidadeNaLinha } = useCart();
   const unidade = melhorPreco(produto, 1, false).total;
-  const bloco = melhorBloco(produto.ofertas);
-  const desconto = bloco ? descontoDoBloco(bloco, unidade) : 0;
-  const porUnidade = bloco && desconto > 0 ? precoPorUnidade(bloco, 'pix') : null;
+  // promoção dita como no mercado: "3 por R$ 11,00"
+  const bloco = blocoEmDestaque(produto);
   const naSacola = unidadesDoProduto(produto.id);
   // o contador mexe só na versão padrão; versões escolhidas na ficha (natural em pack…) ficam na sacola
   const naLinha = quantidadeNaLinha(produto.id);
@@ -52,8 +50,7 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
   };
   const diminuir = () => (naLinha <= 1 ? remover(produto.id) : alterar(produto.id, naLinha - 1));
 
-  const selo =
-    porUnidade != null && bloco ? `Leve ${bloco.qtd}: ${formatarPreco(porUnidade)}/un.` : produto.selo ?? (produto.quente ? 'Natural' : null);
+  const selo = bloco ? `${bloco.qtd} por ${formatarPreco(bloco.preco)}` : produto.selo ?? (produto.quente ? 'Natural' : null);
 
   return (
     <article className={`flex flex-col ${formato === 'carrossel' ? 'w-[150px] shrink-0 snap-start' : 'w-full'}`}>
@@ -66,9 +63,8 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
         </button>
         {selo && (
           <span
-            title={porUnidade != null ? `-${desconto}% levando ${bloco?.qtd}` : undefined}
             className={`absolute top-2 left-2 right-2 w-fit truncate pointer-events-none text-[11px] font-bold px-2 py-0.5 rounded-full tabular-nums ${
-              porUnidade != null ? 'bg-sucesso text-white' : selo === 'Natural' ? 'bg-white text-[#4A4A4A]' : 'bg-tinta text-white'
+              bloco ? 'bg-sucesso text-white' : selo === 'Natural' ? 'bg-white text-[#4A4A4A]' : 'bg-tinta text-white'
             }`}
           >
             {selo}
