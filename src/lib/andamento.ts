@@ -13,10 +13,12 @@ export interface EtapaPedido {
 const ORDEM: StatusPedido[] = ['aguardando_preparo', 'em_preparo', 'saiu_entrega', 'entregue'];
 
 export function etapasDoPedido(status: StatusPedido, retirada: boolean): EtapaPedido[] {
-  const titulos = retirada
-    ? ['Pedido recebido', 'Separando seu pedido', 'Pronto para retirar', 'Retirado']
-    : ['Pedido recebido', 'Separando seu pedido', 'Saiu para entrega', 'Entregue'];
   const atual = Math.max(0, ORDEM.indexOf(status));
+  // a loja só "confirma" quando pega o pedido (em preparo); antes disso, está aguardando
+  const primeira = atual === 0 ? 'Aguardando a loja confirmar' : 'Confirmado pela loja';
+  const titulos = retirada
+    ? [primeira, 'Separando seu pedido', 'Pronto para retirar', 'Retirado']
+    : [primeira, 'Separando seu pedido', 'Saiu para entrega', 'Entregue'];
   return titulos.map((titulo, i) => ({
     titulo,
     // a última etapa concluída aparece como feita, não como "agora"

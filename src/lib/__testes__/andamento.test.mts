@@ -21,3 +21,9 @@ test('para de consultar quando o pedido termina', () => {
   assert.equal(pedidoEncerrado('em_preparo'), false);
   assert.equal(pedidoEncerrado(null), false);
 });
+
+test('primeira etapa: aguardando a loja, depois confirmado pela loja', () => {
+  assert.equal(etapasDoPedido('aguardando_preparo', false)[0].titulo, 'Aguardando a loja confirmar');
+  assert.equal(etapasDoPedido('em_preparo', false)[0].titulo, 'Confirmado pela loja');
+  assert.equal(etapasDoPedido('em_preparo', false)[0].estado, 'feita');
+});
