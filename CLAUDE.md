@@ -69,12 +69,12 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
 
 - A marca do produto é a coluna `products.system_category` do ERP (a view a expõe como `marca`). Em 25/10/2026 todas as cervejas ficaram com marca preenchida. "Bebidas Quentes (Mais Barato)" e "Sucesso de vendas" estão nessa coluna, mas são etiquetas, não marcas.
 - `public/marcas/` tem os logos baixados da Wikipédia por `scripts/baixar-logos-marcas.py`. O script recebe um argumento `"Marca=wiki:Artigo"` por marca e pausa entre pedidos, porque a Wikipédia devolve 429 com pedidos seguidos e às vezes acha o logo errado: conferir a imagem.
-- O manifesto `src/data/marcas-logos.json` diz qual marca tem logo. O logo do Império veio do site da marca. Antarctica e Michelob ainda estão sem logo.
+- O manifesto `src/data/marcas-logos.json` diz qual marca tem logo (`arquivoLata`: versão recolorida como impressa na lata, como a Heineken branca com estrela vermelha). Império veio do site da marca; Antarctica (selo dos pinguins), Michelob, Itaipava, Eisenbahn e Caracu vieram do worldvectorlogo.com, com o fundo tirado e o `viewBox` recortado ao desenho. Bohemia e Petra estão sem logo (o "Bohemia" achado era de uma fábrica de cristais): aparecem como letreiro.
 - Marca nova no catálogo: rodar o script para ela e commitar o arquivo e o manifesto.
-- `MarcasLista`:
-  - quadrados de 92 px com cara de lata: a cor da lata de cada marca (`CORES_MARCA`) e um brilho de alumínio por cima (`BRILHO_LATA`);
-  - logo como impresso na lata: silhueta branca no fundo escuro, original (`LOGO_ORIGINAL`) ou com contorno branco (`LOGO_CONTORNO`, a gravata da Budweiser na lata vermelha);
-  - com 4 ou mais marcas com logo, mostra só essas;
+- `MarcasLista` (26/10/2026, pedido do dono):
+  - todas as marcas de cerveja do catálogo, mesmo com um produto só; quem não tem logo vira letreiro nas cores da lata;
+  - quadrados de 92 px com fundo **sólido** na cor da lata (`CORES_MARCA`), sem degradê nem brilho;
+  - logo como impresso na lata, com as cores dele: original (`LOGO_ORIGINAL`), silhueta branca quando a lata imprime o logo em branco (Brahma), ou com contorno branco (`LOGO_CONTORNO`, a gravata da Budweiser na lata vermelha);
   - `NAO_E_MARCA` tira valores que são categoria.
 
 ## Notificações push
@@ -110,4 +110,4 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
 
 - Testar o push de status com um pedido real feito pelo site e movido no ERP.
 - Testar os fluxos de iPhone (instalar e convite no app instalado).
-- Logos de Antarctica e Michelob.
+- Logos de Bohemia e Petra (hoje letreiros).

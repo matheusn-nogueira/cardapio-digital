@@ -3,6 +3,10 @@
     "arquivo": "amstel.png",
     "fonte": "https://en.wikipedia.org/wiki/File:AMSTELLOGO.PNG"
   },
+  "Antarctica": {
+    "arquivo": "antarctica.svg",
+    "fonte": "https://cdn.worldvectorlogo.com/logos/antarctica-2.svg"
+  },
   "Brahma": {
     "arquivo": "brahma.svg",
     "fonte": "https://en.wikipedia.org/wiki/File:Logotipo_da_Brahma_(2025).svg"
@@ -11,17 +15,34 @@
     "arquivo": "budweiser.svg",
     "fonte": "https://en.wikipedia.org/wiki/File:Budweiser_Anheuser-Busch_logo.svg"
   },
+  "Caracu": {
+    "arquivo": "caracu.svg",
+    "fonte": "https://cdn.worldvectorlogo.com/logos/caracu.svg"
+  },
   "Corona": {
     "arquivo": "corona.svg",
     "fonte": "https://en.wikipedia.org/wiki/File:Corona_Extra.svg"
   },
+  "Eisenbahn": {
+    "arquivo": "eisenbahn.svg",
+    "fonte": "https://cdn.worldvectorlogo.com/logos/eisenbahn-1.svg"
+  },
   "Heineken": {
     "arquivo": "heineken.svg",
-    "fonte": "https://en.wikipedia.org/wiki/File:Heineken_Logo.svg"
+    "fonte": "https://en.wikipedia.org/wiki/File:Heineken_Logo.svg",
+    "arquivoLata": "heineken-lata.svg"
   },
   "Império": {
     "arquivo": "imperio.png",
     "fonte": "https://www.cervejaimperio.com.br/img/logo.png"
+  },
+  "Itaipava": {
+    "arquivo": "itaipava.svg",
+    "fonte": "https://cdn.worldvectorlogo.com/logos/itaipava.svg"
+  },
+  "Michelob": {
+    "arquivo": "michelob.svg",
+    "fonte": "https://cdn.worldvectorlogo.com/logos/michelob-ultra.svg"
   },
   "Skol": {
     "arquivo": "skol.svg",

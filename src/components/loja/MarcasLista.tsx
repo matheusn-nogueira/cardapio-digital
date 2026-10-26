@@ -4,7 +4,8 @@ import logos from '@/data/marcas-logos.json';
 import type { Produto } from '@/lib/tipos';
 
 // Logos baixados pelo scripts/baixar-logos-marcas.py (public/marcas/); marca sem logo vira letreiro.
-const LOGOS = logos as Record<string, { arquivo: string; fonte: string }>;
+// arquivoLata: versão recolorida como impressa na lata (Heineken: nome branco e estrela vermelha)
+const LOGOS = logos as Record<string, { arquivo: string; arquivoLata?: string; fonte: string }>;
 
 /**
  * Marcas reais do catálogo (campo `marca`), ignorando as que são só o nome
@@ -42,12 +43,14 @@ const CORES_MARCA: [RegExp, [string, string]][] = [
   [/corona/i, ['#F3EFE4', '#0B2545']],
   [/spaten/i, ['#0F5A32', '#FFFFFF']],
   [/imp[eé]rio/i, ['#1A1A1A', '#D4A017']],
-  [/itaipava/i, ['#0033A0', '#FFFFFF']],
+  [/itaipava/i, ['#C8102E', '#FFFFFF']],
+  [/caracu/i, ['#111111', '#FFFFFF']],
   [/michelob/i, ['#F2F2F2', '#1B2A4A']],
   [/beats/i, ['#1E2BC2', '#FFFFFF']],
   [/petra/i, ['#1A1A1A', '#C9A227']],
-  [/bohemia/i, ['#7A1F2B', '#F0C75E']],
-  [/eisenbahn/i, ['#1B3A6B', '#FFFFFF']],
+  // Bohemia: lata branca com o nome em preto; Eisenbahn: lata escura
+  [/bohemia/i, ['#F2F0EA', '#1A1A1A']],
+  [/eisenbahn/i, ['#1A1A1A', '#FFFFFF']],
   [/red ?bull/i, ['#F2F2F2', '#C8102E']],
   [/monster/i, ['#0A0A0A', '#95D600']],
   [/coca/i, ['#F40009', '#FFFFFF']],
@@ -82,15 +85,11 @@ function coresDaMarca(nome: string, indice: number): [string, string] {
   return CORES_MARCA.find(([re]) => re.test(nome))?.[1] ?? CORES_SOBRA[indice % CORES_SOBRA.length];
 }
 
-// Logo com as cores originais mesmo em fundo escuro, como impresso na lata (dourado da Império,
-// selos da Amstel e da Spaten). A gravata da Budweiser é vermelha com texto branco: na lata vermelha
-// ela ganha um contorno branco para destacar.
-const LOGO_ORIGINAL = [/imp[eé]rio/i, /amstel/i, /spaten/i];
+// Logo como impresso na lata, com a divisão de cores dele: cores originais mesmo em fundo escuro
+// (dourado da Império, selos da Amstel e da Spaten, Heineken branca com a estrela vermelha).
+// A gravata da Budweiser é vermelha com texto branco: na lata vermelha ganha um contorno branco.
+const LOGO_ORIGINAL = [/imp[eé]rio/i, /amstel/i, /spaten/i, /heineken/i, /antarctica/i, /itaipava/i, /eisenbahn/i, /caracu/i];
 const LOGO_CONTORNO = [/budweiser/i];
-
-// Brilho de lata: sombra nas bordas e reflexo à esquerda, como um cilindro de alumínio.
-const BRILHO_LATA =
-  'linear-gradient(90deg, rgba(0,0,0,.22) 0%, rgba(255,255,255,.22) 18%, rgba(255,255,255,.06) 34%, rgba(0,0,0,0) 55%, rgba(0,0,0,.08) 80%, rgba(0,0,0,.26) 100%)';
 
 function fundoClaro(hex: string): boolean {
   const n = parseInt(hex.slice(1), 16);
@@ -100,13 +99,14 @@ function fundoClaro(hex: string): boolean {
 
 const MINIMO_DUAS_LINHAS = 8;
 
-// Com poucos logos a prateleira cai para os letreiros; com logos suficientes, só marcas com logo entram
-const MINIMO_COM_LOGO = 4;
-
-/** Atalhos de marca como no Zé, com cara de lata: cor e logo como impressos na lata e brilho de alumínio. Sem logos, letreiros. */
+/**
+ * Atalhos de marca como no Zé: fundo sólido na cor da lata e o logo como impresso nela.
+ * Sem degradê nem brilho (pedido do dono, 26/10/2026). Sem logos, letreiros.
+ */
 export const MarcasLista: React.FC<{ marcas: string[] }> = ({ marcas }) => {
-  const comLogo = marcas.filter((m) => LOGOS[m]);
-  const lista = comLogo.length >= MINIMO_COM_LOGO ? comLogo : marcas;
+  // todas as marcas entram (antes só as com logo, e Antarctica, Michelob e outras sumiam):
+  // quem não tem logo vira letreiro nas cores da lata
+  const lista = marcas;
   if (!lista.length) return null;
   const duasLinhas = lista.length >= MINIMO_DUAS_LINHAS;
   return (
@@ -135,11 +135,10 @@ export const MarcasLista: React.FC<{ marcas: string[] }> = ({ marcas }) => {
                   className="relative flex items-center justify-center w-[92px] h-[92px] rounded-2xl overflow-hidden p-2"
                   style={{ background: fundo }}
                 >
-                  <span className="absolute inset-0 pointer-events-none" style={{ background: BRILHO_LATA }} aria-hidden="true" />
                   {/* svg/png estático: <img> simples, sem otimizador */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={`/marcas/${logo.arquivo}`}
+                    src={`/marcas/${logo.arquivoLata ?? logo.arquivo}`}
                     alt=""
                     className={`relative w-full h-full object-contain ${
                       branco
@@ -162,7 +161,6 @@ export const MarcasLista: React.FC<{ marcas: string[] }> = ({ marcas }) => {
                 className="relative flex items-center justify-center w-[92px] h-[92px] rounded-2xl overflow-hidden px-2 text-center"
                 style={{ background: fundo, color: texto }}
               >
-                <span className="absolute inset-0 pointer-events-none" style={{ background: BRILHO_LATA }} aria-hidden="true" />
                 <span
                   className={`relative font-condensed font-bold uppercase leading-[0.95] tracking-tight line-clamp-2 ${
                     comprida ? 'text-[17px]' : 'text-[21px]'

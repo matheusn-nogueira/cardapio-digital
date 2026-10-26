@@ -17,7 +17,8 @@ export default async function Home() {
   const categorias = home.categorias
     .filter((c) => produtosDaCategoria(produtos, c).length > 0)
     .map((c) => ({ ...c, imagem_url: c.imagem_url ?? imagemDaCategoria(c, produtos) }));
-  const marcas = marcasDoCatalogo(produtos);
+  // toda marca de cerveja do catálogo, mesmo com um produto só (Bohemia, Petra…)
+  const marcas = marcasDoCatalogo(produtos, 1);
   const vitrine = (v: (typeof home.vitrines)[number]) => (
     <Vitrine
       key={v.id}
