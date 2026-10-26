@@ -24,6 +24,8 @@ export const PecaTambem: React.FC = () => {
     // só o que entra na sacola com um toque (versão com escolha abriria o modal)
     const candidatos = produtos.filter((p) => !naSacola.has(p.id) && !p.variantes.some((v) => !v.quente));
     const grupoDe = (p: Produto) => {
+      // carvão divide a categoria com o gelo, mas não é o que falta para quem leva bebida
+      if (/carv[aã]o/i.test(p.nome)) return -1;
       const nome = `${categoriaDoProduto(p)?.nome ?? ''} ${p.categoria}`;
       return COMPLEMENTOS.findIndex((re) => re.test(nome));
     };
@@ -33,6 +35,9 @@ export const PecaTambem: React.FC = () => {
       const grupo = grupoDe(p);
       if (grupo >= 0) porGrupo[grupo].push(p);
     }
+    // gelo comum (escama, filtrado) antes do gelo de sabor
+    const deSabor = (p: Produto) => /sabor|coco|ma[cç][aã]|morango|melancia|maracuj|laranja|lim[aã]o|beats/i.test(p.nome);
+    porGrupo[0].sort((a, b) => Number(deSabor(a)) - Number(deSabor(b)));
     const complementos: Produto[] = [];
     for (let i = 0; porGrupo.some((g) => i < g.length); i++) {
       for (const g of porGrupo) if (i < g.length) complementos.push(g[i]);

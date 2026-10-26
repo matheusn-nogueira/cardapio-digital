@@ -66,6 +66,14 @@ export const PopupPromo: React.FC = () => {
 
   // só depois da hidratação e da confirmação de idade (o modal de idade fica por cima)
   const liberado = hidratado && (!home.config.pedir_confirmacao_idade || maiorDeIdade);
+  // quem acabou de confirmar a idade não ganha outro pop-up em seguida (dois modais na chegada
+  // fazem a pessoa sair): a lista fica para a próxima visita
+  const idadeNaChegada = useRef<boolean | null>(null);
+  const pedeIdade = home.config.pedir_confirmacao_idade;
+  // roda antes dos efeitos dos pop-ups (mesma ordem da declaração)
+  useEffect(() => {
+    if (hidratado && idadeNaChegada.current === null) idadeNaChegada.current = !pedeIdade || maiorDeIdade;
+  }, [hidratado, pedeIdade, maiorDeIdade]);
   const listaHoje = vistas.lista === hoje();
   const ofertaHoje = vistas.oferta === hoje();
 
@@ -108,7 +116,7 @@ export const PopupPromo: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!liberado || listaHoje || !lista) return;
+    if (!liberado || listaHoje || !lista || !idadeNaChegada.current) return;
     const relogio = setTimeout(() => abrir('lista'), ATRASO_LISTA_MS);
     return () => clearTimeout(relogio);
   }, [liberado, listaHoje, lista, abrir]);
@@ -118,13 +126,23 @@ export const PopupPromo: React.FC = () => {
     const aoSair = (e: MouseEvent) => {
       if (e.clientY <= 0) abrir('oferta');
     };
-    const ocioso = setTimeout(() => {
-      if (quantidadeTotal === 0) abrir('oferta');
-    }, OCIOSO_OFERTA_MS);
+    // parada de verdade: o relógio volta a zero a cada rolagem ou toque (antes contava desde a
+    // abertura e o pop-up interrompia quem estava olhando o cardápio)
+    let ocioso = 0;
+    const armar = () => {
+      window.clearTimeout(ocioso);
+      ocioso = window.setTimeout(() => {
+        if (quantidadeTotal === 0) abrir('oferta');
+      }, OCIOSO_OFERTA_MS);
+    };
+    const MEXEU = ['scroll', 'touchstart', 'pointerdown', 'keydown'] as const;
+    armar();
+    MEXEU.forEach((ev) => window.addEventListener(ev, armar, { passive: true }));
     document.addEventListener('mouseleave', aoSair);
     return () => {
       document.removeEventListener('mouseleave', aoSair);
-      clearTimeout(ocioso);
+      MEXEU.forEach((ev) => window.removeEventListener(ev, armar));
+      window.clearTimeout(ocioso);
     };
   }, [liberado, ofertaHoje, oferta, quantidadeTotal, abrir]);
 

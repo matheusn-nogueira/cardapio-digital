@@ -17,10 +17,14 @@ interface ProdutoCardProps {
 }
 
 /**
- * Card como no app do Zé: foto num bloco cinza-claro com o "+" quadrado amarelo no canto,
+ * Card como no app do Zé: foto num bloco cinza-claro com o "+" redondo amarelo no canto,
  * e embaixo o preço antes do nome. Como no iFood, o "+" põe 1 un na sacola e vira um contador
- * sobre a foto (lixeira no 1, menos, quantidade, mais), sem abrir a ficha. Com desconto no pack ("Leve + por -"), o preço em verde
- * é o da unidade no pack, com o preço avulso riscado e a pílula "-N%".
+ * sobre a foto (lixeira no 1, menos, quantidade, mais), sem abrir a ficha.
+ * Revisão de usabilidade (26/10/2026):
+ * - o "+" tem 36 px à vista (o toque vale 44 px), para não cobrir a foto;
+ * - um selo só por card ("Leve + por -", o selo do ERP ou "Natural"); "Também natural" fica na ficha;
+ * - o preço grande é o que o "+" cobra (1 un); o do pack vem embaixo, em verde, numa linha só
+ *   ("Leve 3: R$ 4,33/un."), para os cards da prateleira não crescerem.
  */
 export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'grade' }) => {
   const { abrirProduto } = useCardapio();
@@ -32,7 +36,6 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
   const naSacola = unidadesDoProduto(produto.id);
   // o contador mexe só na versão padrão; versões escolhidas na ficha (natural em pack…) ficam na sacola
   const naLinha = quantidadeNaLinha(produto.id);
-  const temNatural = !produto.quente && produto.variantes.some((v) => v.quente);
 
   // versão que muda o produto (ex.: galão com vasilhame) pede escolha; natural não (padrão = gelada)
   const pedeEscolha = produto.variantes.some((v) => !v.quente);
@@ -47,7 +50,7 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
   };
   const diminuir = () => (naLinha <= 1 ? remover(produto.id) : alterar(produto.id, naLinha - 1));
 
-  const selo = porUnidade != null ? 'Leve + por -' : produto.selo;
+  const selo = porUnidade != null ? 'Leve + por -' : produto.selo ?? (produto.quente ? 'Natural' : null);
 
   return (
     <article className={`flex flex-col ${formato === 'carrossel' ? 'w-[150px] shrink-0 snap-start' : 'w-full'}`}>
@@ -58,20 +61,15 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
             <ImagemProduto produto={produto} />
           </span>
         </button>
-        <div className="absolute top-2 left-2 flex flex-col items-start gap-1 pointer-events-none">
-          {selo && (
-            <span
-              className={`text-[12px] font-bold px-2 py-0.5 rounded-full text-white ${porUnidade != null ? 'bg-sucesso' : 'bg-tinta'}`}
-            >
-              {selo}
-            </span>
-          )}
-          {(produto.quente || temNatural) && (
-            <span className="bg-white text-[#4A4A4A] text-[11px] font-bold px-2 py-0.5 rounded-full">
-              {produto.quente ? 'Natural' : 'Também natural'}
-            </span>
-          )}
-        </div>
+        {selo && (
+          <span
+            className={`absolute top-2 left-2 pointer-events-none text-[11px] font-bold px-2 py-0.5 rounded-full ${
+              porUnidade != null ? 'bg-sucesso text-white' : selo === 'Natural' ? 'bg-white text-[#4A4A4A]' : 'bg-tinta text-white'
+            }`}
+          >
+            {selo}
+          </span>
+        )}
         {naLinha > 0 && !pedeEscolha ? (
           <div className="absolute left-1.5 right-1.5 bottom-1.5 h-11 rounded-full bg-white shadow-cartao flex items-center justify-between px-1 animate-fade-in">
             <button
@@ -99,9 +97,9 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
             type="button"
             onClick={aoAdicionar}
             aria-label={pedeEscolha ? `Escolher versão de ${produto.nome}` : `Adicionar 1 unidade de ${produto.nome} à sacola`}
-            className="absolute -bottom-1 -right-1 w-12 h-12 rounded-2xl bg-primaria text-primaria-texto flex items-center justify-center active:scale-95 transition-transform"
+            className="absolute bottom-2 right-2 w-9 h-9 rounded-full bg-primaria text-primaria-texto flex items-center justify-center shadow-cartao active:scale-90 transition-transform before:absolute before:-inset-1 before:content-['']"
           >
-            <Plus className="w-6 h-6" strokeWidth={2.5} aria-hidden="true" />
+            <Plus className="w-5 h-5" strokeWidth={2.5} aria-hidden="true" />
             {naSacola > 0 && (
               <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 rounded-full bg-tinta text-white text-[11px] font-bold flex items-center justify-center">
                 {naSacola}
@@ -114,16 +112,11 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
 
       {/* a ação de abrir já está no botão da foto; aqui é só o texto, clicável por conveniência */}
       <div onClick={abrir} className="flex flex-col pt-3 cursor-pointer">
-        {porUnidade != null ? (
-          <>
-            <span className="text-[19px] font-bold text-sucesso leading-tight tabular-nums">{formatarPreco(porUnidade)}</span>
-            <span className="flex items-center gap-1.5 mt-0.5 text-[12.5px] text-suave tabular-nums">
-              1un. {formatarPreco(unidade)}
-              <span className="px-1.5 py-px rounded-full bg-sucesso text-white text-[12px] font-bold">-{desconto}%</span>
-            </span>
-          </>
-        ) : (
-          <span className="text-[19px] font-bold text-tinta leading-tight tabular-nums">{formatarPreco(unidade)}</span>
+        <span className="text-[18px] font-bold text-tinta leading-tight tabular-nums">{formatarPreco(unidade)}</span>
+        {porUnidade != null && bloco && (
+          <span className="mt-0.5 text-[12.5px] font-semibold text-sucesso tabular-nums whitespace-nowrap" title={`-${desconto}% levando ${bloco.qtd}`}>
+            Leve {bloco.qtd}: {formatarPreco(porUnidade)}/un.
+          </span>
         )}
         <span className="text-[15px] text-[#3A3A3A] leading-snug line-clamp-2 mt-1.5">{produto.nome}</span>
       </div>

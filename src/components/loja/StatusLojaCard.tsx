@@ -14,7 +14,7 @@ interface Fato {
 const COLUNAS: Record<number, string> = { 1: 'grid-cols-1', 2: 'grid-cols-2', 3: 'grid-cols-3', 4: 'grid-cols-4' };
 
 /**
- * Linha de fatos da loja, logo abaixo do topo: tempo de entrega, taxa mínima,
+ * Linha de fatos da loja, logo abaixo do topo: tempo de entrega, frete mais barato,
  * horário de hoje e pedido mínimo. Tira as dúvidas antes do primeiro toque.
  * Com a loja fechada, vira um aviso em destaque com os mesmos fatos embaixo.
  */
@@ -30,7 +30,7 @@ export const StatusLojaCard: React.FC = () => {
     },
   ];
   if (home.frete_minimo != null && home.frete_minimo > 0) {
-    fatos.push({ icone: <Truck className="w-4 h-4" aria-hidden="true" />, valor: formatarPreco(home.frete_minimo), rotulo: 'taxa mínima' });
+    fatos.push({ icone: <Truck className="w-4 h-4" aria-hidden="true" />, valor: formatarPreco(home.frete_minimo), rotulo: 'frete desde' });
   }
   fatos.push({
     icone: <Clock className="w-4 h-4" aria-hidden="true" />,
