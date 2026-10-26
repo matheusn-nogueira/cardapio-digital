@@ -20,8 +20,10 @@ RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
 
-# cache do otimizador de imagens precisa ser gravável pelo usuário do app
-RUN mkdir .next && chown nextjs:nodejs .next
+# cache do otimizador de imagens precisa ser gravável pelo usuário do app. Em produção,
+# .next/cache é um volume do EasyPanel (sobrevive às publicações): o volume novo herda
+# esta pasta com o dono nextjs
+RUN mkdir -p .next/cache/images && chown -R nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 

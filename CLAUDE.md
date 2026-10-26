@@ -16,6 +16,7 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
   `python3 -u ~/Pessoal/pdv-balcao/scripts/deploy-easypanel.py cardapio-digital`
   O script carrega as credenciais do `.env.local` do `pdv-balcao` (nunca imprimir). Das 17h até o fechamento (22h; 0h sex e sáb) ele recusa, porque o build roda no mesmo servidor do caixa; `--forcar` só em emergência ou quando o usuário pedir. Se a ferramenta bloquear o `--forcar`, rodar no terminal do usuário. Só dar push e deploy com testes, lint e tipos passando.
 - O script confirma o deploy pela assinatura da home. Mudança que não altera a home (só `public/sw.js`, rota de API) faz ele esperar à toa: conferir com `curl` no arquivo mudado e parar o script.
+- O cache do otimizador de imagens (`/app/.next/cache`) é o volume `cache-imagens` do serviço (26/10/2026): as fotos já reduzidas sobrevivem às publicações e o servidor não baixa o catálogo do Supabase de novo a cada deploy. O `Dockerfile` cria a pasta com o dono `nextjs`. Para limpar o cache, apague o volume no painel.
 - Mudança só de banco (SQL, cadastro) não precisa de deploy: o site relê as views a cada 60 s (`REVALIDAR_SEGUNDOS`). Quando o código novo depende de coluna nova, aplicar o SQL que só **acrescenta** antes, ou subir o código tolerante (campo opcional) primeiro.
 - Nunca rodar `npm run build` com o `npm run dev` aberto: os dois escrevem em `.next/` e o dev quebra. Parar o dev antes, ou reiniciá-lo depois.
 - Mensagem de commit em pt-BR, no formato `tipo: resumo` (`feat:`, `fix:`), sem `Co-Authored-By`.
