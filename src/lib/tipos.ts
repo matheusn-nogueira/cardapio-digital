@@ -203,6 +203,8 @@ export interface PayloadPedido {
   chave: string;
   /** Total que o cliente viu; se o banco calcular outro, devolve PRECO_MUDOU. */
   total_esperado: number;
+  /** retirada na loja: sem endereço e sem taxa de entrega (cardapio_criar_pedido) */
+  retirada: boolean;
 }
 
 export interface RespostaPedido {

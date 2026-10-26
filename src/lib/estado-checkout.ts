@@ -146,6 +146,11 @@ export const armazemUltimoPedido = criarArmazem<PedidoConfirmado | null>('cdf:ul
   tipo: 'sessao',
 });
 
+/** Retirada na loja (true) ou entrega (false), lembrada no aparelho para a próxima compra. */
+export const armazemRetirada = criarArmazem<boolean>('cdf:retirada', false, {
+  validar: (b) => b === true,
+});
+
 /** Forma de pagamento do último pedido, no aparelho: na próxima compra já vem marcada. */
 export const armazemPagamentoPreferido = criarArmazem<FormaPagamento | null>('cdf:pagamento', null, {
   validar: (b) => normalizarPagamento(b),

@@ -6,8 +6,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { useArmazem, useHidratado } from '@/lib/armazenamento';
-import { prontoParaConfirmar, validarDados, type ErrosDados } from '@/lib/etapasCheckout';
-import { armazemCliente, armazemEndereco } from '@/lib/estado-checkout';
+import { formatarNome, prontoParaConfirmar, validarDados, type ErrosDados } from '@/lib/etapasCheckout';
+import { armazemCliente, armazemEndereco, armazemRetirada } from '@/lib/estado-checkout';
 import { useFrete } from '@/lib/frete';
 import { apenasDigitos, mascararTelefone } from '@/lib/formatacao';
 import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
@@ -26,6 +26,7 @@ function EtapaDados() {
   const { linhas, atualizarPrecos } = useCart();
   const [cliente, gravarCliente] = useArmazem(armazemCliente);
   const [endereco] = useArmazem(armazemEndereco);
+  const [retirada] = useArmazem(armazemRetirada);
   const frete = useFrete();
   const [erros, setErros] = useState<ErrosDados>({});
   const nomeRef = useRef<HTMLInputElement>(null);
@@ -36,7 +37,7 @@ function EtapaDados() {
     atualizarPrecos();
   }, [atualizarPrecos]);
 
-  const pular = hidratado && !editar && linhas.length > 0 && prontoParaConfirmar(cliente, endereco, frete?.resultado ?? null);
+  const pular = hidratado && !editar && linhas.length > 0 && prontoParaConfirmar(cliente, endereco, frete?.resultado ?? null, retirada);
   useEffect(() => {
     if (pular) router.replace('/payment?revisar=1');
   }, [pular, router]);
@@ -64,6 +65,7 @@ function EtapaDados() {
   }
 
   const continuar = () => {
+    gravarCliente((c) => ({ ...c, nome: formatarNome(c.nome) }));
     const achados = validarDados(cliente);
     setErros(achados);
     if (achados.nome) return nomeRef.current?.focus();
@@ -105,6 +107,8 @@ function EtapaDados() {
                 gravarCliente((c) => ({ ...c, nome: e.target.value }));
                 if (erros.nome) setErros((x) => ({ ...x, nome: undefined }));
               }}
+              // ao sair do campo: "maria DA silva" vira "Maria da Silva"
+              onBlur={() => gravarCliente((c) => ({ ...c, nome: formatarNome(c.nome) }))}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();

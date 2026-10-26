@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Banknote, CreditCard, Loader2, MapPin, PenLine, ShoppingBag, User } from 'lucide-react';
+import { Banknote, CreditCard, Loader2, MapPin, PenLine, ShoppingBag, Store, User } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { useArmazem, useHidratado } from '@/lib/armazenamento';
@@ -16,6 +16,7 @@ import {
   armazemEndereco,
   armazemUltimoPedido,
   armazemPagamentoPreferido,
+  armazemRetirada,
   freteVencido,
 } from '@/lib/estado-checkout';
 import { apenasDigitos, formatarPreco, linkWhatsapp, mascararTelefone } from '@/lib/formatacao';
@@ -58,6 +59,8 @@ function EtapaPagamento() {
   const { linhas, indisponiveis, limpar, atualizarPrecos, conferindoPrecos, precosMudaram } = useCart();
   const [cliente] = useArmazem(armazemCliente);
   const [endereco] = useArmazem(armazemEndereco);
+  // retirada na loja: sem endereço e sem taxa de entrega
+  const [retirada] = useArmazem(armazemRetirada);
   const freteSalvo = useFrete();
   const [detalhes, gravarDetalhes] = useArmazem(armazemDetalhes);
   const [homeAtual, setHomeAtual] = useState<DadosHome | null>(null);
@@ -122,13 +125,13 @@ function EtapaPagamento() {
       ? [{ id: 'pix' as const, rotulo: 'Pix', descricao: 'Chave no fim do pedido', icone: <LogoPix className="w-7 h-7" /> }]
       : []),
     ...(config.aceita_dinheiro
-      ? [{ id: 'dinheiro' as const, rotulo: 'Dinheiro', descricao: 'Pague na entrega', icone: <Banknote className="w-7 h-7 text-sucesso" strokeWidth={1.75} /> }]
+      ? [{ id: 'dinheiro' as const, rotulo: 'Dinheiro', descricao: retirada ? 'Pague na retirada' : 'Pague na entrega', icone: <Banknote className="w-7 h-7 text-sucesso" strokeWidth={1.75} /> }]
       : []),
     ...(config.aceita_cartao_entrega
       ? [
           {
             id: 'cartao' as const,
-            rotulo: 'Cartão na entrega',
+            rotulo: retirada ? 'Cartão na retirada' : 'Cartão na entrega',
             descricao: <BandeirasCartao />,
             icone: <CreditCard className="w-7 h-7 text-tinta" strokeWidth={1.75} />,
           },
@@ -137,7 +140,7 @@ function EtapaPagamento() {
   ];
 
   const pagamento = opcoes.some((o) => o.id === detalhes.pagamento) ? detalhes.pagamento : null;
-  const frete = freteSalvo?.resultado ?? null;
+  const frete = retirada ? { distancia_km: null, frete: 0, bloqueado: false } : (freteSalvo?.resultado ?? null);
   const cartao = usaPrecoCartao(pagamento);
   const subtotalPix = subtotalCarrinho(linhas, false);
   const subtotal = subtotalCarrinho(linhas, cartao);
@@ -147,8 +150,7 @@ function EtapaPagamento() {
   const dadosOk =
     cliente.nome.trim().length >= 2 &&
     apenasDigitos(cliente.telefone).length >= 10 &&
-    endereco.rua.trim() !== '' &&
-    endereco.numero.trim() !== '';
+    (retirada || (endereco.rua.trim() !== '' && endereco.numero.trim() !== ''));
 
   const bloqueios = [
     !aberta && `A loja está fechada agora.${status.detalhe ? ` ${status.detalhe}.` : ''}`,
@@ -176,7 +178,7 @@ function EtapaPagamento() {
 
     try {
       let totalEsperado = totalConfirmado ?? total;
-      if (totalConfirmado == null && freteSalvo && freteVencido(freteSalvo)) {
+      if (totalConfirmado == null && !retirada && freteSalvo && freteVencido(freteSalvo)) {
         // frete salvo há mais de 30 min: recalcula antes de mandar o total esperado
         const novo = await recalcularFrete().catch(() => null);
         if (novo) totalEsperado = totaisDoPedido(subtotal, novo.resultado.frete, config.frete_gratis_acima).total;
@@ -191,6 +193,7 @@ function EtapaPagamento() {
         observacoes: detalhes.observacoes,
         chave,
         totalEsperado,
+        retirada,
       });
       const resposta = await finalizarPedido(payload);
       armazemUltimoPedido.gravar({
@@ -206,13 +209,11 @@ function EtapaPagamento() {
           const complemento = complementoDaLinha(l, cartao);
           return `${l.quantidade}× ${l.produto.nome}${complemento ? ` (${complemento})` : ''}`;
         }),
-        endereco: [
-          `${payload.endereco.rua}, ${payload.endereco.numero}`,
-          payload.endereco.complemento,
-          payload.endereco.bairro,
-        ]
-          .filter(Boolean)
-          .join(' - '),
+        endereco: retirada
+          ? `Retirada na loja: ${[home.loja.endereco, home.loja.bairro].filter(Boolean).join(' - ')}`
+          : [`${payload.endereco.rua}, ${payload.endereco.numero}`, payload.endereco.complemento, payload.endereco.bairro]
+              .filter(Boolean)
+              .join(' - '),
         repetido: resposta.repetido,
       });
       armazemChavePedido.gravar(null);
@@ -246,8 +247,9 @@ function EtapaPagamento() {
   const avisos = bloqueios.filter((b) => tentou || b !== FALTA_PAGAMENTO);
 
   const valorEntrega = totaisDoPedido(subtotal, frete && !frete.bloqueado ? frete.frete : undefined, config.frete_gratis_acima).frete;
-  const textoEntrega =
-    valorEntrega === undefined
+  const textoEntrega = retirada
+    ? 'retirada na loja, sem taxa'
+    : valorEntrega === undefined
       ? 'entrega a calcular'
       : valorEntrega === null
         ? 'entrega a confirmar'
@@ -261,13 +263,18 @@ function EtapaPagamento() {
   const blocoEntrega = (
     <section className="mb-5" aria-labelledby="titulo-entrega">
       <h2 id="titulo-entrega" className="text-[17px] font-black mb-2">
-        {revisar ? 'Entregar em' : 'Entrega'}
+        {retirada ? 'Retirada' : revisar ? 'Entregar em' : 'Entrega'}
       </h2>
       <div className="bg-white rounded-xl shadow-cartao divide-y divide-[#F0F0F0]">
         <div className="flex items-start gap-3 p-3.5">
-          <MapPin className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />
+          {retirada ? <Store className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" /> : <MapPin className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />}
           <div className="flex-1 min-w-0 text-[15px]">
-            {endereco.rua.trim() && endereco.numero.trim() ? (
+            {retirada ? (
+              <>
+                <p className="font-bold leading-snug">Retirar na loja</p>
+                <p className="text-suave text-[14px]">{[home.loja.endereco, home.loja.bairro].filter(Boolean).join(' · ')}</p>
+              </>
+            ) : endereco.rua.trim() && endereco.numero.trim() ? (
               <>
                 <p className="font-bold leading-snug">
                   {endereco.rua}, {endereco.numero}

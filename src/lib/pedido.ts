@@ -92,6 +92,7 @@ export function montarPayloadPedido(dados: {
   observacoes: string;
   chave: string;
   totalEsperado: number;
+  retirada?: boolean;
 }): PayloadPedido {
   const e = dados.endereco;
   return {
@@ -114,6 +115,7 @@ export function montarPayloadPedido(dados: {
     observacoes: dados.observacoes.trim(),
     chave: dados.chave,
     total_esperado: Math.round(dados.totalEsperado * 100) / 100,
+    retirada: dados.retirada === true,
   };
 }
 

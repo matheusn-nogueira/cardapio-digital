@@ -3,14 +3,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Loader2, LocateFixed, MapPin } from 'lucide-react';
+import { Bike, Loader2, LocateFixed, MapPin, Navigation, Store } from 'lucide-react';
+import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { useArmazem, useHidratado } from '@/lib/armazenamento';
 import { buscarCep, calcularFrete, enderecoDoPonto, geocodificar } from '@/lib/api-cliente';
 import { validarEndereco, type ErrosEndereco } from '@/lib/etapasCheckout';
-import { armazemEndereco, armazemFrete, chaveEndereco } from '@/lib/estado-checkout';
+import { armazemEndereco, armazemFrete, armazemRetirada, chaveEndereco } from '@/lib/estado-checkout';
 import { useFrete } from '@/lib/frete';
-import { apenasDigitos, mascararCep } from '@/lib/formatacao';
+import { apenasDigitos, formatarPreco, mascararCep } from '@/lib/formatacao';
 import type { Endereco } from '@/lib/tipos';
 import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
 import { BarraDaEtapa, Campo, classeCampo } from '@/components/checkout/campos';
@@ -33,6 +34,10 @@ export default function EtapaEndereco() {
   const router = useRouter();
   const hidratado = useHidratado();
   const { linhas } = useCart();
+  const { home } = useCardapio();
+  const [retirada, gravarRetirada] = useArmazem(armazemRetirada);
+  const pontoLoja = home.loja.latitude != null && home.loja.longitude != null ? `${home.loja.latitude},${home.loja.longitude}` : null;
+  const rotaLoja = pontoLoja ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(pontoLoja)}` : null;
   const [endereco, gravarEndereco] = useArmazem(armazemEndereco);
   const freteSalvo = useFrete();
   const [estadoCep, setEstadoCep] = useState<EstadoBusca>('ocioso');
@@ -152,6 +157,10 @@ export default function EtapaEndereco() {
 
   const continuar = async () => {
     if (calculando) return;
+    if (retirada) {
+      router.push('/payment');
+      return;
+    }
     const achados = validarEndereco(endereco);
     const semRua = achados.rua && !editandoRua;
     setErros(semRua ? { cep: 'Digite o CEP ou use a sua localização' } : achados);
@@ -205,7 +214,65 @@ export default function EtapaEndereco() {
         }}
         noValidate
       >
-        <h1 className="text-[24px] font-black leading-tight mb-5">Onde entregamos?</h1>
+        <h1 className="text-[24px] font-black leading-tight mb-5">Como quer receber?</h1>
+        {/* entrega ou retirada (26/10/2026): retirada não pede endereço nem cobra entrega */}
+        <div role="radiogroup" aria-label="Como você quer receber" className="grid gap-2.5 mb-6">
+          {[
+            { valor: false, titulo: 'Receber em casa', detalhe: home.frete_minimo != null ? `Entrega a partir de ${formatarPreco(home.frete_minimo)}` : 'Entrega no seu endereço', icone: <Bike className="w-6 h-6" aria-hidden="true" /> },
+            { valor: true, titulo: 'Retirar na loja', detalhe: `${home.loja.endereco ?? home.loja.bairro ?? 'Na loja'} · sem taxa`, icone: <Store className="w-6 h-6" aria-hidden="true" /> },
+          ].map((o) => {
+            const escolhido = retirada === o.valor;
+            return (
+              <button
+                key={o.titulo}
+                type="button"
+                role="radio"
+                aria-checked={escolhido}
+                onClick={() => {
+                  gravarRetirada(o.valor);
+                  setAviso(null);
+                  setErros({});
+                }}
+                className={`w-full min-h-16 text-left flex items-center gap-3.5 px-4 py-3 rounded-xl border-2 bg-white ${
+                  escolhido ? 'border-primaria bg-[color-mix(in_srgb,var(--cor-primaria)_12%,white)]' : 'border-borda'
+                }`}
+              >
+                <span className="shrink-0 text-tinta">{o.icone}</span>
+                <span className="flex-1 min-w-0">
+                  <span className="block text-[16px] font-bold leading-tight">{o.titulo}</span>
+                  <span className="block text-[13px] text-suave leading-snug mt-0.5">{o.detalhe}</span>
+                </span>
+                <span
+                  className={`w-5 h-5 border-2 rounded-full shrink-0 flex items-center justify-center ${escolhido ? 'border-tinta' : 'border-[#BDBDBD]'}`}
+                  aria-hidden="true"
+                >
+                  {escolhido && <span className="w-2.5 h-2.5 rounded-full bg-tinta" />}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {retirada ? (
+          <div className="rounded-xl bg-white border border-borda p-4">
+            <p className="text-[15px] font-bold">Retire na loja quando o pedido estiver pronto</p>
+            <p className="text-[14px] text-suave mt-1">
+              {[home.loja.endereco, home.loja.bairro].filter(Boolean).join(' · ')}. Avisamos pelo WhatsApp quando estiver separado.
+            </p>
+            {rotaLoja && (
+              <a
+                href={rotaLoja}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-2 text-[15px] font-bold underline"
+              >
+                <Navigation className="w-4 h-4" aria-hidden="true" /> Como chegar
+              </a>
+            )}
+          </div>
+        ) : (
+          <>
+            <h2 className="text-[18px] font-black mb-3">Onde entregamos?</h2>
 
         <button
           type="button"
@@ -369,6 +436,9 @@ export default function EtapaEndereco() {
                 Adicionar ponto de referência
               </button>
             )}
+          </>
+        )}
+
           </>
         )}
 

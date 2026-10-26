@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { enderecoDoNominatim, prontoParaConfirmar, validarDados, validarEndereco } from '../etapasCheckout.ts';
+import { enderecoDoNominatim, formatarNome, prontoParaConfirmar, validarDados, validarEndereco } from '../etapasCheckout.ts';
 import type { Endereco } from '../tipos.ts';
 
 const endereco: Endereco = {
@@ -53,4 +53,19 @@ test('localização: UF pelo nome do estado e CEP incompleto descartado', () => 
   assert.equal(r?.uf, 'RJ');
   assert.equal(r?.cep, '');
   assert.equal(r?.bairro, 'Padre Miguel');
+});
+
+test('nome como se escreve', () => {
+  assert.equal(formatarNome('  maria DA silva  '), 'Maria da Silva');
+  assert.equal(formatarNome('JOÃO DOS santos e souza'), 'João dos Santos e Souza');
+  assert.equal(formatarNome('ana-maria d\'ávila'), "Ana-Maria D'Ávila");
+  assert.equal(formatarNome('de souza'), 'De Souza');
+});
+
+test('retirada na loja: basta nome e WhatsApp para ir direto à confirmação', () => {
+  const cliente = { nome: 'Maria', telefone: '21999998888' };
+  const vazio = { ...endereco, rua: '', numero: '' };
+  assert.equal(prontoParaConfirmar(cliente, vazio, null, true), true);
+  assert.equal(prontoParaConfirmar(cliente, vazio, null, false), false);
+  assert.equal(prontoParaConfirmar({ nome: '', telefone: '' }, vazio, null, true), false);
 });

@@ -18,7 +18,7 @@ function mensagemWhatsapp(p: PedidoConfirmado): string {
     '',
     `Total: ${formatarPreco(p.total)} (${nomePagamento(p.pagamento)})`,
     p.trocoPara ? `Troco para ${formatarPreco(p.trocoPara)}` : null,
-    `Entrega: ${p.endereco}`,
+    p.endereco.startsWith('Retirada') ? p.endereco : `Entrega: ${p.endereco}`,
   ]
     .filter((linha) => linha !== null)
     .join('\n');
@@ -84,7 +84,9 @@ export default function ConfirmationPage() {
           </p>
         )}
         <p className="mt-4 inline-flex items-center gap-2 py-2.5 px-4 bg-[#E7F6EC] rounded-lg text-[14px] font-bold text-sucesso">
-          Entrega estimada: {config.tempo_entrega_min}–{config.tempo_entrega_max} min
+          {pedido.endereco.startsWith('Retirada')
+            ? 'Avisamos pelo WhatsApp quando estiver pronto para retirar'
+            : `Entrega estimada: ${config.tempo_entrega_min}–${config.tempo_entrega_max} min`}
         </p>
 
         <section className="bg-white rounded-lg p-4 mt-5 text-left shadow-cartao text-[14px]">
@@ -93,7 +95,7 @@ export default function ConfirmationPage() {
             <span>{formatarPreco(pedido.subtotal)}</span>
           </div>
           <div className="flex justify-between mt-1">
-            <span>Entrega</span>
+            <span>{pedido.endereco.startsWith('Retirada') ? 'Retirada na loja' : 'Entrega'}</span>
             <span>{pedido.frete === 0 ? 'Grátis' : formatarPreco(pedido.frete)}</span>
           </div>
           <div className="flex justify-between mt-2 pt-2 border-t border-borda font-black text-[16px]">

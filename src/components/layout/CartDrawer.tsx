@@ -6,7 +6,10 @@ import { Minus, Plus, ShoppingBag, Trash2, X } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { formatarPreco } from '@/lib/formatacao';
-import { progressoMinimo } from '@/lib/carrinho';
+import { freteFinal, progressoMinimo } from '@/lib/carrinho';
+import { useArmazem } from '@/lib/armazenamento';
+import { armazemRetirada } from '@/lib/estado-checkout';
+import { useFrete } from '@/lib/frete';
 import { detalheVariante, descreverVariante } from '@/lib/ofertas';
 import { subtotalCarrinho, totalDaLinha } from '@/lib/precoQuantidade';
 import { ImagemProduto } from '@/components/loja/ImagemProduto';
@@ -46,6 +49,8 @@ export const CartDrawer: React.FC = () => {
   // "Esvaziar" pede confirmação na própria sacola (um toque sem querer apagaria tudo)
   const [confirmandoLimpar, setConfirmandoLimpar] = useState(false);
   const { config } = home;
+  const freteSalvo = useFrete();
+  const [retirada] = useArmazem(armazemRetirada);
 
   useEffect(() => {
     if (!sacolaAberta) return;
@@ -73,6 +78,12 @@ export const CartDrawer: React.FC = () => {
       ? progressoMinimo(subtotal, config.frete_gratis_acima)
       : null;
   const subtotalCartao = subtotalCarrinho(linhas, true);
+  const freteGuardado = freteSalvo?.resultado;
+  // taxa já conhecida (endereço guardado de outro pedido); null = ainda sem endereço
+  const entregaConhecida =
+    freteGuardado && !freteGuardado.bloqueado && freteGuardado.frete != null
+      ? freteFinal(freteGuardado.frete, subtotal, config.frete_gratis_acima)
+      : null;
   const vazia = linhas.length === 0;
 
   const continuar = () => {
@@ -265,14 +276,35 @@ export const CartDrawer: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 pb-[max(16px,env(safe-area-inset-bottom))] shrink-0 border-t border-borda">
-          <div className="flex justify-between text-[16px] font-bold">
-            <span>Subtotal</span>
-            <span>{formatarPreco(subtotal)}</span>
+          {/* taxa de entrega à vista desde a sacola (custo surpresa no fim é o que mais faz desistir):
+              com endereço já guardado, o valor certo e o total; sem endereço, "a partir de" */}
+          <div className="flex justify-between text-[15px]">
+            <span>Itens</span>
+            <span className="tabular-nums">{formatarPreco(subtotal)}</span>
           </div>
-          <p className="text-[12px] text-suave mt-1">
-            A taxa de entrega aparece no próximo passo.
-            {subtotalCartao !== subtotal && ` No cartão (na entrega) o subtotal fica ${formatarPreco(subtotalCartao)}.`}
-          </p>
+          <div className="flex justify-between text-[15px] mt-0.5">
+            <span>{retirada ? 'Retirada na loja' : 'Entrega'}</span>
+            <span className="tabular-nums">
+              {retirada
+                ? 'Grátis'
+                : entregaConhecida != null
+                  ? entregaConhecida === 0
+                    ? 'Grátis'
+                    : formatarPreco(entregaConhecida)
+                  : home.frete_minimo != null
+                    ? `a partir de ${formatarPreco(home.frete_minimo)}`
+                    : 'no próximo passo'}
+            </span>
+          </div>
+          {(retirada || entregaConhecida != null) && (
+            <div className="flex justify-between text-[17px] font-black mt-1.5 pt-1.5 border-t border-borda">
+              <span>Total</span>
+              <span className="tabular-nums">{formatarPreco(subtotal + (retirada ? 0 : (entregaConhecida ?? 0)))}</span>
+            </div>
+          )}
+          {subtotalCartao !== subtotal && (
+            <p className="text-[12px] text-suave mt-1">No cartão, os itens ficam {formatarPreco(subtotalCartao)}.</p>
+          )}
 
           <button
             type="button"

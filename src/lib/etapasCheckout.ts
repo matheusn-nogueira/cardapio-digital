@@ -25,9 +25,34 @@ export function validarEndereco(e: Endereco): ErrosEndereco {
 
 const vazio = (o: object) => Object.keys(o).length === 0;
 
-/** Tudo guardado e o frete vale para este endereço: pode ir direto para a confirmação. */
-export function prontoParaConfirmar(c: Cliente, e: Endereco, frete: ResultadoFrete | null): boolean {
-  return vazio(validarDados(c)) && vazio(validarEndereco(e)) && frete != null && !frete.bloqueado;
+/**
+ * Tudo guardado e o frete vale para este endereço: pode ir direto para a confirmação.
+ * Na retirada na loja basta nome e WhatsApp.
+ */
+export function prontoParaConfirmar(c: Cliente, e: Endereco, frete: ResultadoFrete | null, retirada = false): boolean {
+  if (!vazio(validarDados(c))) return false;
+  if (retirada) return true;
+  return vazio(validarEndereco(e)) && frete != null && !frete.bloqueado;
+}
+
+const PARTICULAS = new Set(['da', 'das', 'de', 'do', 'dos', 'e']);
+
+/**
+ * Nome como se escreve: "maria DA silva " → "Maria da Silva". Partículas (da, de, do, das,
+ * dos, e) ficam minúsculas, menos no começo. Só ajusta letras; o resto fica como a pessoa digitou.
+ */
+export function formatarNome(nome: string): string {
+  return nome
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((p, i) => {
+      const min = p.toLocaleLowerCase('pt-BR');
+      if (i > 0 && PARTICULAS.has(min)) return min;
+      // nomes com hífen ou apóstrofo: "ana-maria" → "Ana-Maria", "d'ávila" → "D'Ávila"
+      return min.replace(/(^|[-'’])(\p{L})/gu, (_, sep: string, l: string) => sep + l.toLocaleUpperCase('pt-BR'));
+    })
+    .join(' ');
 }
 
 const UF_POR_ESTADO: Record<string, string> = {
