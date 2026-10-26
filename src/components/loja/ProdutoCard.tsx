@@ -23,8 +23,10 @@ interface ProdutoCardProps {
  * Revisão de usabilidade (26/10/2026):
  * - o "+" tem 36 px à vista (o toque vale 44 px), para não cobrir a foto;
  * - um selo só por card ("Leve + por -", o selo do ERP ou "Natural"); "Também natural" fica na ficha;
- * - o preço grande é o que o "+" cobra (1 un); o do pack vem embaixo, em verde, numa linha só
- *   ("Leve 3: R$ 4,33/un."), para os cards da prateleira não crescerem.
+ * - o preço é o que o "+" cobra (1 un); a oferta do pack vai na etiqueta verde da foto
+ *   ("Leve 3: R$ 4,33/un.");
+ * - texto de altura fixa (preço + nome em 2 linhas): todas as prateleiras ficam da mesma altura
+ *   e o espaço entre elas é sempre o mesmo.
  */
 export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'grade' }) => {
   const { abrirProduto } = useCardapio();
@@ -50,7 +52,8 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
   };
   const diminuir = () => (naLinha <= 1 ? remover(produto.id) : alterar(produto.id, naLinha - 1));
 
-  const selo = porUnidade != null ? 'Leve + por -' : produto.selo ?? (produto.quente ? 'Natural' : null);
+  const selo =
+    porUnidade != null && bloco ? `Leve ${bloco.qtd}: ${formatarPreco(porUnidade)}/un.` : produto.selo ?? (produto.quente ? 'Natural' : null);
 
   return (
     <article className={`flex flex-col ${formato === 'carrossel' ? 'w-[150px] shrink-0 snap-start' : 'w-full'}`}>
@@ -63,7 +66,8 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
         </button>
         {selo && (
           <span
-            className={`absolute top-2 left-2 pointer-events-none text-[11px] font-bold px-2 py-0.5 rounded-full ${
+            title={porUnidade != null ? `-${desconto}% levando ${bloco?.qtd}` : undefined}
+            className={`absolute top-2 left-2 right-2 w-fit truncate pointer-events-none text-[11px] font-bold px-2 py-0.5 rounded-full tabular-nums ${
               porUnidade != null ? 'bg-sucesso text-white' : selo === 'Natural' ? 'bg-white text-[#4A4A4A]' : 'bg-tinta text-white'
             }`}
           >
@@ -113,12 +117,8 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
       {/* a ação de abrir já está no botão da foto; aqui é só o texto, clicável por conveniência */}
       <div onClick={abrir} className="flex flex-col pt-3 cursor-pointer">
         <span className="text-[18px] font-bold text-tinta leading-tight tabular-nums">{formatarPreco(unidade)}</span>
-        {porUnidade != null && bloco && (
-          <span className="mt-0.5 text-[12.5px] font-semibold text-sucesso tabular-nums whitespace-nowrap" title={`-${desconto}% levando ${bloco.qtd}`}>
-            Leve {bloco.qtd}: {formatarPreco(porUnidade)}/un.
-          </span>
-        )}
-        <span className="text-[15px] text-[#3A3A3A] leading-snug line-clamp-2 mt-1.5">{produto.nome}</span>
+        {/* sempre 2 linhas de altura, mesmo com nome curto */}
+        <span className="text-[15px] text-[#3A3A3A] leading-snug line-clamp-2 min-h-[2.75em] mt-1">{produto.nome}</span>
       </div>
     </article>
   );
