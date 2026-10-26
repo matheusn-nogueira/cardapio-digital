@@ -64,7 +64,7 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
         {selo && (
           <span
             className={`absolute top-2 left-2 right-2 w-fit truncate pointer-events-none text-[11px] font-bold px-2 py-0.5 rounded-full tabular-nums ${
-              bloco ? 'bg-sucesso text-white' : selo === 'Natural' ? 'bg-white text-[#4A4A4A]' : 'bg-tinta text-white'
+              bloco ? (bloco.desconto ? 'bg-sucesso text-white' : 'bg-tinta text-white') : selo === 'Natural' ? 'bg-white text-[#4A4A4A]' : 'bg-tinta text-white'
             }`}
           >
             {selo}

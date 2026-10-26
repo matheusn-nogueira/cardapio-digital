@@ -148,18 +148,26 @@ export interface BlocoComDesconto {
   preco: number;
   /** oferta "[Promo]" do ERP (vem antes na etiqueta do card) */
   promo: boolean;
+  /** sai mais barato que as avulsas; "[Promo]" sem desconto é só preço redondo ("4 por R$ 10,00") */
+  desconto: boolean;
 }
 
-/** Blocos que saem mais baratos que as unidades avulsas, do menor para o maior (um por tamanho). */
+/**
+ * Blocos para mostrar, do menor para o maior (um por tamanho): os que saem mais baratos que as
+ * avulsas e as "[Promo]" de preço redondo (4 por R$ 10,00 = 4 × R$ 2,50; o dono confirmou em
+ * 26/10/2026 que essas estão certas: a promoção às vezes é só para arredondar).
+ */
 export function blocosComDesconto(produto: ProdutoPreco, cartao = false): BlocoComDesconto[] {
   const unidade = melhorPreco(produto, 1, cartao).total;
   const porTamanho = new Map<number, BlocoComDesconto>();
   for (const o of ofertasDeVenda(produto)) {
     if (o.qtd <= 1) continue;
     const preco = precoDoBloco(o, cartao);
-    if (centavos(preco) >= centavos(unidade * o.qtd)) continue;
+    const promo = /^\s*\[promo\]/i.test(o.nome);
+    const desconto = centavos(preco) < centavos(unidade * o.qtd);
+    if (!desconto && !(promo && centavos(preco) === centavos(unidade * o.qtd))) continue;
     const atual = porTamanho.get(o.qtd);
-    if (!atual || preco < atual.preco) porTamanho.set(o.qtd, { qtd: o.qtd, preco, promo: /^\s*\[promo\]/i.test(o.nome) });
+    if (!atual || preco < atual.preco) porTamanho.set(o.qtd, { qtd: o.qtd, preco, promo, desconto });
   }
   return [...porTamanho.values()].sort((a, b) => a.qtd - b.qtd);
 }
@@ -176,7 +184,7 @@ export function blocoEmDestaque(produto: ProdutoPreco): BlocoComDesconto | null 
  * mais baratas que avulsas. null quando não há o que sugerir (ex.: acabou de fechar a promoção).
  */
 export function proximaPromocao(produto: ProdutoPreco, unidades: number, cartao = false): { mais: number; custo: number } | null {
-  const blocos = blocosComDesconto(produto, cartao);
+  const blocos = blocosComDesconto(produto, cartao).filter((b) => b.desconto);
   if (!blocos.length || unidades < 1) return null;
   const unidade = melhorPreco(produto, 1, cartao).total;
   const atual = melhorPreco(produto, unidades, cartao).total;
