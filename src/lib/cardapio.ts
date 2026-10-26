@@ -64,6 +64,7 @@ export function normalizarHome(bruto: Record<string, unknown>): DadosHome {
       logo_url: loja.logo_url || null,
       bairro: loja.bairro ?? null,
       cidade: loja.cidade ?? null,
+      endereco: loja.endereco || null,
       latitude: numOuNulo(loja.latitude),
       longitude: numOuNulo(loja.longitude),
     },

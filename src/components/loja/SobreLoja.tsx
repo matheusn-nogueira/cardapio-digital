@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { Banknote, Clock, MapPin, X } from 'lucide-react';
+import { Banknote, Clock, MapPin, Navigation, X } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { horarioResumido } from '@/lib/horarios';
+import { tilesDoMapa } from '@/lib/mapa';
 import { linkWhatsapp, mascararTelefone } from '@/lib/formatacao';
 import { LogoElo, LogoMastercard, LogoPix, LogoVisa, LogoWhatsApp } from '@/components/checkout/LogosPagamento';
 
@@ -20,6 +21,10 @@ export const SobreLoja: React.FC<{ aberta: boolean; aoFechar: () => void }> = ({
   const whatsapp = linkWhatsapp(telefone);
   const local = [loja.bairro, loja.cidade].filter(Boolean).join(', ');
   const semana = horarioResumido(horarios);
+  // mapa com as imagens do OpenStreetMap (lib/mapa) e rota no Google Maps, que abre o app de mapas do celular
+  const ponto = loja.latitude != null && loja.longitude != null ? { lat: loja.latitude, lng: loja.longitude } : null;
+  const destino = ponto ? `${ponto.lat},${ponto.lng}` : [loja.endereco, local].filter(Boolean).join(', ');
+  const rota = destino ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destino)}` : null;
 
   useEffect(() => {
     if (!aberta) return;
@@ -72,13 +77,62 @@ export const SobreLoja: React.FC<{ aberta: boolean; aoFechar: () => void }> = ({
           </span>
           <div className="min-w-0">
             <h2 id="titulo-sobre-loja" className="text-[18px] font-bold leading-tight">{loja.nome}</h2>
-            {local && (
-              <p className="text-[13px] text-suave flex items-center gap-1 mt-0.5">
-                <MapPin className="w-3.5 h-3.5 shrink-0" aria-hidden="true" /> {local}
-              </p>
-            )}
+            {config.slogan && <p className="text-[13px] text-suave mt-0.5">{config.slogan}</p>}
           </div>
         </div>
+
+        {(loja.endereco || local) && (
+          <div>
+            <h3 className="text-[13px] font-bold text-suave mb-1.5 flex items-center gap-1.5">
+              <MapPin className="w-4 h-4" aria-hidden="true" /> Endereço
+            </h3>
+            <p className="text-[14px]">
+              {loja.endereco && <span className="font-medium">{loja.endereco}</span>}
+              {loja.endereco && local ? ' · ' : ''}
+              {local}
+            </p>
+            {ponto && (
+              // o mapa é só a figura (sem arrastar dentro da folha): o toque abre a rota no app de mapas
+              <a
+                href={rota!}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative block mt-2.5 h-40 rounded-2xl overflow-hidden border border-[#EFEFEF] bg-[#E8E4DC]"
+                aria-label="Ver a rota até a loja no mapa"
+              >
+                {/* tiles montados para 440 px de largura, com o ponto no centro: cabe em qualquer largura menor */}
+                {tilesDoMapa(ponto.lat, ponto.lng, 16, 440, 160).map((t) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={t.url}
+                    src={t.url}
+                    alt=""
+                    width={256}
+                    height={256}
+                    className="absolute max-w-none"
+                    style={{ left: `calc(50% + ${t.esquerda - 220}px)`, top: t.topo }}
+                  />
+                ))}
+                <MapPin
+                  className="absolute left-1/2 top-1/2 w-9 h-9 -translate-x-1/2 -translate-y-full text-perigo fill-white drop-shadow"
+                  strokeWidth={2.5}
+                  aria-hidden="true"
+                />
+                <span className="absolute right-1.5 bottom-1 text-[10px] text-tinta/70 bg-white/80 px-1 rounded">© OpenStreetMap</span>
+              </a>
+            )}
+            {rota && (
+              <a
+                href={rota}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2.5 w-full h-11 rounded-xl border border-borda flex items-center justify-center gap-2 text-[15px] font-bold"
+              >
+                <Navigation className="w-4 h-4" aria-hidden="true" /> Como chegar
+              </a>
+            )}
+          </div>
+        )}
 
         {semana.length > 0 && (
           <div>

@@ -50,6 +50,8 @@ export interface Loja {
   logo_url: string | null;
   bairro: string | null;
   cidade: string | null;
+  /** rua e número da loja ("Avenida Pirpirituba, 532"), para "Sobre a loja" */
+  endereco: string | null;
   latitude: number | null;
   longitude: number | null;
 }
