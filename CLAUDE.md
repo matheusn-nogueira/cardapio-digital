@@ -33,8 +33,9 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
 - **Checkout em 3 etapas** (26/10/2026), uma coisa por tela, para os dois públicos (quem tem prática e quem tem pouca). Regras puras em `src/lib/etapasCheckout.ts` (testadas):
   1. `/checkout`: nome e WhatsApp.
   2. `/checkout/endereco`: "Usar minha localização" (opção; o GPS acerta a rua e erra o número) ou CEP (ViaCEP preenche rua e bairro); "Não sei meu CEP" e "Corrigir" abrem rua e bairro; cidade e UF não aparecem; ponto de referência atrás de um link. O frete é calculado no "Continuar" (com GPS, pelo ponto do GPS). Endereço fora da área para ali.
-  3. `/payment`: endereço e dados com "Alterar", pagamento (o último usado vem marcado, `cdf:pagamento`), observação atrás de um link, "Fazer pedido".
-  - Quem já pediu (dados, endereço e frete válidos no aparelho) pula de `/checkout` direto para `/payment?revisar=1` ("Confirme seu pedido"). `/checkout?editar=1` volta para mudar os dados.
+  3. `/payment`: a decisão primeiro (formas de pagamento no topo), depois entrega e contato num bloco compacto com "Alterar", itens recolhidos ("2 itens · Ver"), observação atrás de um link e, fixo embaixo, o total colado no botão "Fazer pedido". "Escolha a forma de pagamento" só aparece depois do toque no botão. A forma do último pedido fica no aparelho (`cdf:pagamento`).
+  - Quem já pediu (dados, endereço e frete válidos no aparelho) pula de `/checkout` direto para `/payment?revisar=1` ("Confirme seu pedido"): o endereço vem primeiro (é o que mais precisa conferir) e só a forma de sempre aparece, com "Trocar forma de pagamento". `/checkout?editar=1` volta para mudar os dados.
+  - O servidor local fala com o banco de verdade: no teste, nunca toque em "Fazer pedido" com uma forma de pagamento escolhida.
   - Campos de 48 px com letra de 17 px; o botão da etapa fica fixo embaixo e não fica desabilitado: mostra o erro no campo e põe o cursor nele.
   - Localização → endereço: `/api/endereco-do-ponto` (Nominatim reverso). Busca do endereço: `/api/geocodificar`. As duas dividem a fila de 1 consulta por segundo (`src/lib/servidor/nominatim.ts`).
   - Rotas de compra (sem topo da loja, abas e sacola flutuante; sem rodapé nas etapas): `src/lib/rotas.ts`.
