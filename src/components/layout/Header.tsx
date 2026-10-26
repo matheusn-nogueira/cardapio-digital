@@ -1,14 +1,15 @@
 'use client';
 
 import Image from 'next/image';
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useCallback, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Search, ShoppingBag, X } from 'lucide-react';
+import { ChevronDown, Search, ShoppingBag, X } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { useHidratado } from '@/lib/armazenamento';
 import { ehRotaDeCompra } from '@/lib/rotas';
+import { SobreLoja } from '@/components/loja/SobreLoja';
 import { Badge } from '@/components/ui/Badge';
 
 
@@ -80,6 +81,9 @@ export const Header: React.FC = () => {
   const pathname = usePathname();
   const { loja, config } = home;
   const naBusca = pathname === '/busca';
+  const [sobreAberto, setSobreAberto] = useState(false);
+  // função estável: a folha não reabre o foco a cada atualização do topo ("Fecha em…")
+  const fecharSobre = useCallback(() => setSobreAberto(false), []);
 
   if (ehRotaDeCompra(pathname)) {
     return config.aviso_topo ? (
@@ -101,8 +105,16 @@ export const Header: React.FC = () => {
               loja.nome.charAt(0)
             )}
           </Link>
-          <div className="min-w-0 flex-1 text-center">
-            <span className="block text-[17px] font-bold leading-tight truncate">{loja.nome}</span>
+          <button
+            type="button"
+            onClick={() => setSobreAberto(true)}
+            className="min-w-0 flex-1 text-center"
+            aria-label={`${loja.nome}: ver horário, endereço e formas de pagamento`}
+          >
+            <span className="flex items-center justify-center gap-1 text-[17px] font-bold leading-tight">
+              <span className="truncate">{loja.nome}</span>
+              <ChevronDown className="w-4 h-4 shrink-0" aria-hidden="true" />
+            </span>
             <span className={`inline-flex items-center gap-1.5 text-[13px] font-medium leading-tight mt-0.5 ${status.aberta ? 'text-sucesso' : 'text-perigo'}`}>
               <span className={`w-2 h-2 rounded-full ${status.aberta ? 'bg-sucesso' : 'bg-perigo'}`} aria-hidden="true" />
               <span className="truncate">
@@ -110,7 +122,7 @@ export const Header: React.FC = () => {
                 {status.fechaEm ?? status.detalhe ? ` · ${status.fechaEm ?? status.detalhe}` : ''}
               </span>
             </span>
-          </div>
+          </button>
           <button
             type="button"
             onClick={abrirSacola}
@@ -129,6 +141,7 @@ export const Header: React.FC = () => {
           </div>
         )}
       </header>
+      <SobreLoja aberta={sobreAberto} aoFechar={fecharSobre} />
     </>
   );
 };
