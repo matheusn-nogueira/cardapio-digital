@@ -34,7 +34,7 @@ export const CabecalhoCheckout: React.FC<{ voltarPara?: string; etapa?: string; 
         </div>
       </div>
       {etapaAtual != null && (
-        <div className="flex gap-1.5 px-4 pb-2" aria-hidden="true">
+        <div className="flex gap-1.5 px-4 pb-2 max-w-[560px] mx-auto" aria-hidden="true">
           {Array.from({ length: TOTAL_ETAPAS }, (_, i) => (
             <span key={i} className={`h-1 flex-1 rounded-full ${i < etapaAtual ? 'bg-primaria' : 'bg-bloco'}`} />
           ))}

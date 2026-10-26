@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Banknote, CreditCard, Loader2, MapPin, PenLine, ShoppingBag, User, Zap } from 'lucide-react';
+import { Banknote, CreditCard, Loader2, MapPin, PenLine, ShoppingBag, User } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { useArmazem, useHidratado } from '@/lib/armazenamento';
@@ -27,6 +27,7 @@ import type { DadosHome, FormaPagamento, TotaisServidor } from '@/lib/tipos';
 import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
 import { classeCampo } from '@/components/checkout/campos';
 import { InstructionsCard } from '@/components/checkout/InstructionsCard';
+import { BandeirasCartao, LogoPix, LogoWhatsApp } from '@/components/checkout/LogosPagamento';
 import { complementoDaLinha, OrderSummary, totaisDoPedido } from '@/components/checkout/OrderSummary';
 import { PaymentOption } from '@/components/payment/PaymentOption';
 
@@ -115,15 +116,23 @@ function EtapaPagamento() {
     );
   }
 
-  const opcoes: { id: FormaPagamento; rotulo: string; descricao: string; icone: React.ReactNode }[] = [
+  // descrições curtas: cabem numa linha até em tela de 320 px
+  const opcoes: { id: FormaPagamento; rotulo: string; descricao: React.ReactNode; icone: React.ReactNode }[] = [
     ...(config.aceita_pix
-      ? [{ id: 'pix' as const, rotulo: 'Pix', descricao: 'Chave Pix na confirmação do pedido', icone: <Zap className="w-5 h-5 text-sucesso" /> }]
+      ? [{ id: 'pix' as const, rotulo: 'Pix', descricao: 'Chave no fim do pedido', icone: <LogoPix className="w-7 h-7" /> }]
       : []),
     ...(config.aceita_dinheiro
-      ? [{ id: 'dinheiro' as const, rotulo: 'Dinheiro', descricao: 'Pague na entrega', icone: <Banknote className="w-5 h-5 text-sucesso" /> }]
+      ? [{ id: 'dinheiro' as const, rotulo: 'Dinheiro', descricao: 'Pague na entrega', icone: <Banknote className="w-7 h-7 text-sucesso" strokeWidth={1.75} /> }]
       : []),
     ...(config.aceita_cartao_entrega
-      ? [{ id: 'cartao' as const, rotulo: 'Cartão', descricao: 'Crédito ou débito, na maquininha, na entrega', icone: <CreditCard className="w-5 h-5" /> }]
+      ? [
+          {
+            id: 'cartao' as const,
+            rotulo: 'Cartão na entrega',
+            descricao: <BandeirasCartao />,
+            icone: <CreditCard className="w-7 h-7 text-tinta" strokeWidth={1.75} />,
+          },
+        ]
       : []),
   ];
 
@@ -278,7 +287,10 @@ function EtapaPagamento() {
           <User className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />
           <div className="flex-1 min-w-0 text-[15px]">
             <p className="font-bold">{cliente.nome || 'Nome não informado'}</p>
-            <p className="text-suave text-[14px]">{cliente.telefone ? mascararTelefone(cliente.telefone) : 'WhatsApp não informado'}</p>
+            <p className="text-suave text-[14px] flex items-center gap-1.5">
+              {cliente.telefone && <LogoWhatsApp className="w-4 h-4 shrink-0" />}
+              {cliente.telefone ? mascararTelefone(cliente.telefone) : 'WhatsApp não informado'}
+            </p>
           </div>
           <Link href="/checkout?editar=1" className="text-[14px] font-bold underline py-1 shrink-0">
             Alterar
@@ -347,7 +359,7 @@ function EtapaPagamento() {
   );
 
   return (
-    <main className="pb-60 bg-fundo min-h-screen">
+    <main className="pb-44 bg-fundo min-h-screen">
       <CabecalhoCheckout
         voltarPara={revisar ? '/' : '/checkout/endereco'}
         etapa={revisar ? 'Confirme seu pedido' : 'Etapa 3 de 3'}

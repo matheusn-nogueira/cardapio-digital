@@ -47,8 +47,8 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ forma, freteBase, mo
   const { frete, total } = totaisDoPedido(subtotal, freteBase, home.config.frete_gratis_acima);
 
   return (
-    <section className="bg-white rounded-lg p-4 shadow-cartao" aria-labelledby="titulo-resumo">
-      <h2 id="titulo-resumo" className="text-[14px] font-medium uppercase tracking-wide text-rotulo mb-3">
+    <section className="bg-white rounded-xl p-4 shadow-cartao" aria-labelledby="titulo-resumo">
+      <h2 id="titulo-resumo" className="text-[15px] font-bold text-tinta mb-3">
         Resumo do pedido
       </h2>
       {mostrarItens && (

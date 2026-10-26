@@ -12,6 +12,7 @@ import { useFrete } from '@/lib/frete';
 import { apenasDigitos, mascararTelefone } from '@/lib/formatacao';
 import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
 import { BarraDaEtapa, Campo, classeCampo } from '@/components/checkout/campos';
+import { LogoWhatsApp } from '@/components/checkout/LogosPagamento';
 
 /**
  * Etapa 1 de 3: nome e WhatsApp, só isso. Quem já pediu antes (dados, endereço e frete
@@ -115,7 +116,16 @@ function EtapaDados() {
               className={classeCampo}
             />
           </Campo>
-          <Campo id="telefone" rotulo="Seu WhatsApp" erro={erros.telefone} ajuda="Avisamos por aqui quando o pedido sair.">
+          <Campo
+            id="telefone"
+            rotulo={
+              <span className="inline-flex items-center gap-1.5">
+                <LogoWhatsApp className="w-[18px] h-[18px]" /> Seu WhatsApp
+              </span>
+            }
+            erro={erros.telefone}
+            ajuda="Avisamos por aqui quando o pedido sair."
+          >
             <input
               ref={telefoneRef}
               id="telefone"

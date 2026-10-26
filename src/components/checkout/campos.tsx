@@ -10,7 +10,7 @@ export const classeCampo =
 
 export const Campo: React.FC<{
   id: string;
-  rotulo: string;
+  rotulo: React.ReactNode;
   opcional?: boolean;
   erro?: string | null;
   ajuda?: string;

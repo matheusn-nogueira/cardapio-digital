@@ -226,7 +226,11 @@ export default function EtapaEndereco() {
           </p>
         )}
 
-        <p className="text-center text-[14px] text-suave my-3">ou digite o CEP</p>
+        <p className="flex items-center gap-3 text-[14px] text-suave my-4">
+          <span className="h-px flex-1 bg-borda" aria-hidden="true" />
+          ou digite o CEP
+          <span className="h-px flex-1 bg-borda" aria-hidden="true" />
+        </p>
 
         <Campo
           id="cep"

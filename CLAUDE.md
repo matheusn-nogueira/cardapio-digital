@@ -36,6 +36,7 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
   3. `/payment`: a decisão primeiro (formas de pagamento no topo), depois entrega e contato num bloco compacto com "Alterar", itens recolhidos ("2 itens · Ver"), observação atrás de um link e, fixo embaixo, o total colado no botão "Fazer pedido". "Escolha a forma de pagamento" só aparece depois do toque no botão. A forma do último pedido fica no aparelho (`cdf:pagamento`).
   - Quem já pediu (dados, endereço e frete válidos no aparelho) pula de `/checkout` direto para `/payment?revisar=1` ("Confirme seu pedido"): o endereço vem primeiro (é o que mais precisa conferir) e só a forma de sempre aparece, com "Trocar forma de pagamento". `/checkout?editar=1` volta para mudar os dados.
   - O servidor local fala com o banco de verdade: no teste, nunca toque em "Fazer pedido" com uma forma de pagamento escolhida.
+  - Logos reais (Pix, Visa, Mastercard, Elo, WhatsApp) em SVG, nas cores das marcas: `src/components/checkout/LogosPagamento.tsx`. As descrições das formas de pagamento cabem numa linha em 320 px.
   - Campos de 48 px com letra de 17 px; o botão da etapa fica fixo embaixo e não fica desabilitado: mostra o erro no campo e põe o cursor nele.
   - Localização → endereço: `/api/endereco-do-ponto` (Nominatim reverso). Busca do endereço: `/api/geocodificar`. As duas dividem a fila de 1 consulta por segundo (`src/lib/servidor/nominatim.ts`).
   - Rotas de compra (sem topo da loja, abas e sacola flutuante; sem rodapé nas etapas): `src/lib/rotas.ts`.
