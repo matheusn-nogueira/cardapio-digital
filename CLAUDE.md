@@ -30,6 +30,14 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
 - Componentes da loja em `src/components/loja/`; topo e abas em `src/components/layout/`; checkout em `src/components/checkout/`.
 - Card de produto (`ProdutoCard`): o "+" (redondo, 36 px à vista e 44 px de toque) põe 1 un na sacola e vira contador sobre a foto, como no iFood (lixeira no 1, menos, quantidade, mais). Mexe só na versão padrão; produto com versão que muda o item (vasilhame) abre a ficha. Um selo só por card. O preço é o de 1 un (o que o "+" cobra); a oferta do pack vai na etiqueta verde da foto ("Leve 3: R$ 4,33/un."). O texto do card tem altura fixa (preço + nome em 2 linhas): não acrescente linha variável embaixo, senão as prateleiras ficam de alturas diferentes e o espaço entre elas varia.
 - Ficha do produto (`ProdutoDetalhe` na folha `ProdutoModal`) enxuta como no Zé: foto pequena, preço da unidade na quantidade escolhida com o desconto, contador, atalhos +6/+12 e "Adicionar (N) • total". Descrição e tabela "Quanto mais, mais barato" só na página `/produto/[id]`.
+- **Checkout em 3 etapas** (26/10/2026), uma coisa por tela, para os dois públicos (quem tem prática e quem tem pouca). Regras puras em `src/lib/etapasCheckout.ts` (testadas):
+  1. `/checkout`: nome e WhatsApp.
+  2. `/checkout/endereco`: "Usar minha localização" (opção; o GPS acerta a rua e erra o número) ou CEP (ViaCEP preenche rua e bairro); "Não sei meu CEP" e "Corrigir" abrem rua e bairro; cidade e UF não aparecem; ponto de referência atrás de um link. O frete é calculado no "Continuar" (com GPS, pelo ponto do GPS). Endereço fora da área para ali.
+  3. `/payment`: endereço e dados com "Alterar", pagamento (o último usado vem marcado, `cdf:pagamento`), observação atrás de um link, "Fazer pedido".
+  - Quem já pediu (dados, endereço e frete válidos no aparelho) pula de `/checkout` direto para `/payment?revisar=1` ("Confirme seu pedido"). `/checkout?editar=1` volta para mudar os dados.
+  - Campos de 48 px com letra de 17 px; o botão da etapa fica fixo embaixo e não fica desabilitado: mostra o erro no campo e põe o cursor nele.
+  - Localização → endereço: `/api/endereco-do-ponto` (Nominatim reverso). Busca do endereço: `/api/geocodificar`. As duas dividem a fila de 1 consulta por segundo (`src/lib/servidor/nominatim.ts`).
+  - Rotas de compra (sem topo da loja, abas e sacola flutuante; sem rodapé nas etapas): `src/lib/rotas.ts`.
 - Pop-ups de promoção (`PopupPromo`), no máximo uma vez por dia cada: a lista da categoria 1,5 s depois de abrir a home (nunca na visita em que a pessoa acabou de confirmar a idade: dois modais seguidos na chegada), e a oferta especial (maior desconto em pack) quando a pessoa faz menção de sair (mouse pelo topo no computador; 45 s sem rolar nem tocar, com a sacola vazia, no celular).
 
 ## Categorias

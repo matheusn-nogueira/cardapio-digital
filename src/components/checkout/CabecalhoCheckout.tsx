@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 
-const TOTAL_ETAPAS = 2;
+const TOTAL_ETAPAS = 3;
 
 /** Barra do topo nas etapas de compra: voltar + nome da loja + etapa, com o progresso embaixo. */
 export const CabecalhoCheckout: React.FC<{ voltarPara?: string; etapa?: string; etapaAtual?: number }> = ({

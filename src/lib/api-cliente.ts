@@ -1,5 +1,6 @@
 // Chamadas feitas pelo navegador (checkout): status atualizado da loja, preços
 // atuais, CEP, geocodificação (pelo nosso servidor), frete e envio do pedido.
+import type { EnderecoDoPonto } from './etapasCheckout';
 import { classificarOfertas, COLUNAS_PRODUTO, normalizarHome, normalizarProduto, paraCliente } from './cardapio';
 import type { MapaOfertas } from './carrinho';
 import { ConexaoPedido, enviarPedido } from './pedido';
@@ -63,6 +64,22 @@ export async function geocodificar(e: Endereco): Promise<{ lat: number; lng: num
     const lat = Number(d.lat);
     const lng = Number(d.lng);
     return d.lat != null && d.lng != null && Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Endereço do ponto do GPS (pelo nosso servidor). null = sem rua ou serviço fora; a pessoa digita o CEP. */
+export async function enderecoDoPonto(lat: number, lng: number): Promise<EnderecoDoPonto | null> {
+  try {
+    const r = await fetch('/api/endereco-do-ponto', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lat, lng }),
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (!r.ok) return null;
+    return ((await r.json()) as { endereco: EnderecoDoPonto | null }).endereco;
   } catch {
     return null;
   }

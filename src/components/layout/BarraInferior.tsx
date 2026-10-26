@@ -6,15 +6,15 @@ import { usePathname } from 'next/navigation';
 import { Home, Search, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useHidratado } from '@/lib/armazenamento';
+import { ehRotaDeCompra } from '@/lib/rotas';
 
-const ROTAS_SEM_BARRA = ['/checkout', '/payment', '/confirmation'];
 
 /** Barra de abas fixa no rodapé, como no app do Zé: Início, Busca e Sacola. */
 export const BarraInferior: React.FC = () => {
   const pathname = usePathname();
   const { quantidadeTotal, abrirSacola } = useCart();
   const hidratado = useHidratado();
-  if (ROTAS_SEM_BARRA.includes(pathname)) return null;
+  if (ehRotaDeCompra(pathname)) return null;
 
   const item = (ativo: boolean) =>
     `relative flex-1 flex flex-col items-center justify-center gap-0.5 text-[12px] ${ativo ? 'text-tinta font-bold' : 'text-suave font-medium'}`;

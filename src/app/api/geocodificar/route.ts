@@ -4,10 +4,8 @@
 // Falha ou endereço não encontrado → { lat: null, lng: null }; o site segue e o
 // banco marca "frete a confirmar".
 import { NextResponse } from 'next/server';
+import { consultar, naFila } from '@/lib/servidor/nominatim';
 
-const USER_AGENT = 'CasaDosFundos-Cardapio/1.0 (+https://cardapio.casadosfundos.cloud)';
-const INTERVALO_MS = 1100; // 1 consulta/s em todo o servidor
-const TEMPO_LIMITE_MS = 6000;
 const CACHE_ACHADO_MS = 7 * 24 * 60 * 60 * 1000;
 const CACHE_NAO_ACHADO_MS = 6 * 60 * 60 * 1000;
 const CACHE_MAXIMO = 1000;
@@ -16,36 +14,13 @@ type Ponto = { lat: number; lng: number };
 
 // Cache em memória do processo (o servidor é um container só).
 const cache = new Map<string, { ponto: Ponto | null; expira: number }>();
-let fila: Promise<unknown> = Promise.resolve();
-let ultimaConsulta = 0;
-
-const esperar = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
-
-/** Enfileira as consultas para respeitar o intervalo mínimo entre elas. */
-function naFila<T>(tarefa: () => Promise<T>): Promise<T> {
-  const vez = fila.then(async () => {
-    const falta = ultimaConsulta + INTERVALO_MS - Date.now();
-    if (falta > 0) await esperar(falta);
-    try {
-      return await tarefa();
-    } finally {
-      ultimaConsulta = Date.now();
-    }
-  });
-  fila = vez.catch(() => undefined);
-  return vez;
-}
 
 /** null = não achou; lança erro se o serviço falhar (aí não guarda no cache). */
 async function consultarNominatim(q: string): Promise<Ponto | null> {
-  const url = `https://nominatim.openstreetmap.org/search?format=json&countrycodes=br&limit=1&q=${encodeURIComponent(q)}`;
-  const r = await fetch(url, {
-    headers: { 'User-Agent': USER_AGENT, 'Accept-Language': 'pt-BR' },
-    signal: AbortSignal.timeout(TEMPO_LIMITE_MS),
-    cache: 'no-store',
-  });
-  if (!r.ok) throw new Error(`nominatim ${r.status}`);
-  const dados = (await r.json()) as { lat: string; lon: string }[];
+  const dados = (await consultar(`search?format=json&countrycodes=br&limit=1&q=${encodeURIComponent(q)}`)) as {
+    lat: string;
+    lon: string;
+  }[];
   if (!dados.length) return null;
   const lat = parseFloat(dados[0].lat);
   const lng = parseFloat(dados[0].lon);

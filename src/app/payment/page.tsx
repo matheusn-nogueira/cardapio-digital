@@ -2,8 +2,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Banknote, CreditCard, Loader2, MapPin, Zap } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Banknote, CreditCard, Loader2, MapPin, PenLine, User, Zap } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { useArmazem, useHidratado } from '@/lib/armazenamento';
@@ -15,16 +15,18 @@ import {
   armazemDetalhes,
   armazemEndereco,
   armazemUltimoPedido,
+  armazemPagamentoPreferido,
   freteVencido,
 } from '@/lib/estado-checkout';
-import { apenasDigitos, formatarPreco, linkWhatsapp } from '@/lib/formatacao';
+import { apenasDigitos, formatarPreco, linkWhatsapp, mascararTelefone } from '@/lib/formatacao';
 import { recalcularFrete, useFrete } from '@/lib/frete';
 import { usaPrecoCartao } from '@/lib/ofertas';
 import { ERROS_DE_REDE, ErroPedido, MENSAGEM_ERRO_GENERICA, montarPayloadPedido, novaChave } from '@/lib/pedido';
 import { subtotalCarrinho } from '@/lib/precoQuantidade';
 import type { DadosHome, FormaPagamento, TotaisServidor } from '@/lib/tipos';
 import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
-import { classeCampo } from '@/components/checkout/FormularioEndereco';
+import { classeCampo } from '@/components/checkout/campos';
+import { InstructionsCard } from '@/components/checkout/InstructionsCard';
 import { complementoDaLinha, OrderSummary, totaisDoPedido } from '@/components/checkout/OrderSummary';
 import { PaymentOption } from '@/components/payment/PaymentOption';
 
@@ -39,8 +41,14 @@ interface ErroTela {
   deRede: boolean;
 }
 
-export default function PaymentPage() {
+/**
+ * Etapa 3 de 3: pagamento e "Fazer pedido". Quem já pediu antes chega direto aqui
+ * (?revisar=1, vindo da etapa 1) e vê "Confirme seu pedido", com endereço e dados
+ * guardados e um "Alterar" em cada bloco.
+ */
+function EtapaPagamento() {
   const router = useRouter();
+  const revisar = useSearchParams().get('revisar') === '1';
   const hidratado = useHidratado();
   const { home: homeCache, status } = useCardapio();
   const { linhas, indisponiveis, limpar, atualizarPrecos, conferindoPrecos, precosMudaram } = useCart();
@@ -52,7 +60,15 @@ export default function PaymentPage() {
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<ErroTela | null>(null);
   const [valoresNovos, setValoresNovos] = useState<TotaisServidor | null>(null);
+  const [comObservacao, setComObservacao] = useState(false);
   const enviandoRef = useRef(false);
+
+  // Quem já pediu: a forma de pagamento do último pedido já vem marcada (pode trocar).
+  useEffect(() => {
+    if (!hidratado || armazemDetalhes.ler().pagamento) return;
+    const ultima = armazemPagamentoPreferido.ler();
+    if (ultima) gravarDetalhes((d) => ({ ...d, pagamento: ultima }));
+  }, [hidratado, gravarDetalhes]);
 
   // Confere no banco (sem cache) se a loja continua aberta, as regras e os preços atuais.
   useEffect(() => {
@@ -73,7 +89,7 @@ export default function PaymentPage() {
   if (!hidratado) {
     return (
       <main className="min-h-screen bg-fundo">
-        <CabecalhoCheckout voltarPara="/checkout" etapa="Pagamento" etapaAtual={2} />
+        <CabecalhoCheckout voltarPara="/checkout/endereco" etapa="Etapa 3 de 3" etapaAtual={3} />
       </main>
     );
   }
@@ -81,7 +97,7 @@ export default function PaymentPage() {
   if (linhas.length === 0) {
     return (
       <main className="min-h-[70vh] bg-fundo">
-        <CabecalhoCheckout voltarPara="/" etapa="Pagamento" etapaAtual={2} />
+        <CabecalhoCheckout voltarPara="/" etapa="Etapa 3 de 3" etapaAtual={3} />
         <div className="text-center px-6 py-16">
           <p className="text-[17px] font-bold">Sua sacola está vazia</p>
           <Link href="/" className="mt-4 inline-flex h-12 px-6 items-center rounded-lg bg-primaria text-primaria-texto font-bold">
@@ -121,7 +137,7 @@ export default function PaymentPage() {
   const bloqueios = [
     !aberta && `A loja está fechada agora.${status.detalhe ? ` ${status.detalhe}.` : ''}`,
     !dadosOk && 'Faltam dados de contato ou endereço.',
-    dadosOk && !frete && 'Confirme o endereço para calcular o frete.',
+    dadosOk && !frete && 'Confirme o endereço para calcular a entrega (toque em Alterar).',
     frete?.bloqueado && 'Endereço fora da área de entrega.',
     !minimo.atingido && `Faltam ${formatarPreco(minimo.falta)} para o pedido mínimo de ${formatarPreco(config.pedido_minimo)}.`,
     !pagamento && 'Escolha a forma de pagamento.',
@@ -184,6 +200,7 @@ export default function PaymentPage() {
         repetido: resposta.repetido,
       });
       armazemChavePedido.gravar(null);
+      armazemPagamentoPreferido.gravar(pagamento);
       gravarDetalhes((d) => ({ ...d, observacoes: '', trocoPara: '' }));
       limpar();
       router.replace('/confirmation');
@@ -213,11 +230,15 @@ export default function PaymentPage() {
 
   return (
     <main className="pb-10 bg-fundo min-h-screen">
-      <CabecalhoCheckout voltarPara="/checkout" etapa="Etapa 2 de 2 · Pagamento" etapaAtual={2} />
+      <CabecalhoCheckout
+        voltarPara={revisar ? '/' : '/checkout/endereco'}
+        etapa={revisar ? 'Confirme seu pedido' : 'Etapa 3 de 3'}
+        etapaAtual={revisar ? undefined : 3}
+      />
 
       <div className="flex flex-col lg:flex-row gap-4 p-4 max-w-[960px] mx-auto">
         <div className="flex-1 min-w-0">
-          <h1 className="text-[20px] font-black mb-3">Como você vai pagar?</h1>
+          <h1 className="text-[24px] font-black leading-tight mb-4">{revisar ? 'Confirme seu pedido' : 'Como vai pagar?'}</h1>
 
           <section className="bg-white rounded-lg p-4 mb-3 shadow-cartao flex items-start gap-3">
             <MapPin className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />
@@ -228,21 +249,32 @@ export default function PaymentPage() {
                     {endereco.rua}, {endereco.numero}
                     {endereco.complemento ? ` - ${endereco.complemento}` : ''}
                   </p>
-                  <p className="text-suave">
-                    {[[endereco.bairro, endereco.cidade].filter(Boolean).join(', '), cliente.nome].filter(Boolean).join(' · ')}
-                  </p>
+                  <p className="text-suave">{[endereco.bairro, endereco.cidade].filter(Boolean).join(', ')}</p>
                 </>
               ) : (
                 <>
                   <p className="font-bold">Endereço de entrega não informado</p>
-                  <p className="text-suave">Volte à etapa 1 para preencher.</p>
+                  <p className="text-suave">Toque em Alterar para preencher.</p>
                 </>
               )}
             </div>
-            <Link href="/checkout" className="text-[13px] font-bold underline py-1 shrink-0">
+            <Link href="/checkout/endereco" className="text-[14px] font-bold underline py-1 shrink-0">
               Alterar
             </Link>
           </section>
+
+          <section className="bg-white rounded-lg p-4 mb-4 shadow-cartao flex items-start gap-3">
+            <User className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="flex-1 min-w-0 text-[14px]">
+              <p className="font-bold">{cliente.nome || 'Seu nome'}</p>
+              <p className="text-suave">{cliente.telefone ? mascararTelefone(cliente.telefone) : 'WhatsApp não informado'}</p>
+            </div>
+            <Link href="/checkout?editar=1" className="text-[14px] font-bold underline py-1 shrink-0">
+              Alterar
+            </Link>
+          </section>
+
+          {revisar && <h2 className="text-[17px] font-black mb-2">Como vai pagar?</h2>}
 
           <div role="radiogroup" aria-label="Forma de pagamento" className="mb-2">
             {opcoes.map((o) => (
@@ -288,6 +320,21 @@ export default function PaymentPage() {
                 />
               </div>
             </div>
+          )}
+
+          {comObservacao || detalhes.observacoes ? (
+            <InstructionsCard
+              valor={detalhes.observacoes}
+              aoMudar={(observacoes) => gravarDetalhes((d) => ({ ...d, observacoes }))}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setComObservacao(true)}
+              className="flex items-center gap-2 text-[15px] font-bold underline py-2 mb-2"
+            >
+              <PenLine className="w-4 h-4" aria-hidden="true" /> Adicionar observação
+            </button>
           )}
         </div>
 
@@ -386,7 +433,7 @@ export default function PaymentPage() {
                       ? 'Conferindo preços…'
                       : erro?.deRede
                         ? `Tentar de novo · ${formatarPreco(total)}`
-                        : `Finalizar pedido · ${formatarPreco(total)}`}
+                        : `Fazer pedido · ${formatarPreco(total)}`}
                 </button>
               </>
             )}
@@ -394,5 +441,14 @@ export default function PaymentPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function PaymentPage() {
+  // useSearchParams pede Suspense no App Router
+  return (
+    <React.Suspense fallback={<main className="min-h-screen bg-fundo" />}>
+      <EtapaPagamento />
+    </React.Suspense>
   );
 }

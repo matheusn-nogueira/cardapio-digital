@@ -1,0 +1,384 @@
+'use client';
+
+import React, { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Loader2, LocateFixed, MapPin } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
+import { useArmazem, useHidratado } from '@/lib/armazenamento';
+import { buscarCep, calcularFrete, enderecoDoPonto, geocodificar } from '@/lib/api-cliente';
+import { validarEndereco, type ErrosEndereco } from '@/lib/etapasCheckout';
+import { armazemEndereco, armazemFrete, chaveEndereco } from '@/lib/estado-checkout';
+import { useFrete } from '@/lib/frete';
+import { apenasDigitos, mascararCep } from '@/lib/formatacao';
+import type { Endereco } from '@/lib/tipos';
+import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
+import { BarraDaEtapa, Campo, classeCampo } from '@/components/checkout/campos';
+
+type EstadoBusca = 'ocioso' | 'buscando' | 'nao-achou' | 'negado' | 'erro';
+
+const AVISO_GPS: Partial<Record<EstadoBusca, string>> = {
+  negado: 'O celular não liberou a localização. Digite o CEP abaixo.',
+  'nao-achou': 'Não achamos sua rua pela localização. Digite o CEP abaixo.',
+  erro: 'Não deu para pegar a localização agora. Digite o CEP abaixo.',
+};
+
+/**
+ * Etapa 2 de 3: endereço. "Usar minha localização" é opção, nunca o único caminho (muita
+ * gente nega a permissão): o CEP fica logo embaixo e preenche rua e bairro. Cidade e UF não
+ * aparecem (a entrega é no Rio). O GPS acerta a rua, mas erra o número: o número é sempre
+ * digitado. O frete é calculado no "Continuar"; com o GPS, pelo ponto do GPS (mais exato).
+ */
+export default function EtapaEndereco() {
+  const router = useRouter();
+  const hidratado = useHidratado();
+  const { linhas } = useCart();
+  const [endereco, gravarEndereco] = useArmazem(armazemEndereco);
+  const freteSalvo = useFrete();
+  const [estadoCep, setEstadoCep] = useState<EstadoBusca>('ocioso');
+  const [estadoGps, setEstadoGps] = useState<EstadoBusca>('ocioso');
+  // ponto do GPS: o número digitado depois não apaga as coordenadas
+  const [doGps, setDoGps] = useState(false);
+  const [editandoRua, setEditandoRua] = useState(false);
+  const [comReferencia, setComReferencia] = useState(false);
+  const [erros, setErros] = useState<ErrosEndereco & { cep?: string }>({});
+  const [calculando, setCalculando] = useState(false);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const numeroRef = useRef<HTMLInputElement>(null);
+  const cepRef = useRef<HTMLInputElement>(null);
+  const ruaRef = useRef<HTMLInputElement>(null);
+
+  // endereço guardado sem CEP (digitado à mão antes): mostra rua e bairro para conferir
+  useEffect(() => {
+    if (hidratado && endereco.rua && !endereco.cep) setEditandoRua(true);
+    if (hidratado && endereco.referencia) setComReferencia(true);
+    // só ao abrir a etapa
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hidratado]);
+
+  if (!hidratado) {
+    return (
+      <main className="min-h-screen bg-fundo">
+        <CabecalhoCheckout voltarPara="/checkout?editar=1" etapa="Etapa 2 de 3" etapaAtual={2} />
+      </main>
+    );
+  }
+
+  if (linhas.length === 0) {
+    return (
+      <main className="min-h-[70vh] bg-fundo">
+        <CabecalhoCheckout voltarPara="/" etapa="Etapa 2 de 3" etapaAtual={2} />
+        <div className="text-center px-6 py-16">
+          <p className="text-[18px] font-bold">Sua sacola está vazia</p>
+          <Link href="/" className="mt-4 inline-flex h-12 px-6 items-center rounded-xl bg-primaria text-primaria-texto font-bold">
+            Ver o cardápio
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  /** Rua, bairro ou CEP mudaram: a localização antiga não vale mais. */
+  const mudarLocal = (campos: Partial<Endereco>) => {
+    setDoGps(false);
+    setAviso(null);
+    gravarEndereco((a) => ({ ...a, ...campos, latitude: null, longitude: null }));
+  };
+
+  const aoMudarCep = async (valor: string) => {
+    const cep = mascararCep(valor);
+    mudarLocal({ cep });
+    setErros((x) => ({ ...x, cep: undefined, rua: undefined }));
+    if (apenasDigitos(cep).length !== 8) {
+      setEstadoCep('ocioso');
+      return;
+    }
+    setEstadoCep('buscando');
+    try {
+      const achado = await buscarCep(cep);
+      if (!achado || !achado.rua) {
+        // CEP de cidade inteira ou inexistente: a pessoa digita a rua
+        setEstadoCep('nao-achou');
+        setEditandoRua(true);
+        if (achado) mudarLocal({ cep, bairro: achado.bairro, cidade: achado.cidade || 'Rio de Janeiro', uf: achado.uf || 'RJ' });
+        setTimeout(() => ruaRef.current?.focus(), 50);
+        return;
+      }
+      setEstadoCep('ocioso');
+      setEditandoRua(false);
+      mudarLocal({ cep, rua: achado.rua, bairro: achado.bairro, cidade: achado.cidade, uf: achado.uf });
+      setTimeout(() => numeroRef.current?.focus(), 50);
+    } catch {
+      setEstadoCep('erro');
+      setEditandoRua(true);
+    }
+  };
+
+  const usarLocalizacao = () => {
+    if (!('geolocation' in navigator)) {
+      setEstadoGps('erro');
+      return;
+    }
+    setEstadoGps('buscando');
+    setAviso(null);
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        const achado = await enderecoDoPonto(coords.latitude, coords.longitude);
+        if (!achado) {
+          setEstadoGps('nao-achou');
+          return;
+        }
+        gravarEndereco((a) => ({
+          ...a,
+          cep: achado.cep,
+          rua: achado.rua,
+          bairro: achado.bairro || a.bairro,
+          cidade: achado.cidade || 'Rio de Janeiro',
+          uf: achado.uf || 'RJ',
+          numero: '',
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        }));
+        setDoGps(true);
+        setEditandoRua(false);
+        setEstadoGps('ocioso');
+        setErros({});
+        setTimeout(() => numeroRef.current?.focus(), 50);
+      },
+      (erro) => setEstadoGps(erro.code === erro.PERMISSION_DENIED ? 'negado' : 'erro'),
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 60_000 },
+    );
+  };
+
+  const continuar = async () => {
+    if (calculando) return;
+    const achados = validarEndereco(endereco);
+    const semRua = achados.rua && !editandoRua;
+    setErros(semRua ? { cep: 'Digite o CEP ou use a sua localização' } : achados);
+    if (semRua) return cepRef.current?.focus();
+    if (achados.rua) return ruaRef.current?.focus();
+    if (achados.numero) return numeroRef.current?.focus();
+
+    const alvo = armazemEndereco.ler();
+    let resultado = freteSalvo?.resultado ?? null;
+    if (!resultado) {
+      setCalculando(true);
+      setAviso(null);
+      try {
+        // com GPS, o frete sai do ponto do GPS; senão, do endereço achado no mapa
+        const ponto =
+          alvo.latitude != null && alvo.longitude != null ? { lat: alvo.latitude, lng: alvo.longitude } : await geocodificar(alvo);
+        resultado = ponto ? await calcularFrete(ponto.lat, ponto.lng) : { distancia_km: null, frete: null, bloqueado: false };
+        if (chaveEndereco(armazemEndereco.ler()) !== chaveEndereco(alvo)) return; // mexeu no meio
+        gravarEndereco((a) => ({ ...a, latitude: ponto?.lat ?? null, longitude: ponto?.lng ?? null }));
+        armazemFrete.gravar({ chave: chaveEndereco(alvo), resultado, calculadoEm: Date.now() });
+      } catch {
+        setAviso('Não conseguimos calcular a entrega agora. Confira sua internet e toque em Continuar de novo.');
+        return;
+      } finally {
+        setCalculando(false);
+      }
+    }
+    if (resultado.bloqueado) {
+      setAviso(
+        `Ainda não entregamos nesse endereço${
+          resultado.distancia_km != null ? ` (fica a ${resultado.distancia_km.toLocaleString('pt-BR')} km da loja)` : ''
+        }. Confira a rua e o número.`,
+      );
+      return;
+    }
+    router.push('/payment');
+  };
+
+  const ruaConhecida = endereco.rua.trim() !== '' && !editandoRua;
+  const mostrarNumero = ruaConhecida || editandoRua;
+
+  return (
+    <main className="pb-32 bg-fundo min-h-screen">
+      <CabecalhoCheckout voltarPara="/checkout?editar=1" etapa="Etapa 2 de 3" etapaAtual={2} />
+
+      <form
+        className="px-4 pt-5 max-w-[560px] mx-auto"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void continuar();
+        }}
+        noValidate
+      >
+        <h1 className="text-[24px] font-black leading-tight mb-5">Onde entregamos?</h1>
+
+        <button
+          type="button"
+          onClick={usarLocalizacao}
+          disabled={estadoGps === 'buscando'}
+          className="w-full h-14 rounded-xl border-2 border-primaria bg-white text-tinta text-[16px] font-bold flex items-center justify-center gap-2 active:scale-[0.99] transition-transform"
+        >
+          {estadoGps === 'buscando' ? (
+            <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
+          ) : (
+            <LocateFixed className="w-5 h-5" aria-hidden="true" />
+          )}
+          {estadoGps === 'buscando' ? 'Procurando sua rua…' : 'Usar minha localização'}
+        </button>
+        {AVISO_GPS[estadoGps] && (
+          <p className="text-[14px] text-tinta mt-2 rounded-lg bg-[#FFF8E1] border border-[#F1D58A] p-2.5" role="status">
+            {AVISO_GPS[estadoGps]}
+          </p>
+        )}
+
+        <p className="text-center text-[14px] text-suave my-3">ou digite o CEP</p>
+
+        <Campo
+          id="cep"
+          rotulo="CEP"
+          erro={
+            erros.cep ??
+            (estadoCep === 'nao-achou'
+              ? 'Esse CEP não traz a rua. Digite a rua abaixo.'
+              : estadoCep === 'erro'
+                ? 'Não deu para buscar o CEP agora. Digite a rua abaixo.'
+                : null)
+          }
+        >
+          <div className="relative">
+            <input
+              ref={cepRef}
+              id="cep"
+              inputMode="numeric"
+              autoComplete="postal-code"
+              value={endereco.cep}
+              onChange={(e) => void aoMudarCep(e.target.value)}
+              placeholder="00000-000"
+              aria-invalid={!!erros.cep || estadoCep === 'nao-achou'}
+              aria-describedby={erros.cep || estadoCep === 'nao-achou' || estadoCep === 'erro' ? 'cep-erro' : undefined}
+              className={classeCampo}
+            />
+            {estadoCep === 'buscando' && (
+              <Loader2 className="absolute right-3.5 top-1/2 -translate-y-1/2 w-5 h-5 animate-spin text-suave" aria-label="Buscando o CEP" />
+            )}
+          </div>
+        </Campo>
+        {!mostrarNumero && (
+          <button
+            type="button"
+            onClick={() => {
+              setEditandoRua(true);
+              setTimeout(() => ruaRef.current?.focus(), 50);
+            }}
+            className="text-[15px] font-bold underline py-2 mt-1"
+          >
+            Não sei meu CEP
+          </button>
+        )}
+
+        {ruaConhecida && (
+          <div className="mt-4 rounded-xl bg-white border border-borda p-3.5 flex items-start gap-3">
+            <MapPin className="w-5 h-5 shrink-0 mt-0.5 text-sucesso" aria-hidden="true" />
+            <div className="flex-1 min-w-0">
+              <p className="text-[16px] font-bold leading-snug">{endereco.rua}</p>
+              <p className="text-[14px] text-suave">{[endereco.bairro, endereco.cidade].filter(Boolean).join(' · ')}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setEditandoRua(true);
+                setTimeout(() => ruaRef.current?.focus(), 50);
+              }}
+              className="text-[14px] font-bold underline shrink-0 py-1"
+            >
+              Corrigir
+            </button>
+          </div>
+        )}
+
+        {editandoRua && (
+          <div className="mt-4 space-y-4">
+            <Campo id="rua" rotulo="Rua" erro={erros.rua}>
+              <input
+                ref={ruaRef}
+                id="rua"
+                autoComplete="address-line1"
+                value={endereco.rua}
+                onChange={(e) => {
+                  mudarLocal({ rua: e.target.value });
+                  if (erros.rua) setErros((x) => ({ ...x, rua: undefined }));
+                }}
+                aria-invalid={!!erros.rua}
+                className={classeCampo}
+              />
+            </Campo>
+            <Campo id="bairro" rotulo="Bairro">
+              <input
+                id="bairro"
+                value={endereco.bairro}
+                onChange={(e) => mudarLocal({ bairro: e.target.value })}
+                className={classeCampo}
+              />
+            </Campo>
+          </div>
+        )}
+
+        {mostrarNumero && (
+          <>
+            <div className="mt-4 grid grid-cols-[1fr_1.5fr] gap-3">
+              <Campo id="numero" rotulo="Número" erro={erros.numero}>
+                <input
+                  ref={numeroRef}
+                  id="numero"
+                  inputMode="numeric"
+                  value={endereco.numero}
+                  onChange={(e) => {
+                    const numero = e.target.value;
+                    setAviso(null);
+                    // com o ponto do GPS, o número não muda o lugar no mapa
+                    gravarEndereco((a) => (doGps ? { ...a, numero } : { ...a, numero, latitude: null, longitude: null }));
+                    if (erros.numero) setErros((x) => ({ ...x, numero: undefined }));
+                  }}
+                  aria-invalid={!!erros.numero}
+                  aria-describedby={erros.numero ? 'numero-erro' : undefined}
+                  className={classeCampo}
+                />
+              </Campo>
+              <Campo id="complemento" rotulo="Complemento" opcional>
+                <input
+                  id="complemento"
+                  autoComplete="address-line2"
+                  value={endereco.complemento}
+                  onChange={(e) => gravarEndereco((a) => ({ ...a, complemento: e.target.value }))}
+                  placeholder="Casa 2, apto 301"
+                  className={classeCampo}
+                />
+              </Campo>
+            </div>
+            {comReferencia ? (
+              <Campo id="referencia" rotulo="Ponto de referência" opcional className="mt-4">
+                <input
+                  id="referencia"
+                  value={endereco.referencia}
+                  onChange={(e) => gravarEndereco((a) => ({ ...a, referencia: e.target.value }))}
+                  placeholder="Perto da praça, portão azul"
+                  className={classeCampo}
+                />
+              </Campo>
+            ) : (
+              <button type="button" onClick={() => setComReferencia(true)} className="text-[15px] font-bold underline py-2 mt-2">
+                Adicionar ponto de referência
+              </button>
+            )}
+          </>
+        )}
+
+        {aviso && (
+          <p className="mt-4 rounded-xl bg-[#FFF1F1] border border-[#F5C2C2] p-3 text-[15px] text-perigo font-medium" role="alert">
+            {aviso}
+          </p>
+        )}
+        <button type="submit" className="sr-only">
+          Continuar
+        </button>
+      </form>
+
+      <BarraDaEtapa rotulo="Continuar" aoTocar={() => void continuar()} carregando={calculando} rotuloCarregando="Calculando a entrega…" />
+    </main>
+  );
+}

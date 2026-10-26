@@ -5,8 +5,8 @@ import { usePathname } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useHidratado } from '@/lib/armazenamento';
 import { formatarPreco } from '@/lib/formatacao';
+import { ehRotaDeCompra } from '@/lib/rotas';
 
-const ROTAS_SEM_BARRA = ['/checkout', '/payment', '/confirmation'];
 
 /** Barra "Ver sacola" logo acima da barra de abas (celular e desktop). */
 export const FloatingCart: React.FC = () => {
@@ -14,7 +14,7 @@ export const FloatingCart: React.FC = () => {
   const hidratado = useHidratado();
   const pathname = usePathname();
 
-  if (!hidratado || quantidadeTotal === 0 || sacolaAberta || ROTAS_SEM_BARRA.includes(pathname)) return null;
+  if (!hidratado || quantidadeTotal === 0 || sacolaAberta || ehRotaDeCompra(pathname)) return null;
 
   return (
     <div className="fixed bottom-[calc(64px+env(safe-area-inset-bottom))] left-0 right-0 px-4 pb-2 z-40 pointer-events-none">

@@ -6,6 +6,7 @@ import { MapPin, MessageCircle } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { faixaHorario, NOMES_DIAS } from '@/lib/horarios';
 import { linkWhatsapp, mascararTelefone } from '@/lib/formatacao';
+import { ehEtapaDoCheckout, ehRotaDeCompra } from '@/lib/rotas';
 
 export const Footer: React.FC = () => {
   const { home } = useCardapio();
@@ -19,8 +20,10 @@ export const Footer: React.FC = () => {
     config.aceita_cartao_entrega && 'Cartão na entrega (crédito/débito)',
   ].filter(Boolean);
 
-  // Espaço para a barra fixa da sacola nas páginas de compra
-  const espacoSacola = ['/checkout', '/payment', '/confirmation'].includes(pathname) ? '' : 'pb-40';
+  // nas etapas do checkout o rodapé some (nada que tire o foco do pedido)
+  if (ehEtapaDoCheckout(pathname)) return null;
+  // Espaço para a barra fixa da sacola fora das páginas de compra
+  const espacoSacola = ehRotaDeCompra(pathname) ? '' : 'pb-40';
 
   return (
     <footer className={`bg-topo text-white ${espacoSacola}`}>

@@ -8,9 +8,9 @@ import { Search, ShoppingBag, X } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { useHidratado } from '@/lib/armazenamento';
+import { ehRotaDeCompra } from '@/lib/rotas';
 import { Badge } from '@/components/ui/Badge';
 
-const ROTAS_CHECKOUT = ['/checkout', '/payment', '/confirmation'];
 
 const CampoBusca: React.FC = () => {
   const router = useRouter();
@@ -81,7 +81,7 @@ export const Header: React.FC = () => {
   const { loja, config } = home;
   const naBusca = pathname === '/busca';
 
-  if (ROTAS_CHECKOUT.includes(pathname)) {
+  if (ehRotaDeCompra(pathname)) {
     return config.aviso_topo ? (
       <div className="bg-tinta text-white text-[13px] text-center px-4 py-2">{config.aviso_topo}</div>
     ) : null;

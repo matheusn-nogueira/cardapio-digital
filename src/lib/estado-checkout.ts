@@ -146,6 +146,11 @@ export const armazemUltimoPedido = criarArmazem<PedidoConfirmado | null>('cdf:ul
   tipo: 'sessao',
 });
 
+/** Forma de pagamento do último pedido, no aparelho: na próxima compra já vem marcada. */
+export const armazemPagamentoPreferido = criarArmazem<FormaPagamento | null>('cdf:pagamento', null, {
+  validar: (b) => normalizarPagamento(b),
+});
+
 export const NOMES_PAGAMENTO: Record<FormaPagamento, string> = {
   pix: 'Pix',
   dinheiro: 'Dinheiro',
