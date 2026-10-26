@@ -141,6 +141,8 @@ export function classificarOfertas(p: Record<string, unknown>): {
  * Mantém só os campos que o site usa (o catálogo vai inteiro para o navegador).
  * Blocos da combinação vão sem id; variantes (escolha explícita) levam o id da oferta.
  */
+const MOSTRAR_NATURAL = false;
+
 export function normalizarProduto(p: Record<string, unknown>): ProdutoOrdenavel {
   const { quente, venda, variantes } = classificarOfertas(p);
   const nome = String(p.nome ?? '');
@@ -164,7 +166,10 @@ export function normalizarProduto(p: Record<string, unknown>): ProdutoOrdenavel 
       quente,
       ofertas: venda.map((o) => ({ nome: o.nome, qtd: o.qtd, preco: o.preco, preco_cartao: o.preco_cartao, quente: o.quente })),
     }),
-    variantes,
+    // versão natural (sem gelar) fora do site por enquanto (decisão do dono, 26/10/2026): a escolha
+    // gelada/natural atrapalhava a maioria. Para voltar, troque MOSTRAR_NATURAL (o ideal seria uma
+    // seção à parte só de itens naturais, não a escolha em cada produto).
+    variantes: MOSTRAR_NATURAL ? variantes : variantes.filter((v) => !v.quente),
     ordem: num(p.ordem, 9999),
     vendas_recentes: num(p.vendas_recentes),
   };

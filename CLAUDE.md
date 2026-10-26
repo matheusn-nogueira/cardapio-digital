@@ -40,6 +40,8 @@ Next.js 16 (App Router) + Tailwind 4, lendo o catálogo do Supabase do ERP (`erp
   - Campos de 48 px com letra de 17 px; o botão da etapa fica fixo embaixo e não fica desabilitado: mostra o erro no campo e põe o cursor nele.
   - Localização → endereço: `/api/endereco-do-ponto` (Nominatim reverso). Busca do endereço: `/api/geocodificar`. As duas dividem a fila de 1 consulta por segundo (`src/lib/servidor/nominatim.ts`).
   - Rotas de compra (sem topo da loja, abas e sacola flutuante; sem rodapé nas etapas): `src/lib/rotas.ts`.
+- Versão natural (sem gelar) fora do site desde 26/10/2026 (`MOSTRAR_NATURAL` em `src/lib/cardapio.ts`): a escolha gelada/natural em cada produto atrapalhava a maioria. Se voltar, a ideia do dono é uma seção à parte só de naturais.
+- Botão redondo do WhatsApp da loja (`BotaoWhatsApp`), no canto de baixo à direita, como no MenuDino: fica acima da barra de abas e sobe junto com a barra "Ver sacola"; some nas etapas de compra.
 - Pop-ups de promoção (`PopupPromo`), no máximo uma vez por dia cada: a lista da categoria 1,5 s depois de abrir a home (nunca na visita em que a pessoa acabou de confirmar a idade: dois modais seguidos na chegada), e a oferta especial (maior desconto em pack) quando a pessoa faz menção de sair (mouse pelo topo no computador; 45 s sem rolar nem tocar, com a sacola vazia, no celular).
 
 ## Categorias
