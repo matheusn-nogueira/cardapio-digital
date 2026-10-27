@@ -23,7 +23,8 @@ function destinoBanner(b: Banner): { href: string; externo: boolean } | null {
 // Banner sem foto: a cor escolhida no ERP, chapada (27/10/2026: o degradê para o amarelo e
 // as bolhas davam cara de modelo pronto). O que chama é o título grande e o botão amarelo.
 const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean; comLink: boolean }> = ({ banner, primeiro, comLink }) => {
-  const cor = corSegura(banner.cor_fundo, '#1A1A1A');
+  // Freezer: banner sem foto sempre no azul do tema (a cor do ERP fica de lado no teste)
+  const cor = banner.imagem_url ? corSegura(banner.cor_fundo, '#0F3A63') : 'var(--color-banner)';
   return (
     <div
       className="relative h-full min-h-44 rounded-2xl overflow-hidden flex items-end p-5"
@@ -37,7 +38,7 @@ const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean; comLink: boo
       ) : null}
       {(banner.titulo || banner.subtitulo) && (
         <div className="relative z-10 max-w-[85%]">
-          {banner.titulo && <h2 className="text-white font-black text-[24px] leading-[1.1] tracking-tight text-balance">{banner.titulo}</h2>}
+          {banner.titulo && <h2 className="text-white font-condensed font-extrabold uppercase text-[30px] leading-[1] tracking-tight text-balance">{banner.titulo}</h2>}
           {banner.subtitulo && <p className="text-white/80 text-[14px] mt-1.5 leading-snug">{banner.subtitulo}</p>}
           {comLink && (
             <span className="inline-flex items-center h-10 px-5 mt-3 rounded-xl bg-primaria text-primaria-texto text-[14px] font-bold">

@@ -36,7 +36,7 @@ export const BarraInferior: React.FC = () => {
 
   const item = (ativo: boolean) =>
     `relative flex-1 flex flex-col items-center justify-center gap-0.5 text-[12px] ${ativo ? 'text-tinta font-bold' : 'text-suave font-medium'}`;
-  const traco = <span className="absolute bottom-1 w-6 h-[3px] rounded-full bg-primaria" aria-hidden="true" />;
+  const traco = <span className="absolute bottom-1 w-6 h-[3px] rounded-full bg-tinta" aria-hidden="true" />;
 
   return (
     <nav

@@ -56,7 +56,7 @@ const CampoBusca: React.FC = () => {
         value={texto}
         onChange={(e) => buscar(e.target.value)}
         autoFocus={naBusca && !termoUrl}
-        className="w-full h-12 pr-11 pl-12 rounded-xl bg-bloco text-[16px] text-tinta outline-none placeholder:text-[14px] placeholder:text-apagado [&::-webkit-search-cancel-button]:hidden"
+        className="w-full h-12 pr-11 pl-12 rounded-xl bg-white text-[16px] text-tinta outline-none placeholder:text-[14px] placeholder:text-apagado [&::-webkit-search-cancel-button]:hidden"
         placeholder="Busque por bebida ou marca"
       />
       {texto && (
@@ -96,7 +96,7 @@ export const Header: React.FC = () => {
       {config.aviso_topo && (
         <div className="bg-tinta text-white text-[13px] font-medium text-center px-4 py-2">{config.aviso_topo}</div>
       )}
-      <header className="bg-white text-tinta px-4 sticky top-0 z-40 border-b border-borda">
+      <header className="bg-topo text-white px-4 sticky top-0 z-40">
         <div className="h-16 flex items-center gap-3 max-w-[1100px] mx-auto">
           <Link href="/" className="w-11 h-11 rounded-full bg-primaria flex items-center justify-center overflow-hidden shrink-0 font-black text-primaria-texto" aria-label={`${loja.nome} — início`}>
             {loja.logo_url ? (
@@ -115,8 +115,8 @@ export const Header: React.FC = () => {
               <span className="truncate">{loja.nome}</span>
               <ChevronDown className="w-4 h-4 shrink-0" aria-hidden="true" />
             </span>
-            <span className={`inline-flex items-center gap-1.5 text-[13px] font-medium leading-tight mt-0.5 ${status.aberta ? 'text-sucesso' : 'text-aviso'}`}>
-              <span className={`w-2 h-2 rounded-full ${status.aberta ? 'bg-sucesso' : 'bg-aviso'}`} aria-hidden="true" />
+            <span className={`inline-flex items-center gap-1.5 text-[13px] font-medium leading-tight mt-0.5 ${status.aberta ? 'text-topo-texto' : 'text-[#FFC98A]'}`}>
+              <span className={`w-2 h-2 rounded-full ${status.aberta ? 'bg-[#4ADE80]' : 'bg-[#FFC98A]'}`} aria-hidden="true" />
               <span className="truncate">
                 {status.aberta ? 'Aberto' : 'Fechado'}
                 {status.fechaEm ?? status.detalhe ? ` · ${status.fechaEm ?? status.detalhe}` : ''}
@@ -126,7 +126,7 @@ export const Header: React.FC = () => {
           <button
             type="button"
             onClick={abrirSacola}
-            className="relative w-11 h-11 rounded-full bg-bloco flex items-center justify-center shrink-0 text-tinta"
+            className="relative w-11 h-11 rounded-full bg-white/10 flex items-center justify-center shrink-0 text-white"
             aria-label={`Abrir sacola${hidratado && quantidadeTotal ? ` (${quantidadeTotal} itens)` : ''}`}
           >
             <ShoppingBag className="w-5 h-5" aria-hidden="true" />
@@ -135,7 +135,7 @@ export const Header: React.FC = () => {
         </div>
         {naBusca && (
           <div className="max-w-[1100px] mx-auto pb-3">
-            <Suspense fallback={<div className="h-12 rounded-xl bg-bloco" />}>
+            <Suspense fallback={<div className="h-12 rounded-xl bg-white" />}>
               <CampoBusca />
             </Suspense>
           </div>

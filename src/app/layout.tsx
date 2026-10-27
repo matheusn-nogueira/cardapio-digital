@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Roboto, Roboto_Condensed } from 'next/font/google';
+import { Barlow, Barlow_Condensed } from 'next/font/google';
 import './globals.css';
 import { AppProviders } from '@/context/AppProviders';
 import { Header } from '@/components/layout/Header';
@@ -16,15 +16,16 @@ import { corSegura } from '@/lib/formatacao';
 import { descreverStatus } from '@/lib/horarios';
 import { DESCRICAO_SITE, URL_SITE } from '@/lib/site';
 
-const roboto = Roboto({
-  weight: ['400', '500', '700', '900'],
+// Freezer (27/10/2026): Barlow no texto, Barlow Condensed nos títulos e preços, como etiqueta de freezer
+const roboto = Barlow({
+  weight: ['400', '500', '600', '700', '800'],
   subsets: ['latin'],
   variable: '--font-roboto',
   display: 'swap',
 });
 
-const robotoCondensed = Roboto_Condensed({
-  weight: ['400', '700'],
+const robotoCondensed = Barlow_Condensed({
+  weight: ['600', '700', '800'],
   subsets: ['latin'],
   variable: '--font-roboto-condensed',
   display: 'swap',
@@ -55,10 +56,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export async function generateViewport(): Promise<Viewport> {
-  const { config } = await buscarHome();
-  return { themeColor: corSegura(config.cor_primaria, '#F2B705') };
-}
+// Freezer: a barra do navegador acompanha o topo azul-noite (antes, a cor do banco)
+export const viewport: Viewport = { themeColor: '#0A2540' };
 
 export default async function RootLayout({
   children,

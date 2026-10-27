@@ -6,7 +6,7 @@
   --cor-primaria: #F2B705;
   --cor-texto-primaria: #1A1A1A;
   --background: #F5F5F5;
-  --foreground: #1A1A1A;
+  --foreground: #0A2540;
 }
 
 @theme inline {
@@ -16,21 +16,27 @@
   /* ação: amarelo da loja só como FUNDO de botão de ação (+, Adicionar, Continuar,
      Fazer pedido) e na aba ativa, sempre com texto escuro (11,5:1). Nunca como texto,
      borda, seleção ou enfeite (1,8:1 sobre branco: some para quem enxerga menos). */
-  --color-primaria: var(--cor-primaria);
-  --color-primaria-texto: var(--cor-texto-primaria);
+  /* Freezer (27/10/2026): o amarelo do botão é fixo aqui, não o do banco (cardapio_config),
+     para o teste não depender do ERP. Rollback: reverter o commit da Freezer. */
+  --color-primaria: #FFD200;
+  --color-primaria-texto: #0A2540;
+  /* topo e banner sem foto: azul-noite e azul-gelo escuro */
+  --color-topo: #0A2540;
+  --color-topo-texto: #A9C3DA;
+  --color-banner: #0F3A63;
   /* marca sem ser ação: superfície creme para destacar uma seção ("Peça de novo",
      opção escolhida) e o tom escuro para ícone ou texto da marca sobre branco (5,5:1) */
   --color-marca-clara: #FFF4CC;
   --color-marca-borda: #F0D78C;
   --color-marca-escura: #8A6100;
   /* neutros: uma escala só */
-  --color-tinta: #1A1A1A;      /* texto principal, botão secundário, seleção (16:1) */
-  --color-suave: #5C5C5C;      /* texto secundário (6,7:1) */
-  --color-apagado: #767676;    /* placeholder e desabilitado (4,5:1) */
-  --color-controle: #8F8F8F;   /* borda de campo, rádio desmarcado, bolinhas (3,2:1) */
-  --color-borda: #E5E5E5;      /* divisória e contorno de cartão (decorativo) */
-  --color-bloco: #F2F2F2;      /* superfície cinza sobre branco (chips, foto do produto) */
-  --color-fundo: #F5F5F5;      /* fundo das telas de compra */
+  --color-tinta: #0A2540;      /* texto principal, botão secundário, seleção (azul-noite, 15:1) */
+  --color-suave: #4A6075;      /* texto secundário (6,6:1) */
+  --color-apagado: #5E7287;    /* placeholder e desabilitado (5,0:1) */
+  --color-controle: #8195A8;   /* borda de campo, rádio desmarcado, bolinhas (3,2:1) */
+  --color-borda: #DCE7EF;      /* divisória e contorno de cartão (decorativo) */
+  --color-bloco: #E6F3FA;      /* gelo: fundo da foto do produto e dos chips */
+  --color-fundo: #F2F7FA;      /* fundo das telas de compra */
   /* vantagem: promoção de verdade, "Economize", entrega grátis, pedido confirmado (5,6:1) */
   --color-sucesso: #0F7A3D;
   --color-sucesso-claro: #E7F5EC;
@@ -90,7 +96,7 @@ body {
 }
 
 :focus-visible {
-  outline: 3px solid #1A1A1A;
+  outline: 3px solid #0A2540;
   outline-offset: 2px;
 }
 

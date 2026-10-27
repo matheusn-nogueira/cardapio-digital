@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Minus, Plus, Trash2 } from 'lucide-react';
+import { Minus, Plus, Snowflake, Trash2 } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { formatarPreco } from '@/lib/formatacao';
@@ -51,6 +51,8 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
   const diminuir = () => (naLinha <= 1 ? remover(produto.id) : alterar(produto.id, naLinha - 1));
 
   const selo = bloco ? `${bloco.qtd} por ${formatarPreco(bloco.preco)}` : produto.selo ?? (produto.quente ? 'Natural' : null);
+  // Freezer: selo "Gelada" na cerveja que sai do freezer (some quando o contador cobre a base da foto)
+  const gelada = !produto.quente && /cerveja/i.test(produto.categoria) && !(naLinha > 0 && !pedeEscolha);
 
   return (
     <article className={`flex flex-col ${formato === 'carrossel' ? 'w-[150px] shrink-0 snap-start' : 'w-full'}`}>
@@ -68,6 +70,12 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
             }`}
           >
             {selo}
+          </span>
+        )}
+        {gelada && (
+          <span className="absolute left-2 bottom-2 pointer-events-none inline-flex items-center gap-1 h-6 px-1.5 rounded-md bg-tinta text-white text-[10px] font-bold uppercase tracking-wide">
+            <Snowflake className="w-3 h-3" aria-hidden="true" />
+            Gelada
           </span>
         )}
         {naLinha > 0 && !pedeEscolha ? (
@@ -112,7 +120,7 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
 
       {/* a ação de abrir já está no botão da foto; aqui é só o texto, clicável por conveniência */}
       <div onClick={abrir} className="flex flex-col pt-3 cursor-pointer">
-        <span className="text-[18px] font-bold text-tinta leading-tight tabular-nums">{formatarPreco(unidade)}</span>
+        <span className="font-condensed text-[21px] font-extrabold text-tinta leading-tight tabular-nums">{formatarPreco(unidade)}</span>
         {/* sempre 2 linhas de altura, mesmo com nome curto */}
         <span className="text-[15px] text-tinta leading-snug line-clamp-2 min-h-[2.75em] mt-1">{produto.nome}</span>
       </div>
