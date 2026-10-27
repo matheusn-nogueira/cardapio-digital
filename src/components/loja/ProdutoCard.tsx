@@ -5,7 +5,7 @@ import { Minus, Plus, Snowflake, Trash2 } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { formatarPreco } from '@/lib/formatacao';
-import { blocoEmDestaque, melhorPreco } from '@/lib/precoQuantidade';
+import { etiquetaDePromocao, melhorPreco } from '@/lib/precoQuantidade';
 import type { Produto } from '@/lib/tipos';
 import { ImagemProduto } from './ImagemProduto';
 
@@ -31,8 +31,8 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
   const { abrirProduto } = useCardapio();
   const { adicionar, alterar, remover, unidadesDoProduto, quantidadeNaLinha } = useCart();
   const unidade = melhorPreco(produto, 1, false).total;
-  // promoção dita como no mercado: "3 por R$ 11,00"
-  const bloco = blocoEmDestaque(produto);
+  // promoção dita como no mercado: "3 por R$ 11,00", só quando sai mais barato que avulso
+  const bloco = etiquetaDePromocao(produto);
   const naSacola = unidadesDoProduto(produto.id);
   // o contador mexe só na versão padrão; versões escolhidas na ficha (natural em pack…) ficam na sacola
   const naLinha = quantidadeNaLinha(produto.id);
@@ -66,7 +66,7 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
         {selo && (
           <span
             className={`absolute top-2 left-2 right-2 w-fit truncate pointer-events-none text-[11px] font-bold px-2 py-0.5 rounded-md tabular-nums ${
-              bloco ? (bloco.desconto ? 'bg-sucesso text-white' : 'bg-tinta text-white') : selo === 'Natural' ? 'bg-white text-tinta' : 'bg-tinta text-white'
+              bloco ? 'bg-sucesso text-white' : selo === 'Natural' ? 'bg-white text-tinta' : 'bg-tinta text-white'
             }`}
           >
             {selo}

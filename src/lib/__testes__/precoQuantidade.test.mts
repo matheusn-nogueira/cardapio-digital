@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {
   atalhosDoProduto,
   blocoEmDestaque,
+  etiquetaDePromocao,
   descreverCombinacao,
   descreverPromocao,
   proximaPromocao,
@@ -135,10 +136,13 @@ test('aviso da sacola: quanto custa a próxima promoção', () => {
   assert.deepEqual(proximaPromocao(imperio, 5), { mais: 1, custo: 3 });
 });
 
-test('"[Promo]" de preço redondo aparece, mas sem falar em economia (dono, 26/10/2026)', () => {
-  // 3x Amstel Latão por R$ 13,50 = 3 × R$ 4,50: a etiqueta "3 por R$ 13,50" aparece, sem aviso de economia
+test('"[Promo]" de preço redondo vale na conta, mas não vira etiqueta no card (dono, 27/10/2026)', () => {
+  // 3x Amstel Latão por R$ 13,50 = 3 × R$ 4,50: sem economia, sem etiqueta (antes de 27/10 aparecia em azul)
   const amstel = { ...imperio, preco: 4.5, ofertas: [{ ...imperio.ofertas[0], preco: 4.5 }, { ...imperio.ofertas[1], preco: 13.5 }] };
   assert.deepEqual(blocoEmDestaque(amstel), { qtd: 3, preco: 13.5, promo: true, desconto: false });
+  // caso real (27/10/2026): "3 por R$ 13,50" da Amstel a R$ 4,50 não ganha etiqueta no card
+  assert.equal(etiquetaDePromocao(amstel), null);
+  assert.deepEqual(etiquetaDePromocao(imperio), { qtd: 3, preco: 11, promo: true, desconto: true });
   assert.equal(proximaPromocao(amstel, 2), null);
   // pack sem desconto e sem "[Promo]" não aparece
   const pack = { ...amstel, ofertas: [amstel.ofertas[0], { nome: 'Pack Amstel Latão', qtd: 12, preco: 54, preco_cartao: 54, quente: false }] };

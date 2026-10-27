@@ -172,7 +172,17 @@ export function blocosComDesconto(produto: ProdutoPreco, cartao = false): BlocoC
   return [...porTamanho.values()].sort((a, b) => a.qtd - b.qtd);
 }
 
-/** O bloco da etiqueta do card: a promoção do ERP, senão o menor bloco com desconto. */
+/**
+ * A etiqueta verde do card ("3 por R$ 11,00"): só bloco que sai mais barato que avulso, a
+ * promoção do ERP primeiro. Bloco sem desconto ("3 por R$ 13,50" com a un a R$ 4,50) não vira
+ * etiqueta: não é promoção (dono, 27/10/2026); continua valendo na sacola e na ficha.
+ */
+export function etiquetaDePromocao(produto: ProdutoPreco): BlocoComDesconto | null {
+  const comDesconto = blocosComDesconto(produto).filter((b) => b.desconto);
+  return comDesconto.find((b) => b.promo) ?? comDesconto[0] ?? null;
+}
+
+/** O bloco da promoção do ERP (mesmo sem desconto), senão o menor bloco com desconto. */
 export function blocoEmDestaque(produto: ProdutoPreco): BlocoComDesconto | null {
   const blocos = blocosComDesconto(produto);
   return blocos.find((b) => b.promo) ?? blocos[0] ?? null;
