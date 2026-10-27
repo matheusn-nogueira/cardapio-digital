@@ -1,18 +1,20 @@
 'use client';
 
 import React, { useEffect, useMemo } from 'react';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useCardapio } from '@/context/CardapioContext';
 import { buscarProdutos } from '@/lib/busca';
 import { registrarBusca } from '@/lib/medicao';
+import type { Categoria } from '@/lib/tipos';
+import { CategoriasBanners } from './CategoriasBanners';
 import { GradeProdutos } from './GradeProdutos';
 
-export const ResultadosBusca: React.FC = () => {
+/** `categorias`: as que têm produto, filtradas pela página (banners sem termo). */
+export const ResultadosBusca: React.FC<{ categorias: Categoria[] }> = ({ categorias }) => {
   const params = useSearchParams();
   const termo = params.get('q')?.trim() ?? '';
   const marca = params.get('marca')?.trim() ?? '';
-  const { produtos, home, categoriaDoProduto } = useCardapio();
+  const { produtos, categoriaDoProduto } = useCardapio();
 
   const busca = useMemo(() => {
     const base = marca ? produtos.filter((p) => p.marca?.toLowerCase() === marca.toLowerCase()) : produtos;
@@ -36,18 +38,7 @@ export const ResultadosBusca: React.FC = () => {
       {!termo && !marca ? (
         <>
           <p className="text-[14px] text-suave mb-4">Digite o que você procura na busca acima ou escolha uma categoria:</p>
-          <ul className="flex flex-wrap gap-2">
-            {home.categorias.map((c) => (
-              <li key={c.id}>
-                <Link
-                  href={`/categoria/${c.id}`}
-                  className="inline-flex items-center gap-1.5 h-11 px-4 rounded-xl bg-bloco text-[14px] font-bold text-tinta"
-                >
-                  {c.nome}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <CategoriasBanners categorias={categorias} />
         </>
       ) : (
         <>

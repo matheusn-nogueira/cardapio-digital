@@ -24,16 +24,20 @@ const IconeWhatsApp: React.FC<{ className?: string }> = ({ className }) => (
 /**
  * Barra de abas fixa no rodapé, como no app do Zé: Início, Busca, Sacola e WhatsApp da loja.
  * O WhatsApp é aba (com nome escrito), não botão flutuante: não cobre produto nem disputa com
- * a barra "Ver sacola" (decisão do dono, 26/10/2026).
+ * a barra "Ver sacola" (decisão do dono, 26/10/2026). Fica visível com a sacola aberta, como no app
+ * do iFood (dono, 27/10/2026): a sacola para em cima dela.
  */
 export const BarraInferior: React.FC = () => {
   const { home } = useCardapio();
   const pathname = usePathname();
-  const { quantidadeTotal, abrirSacola } = useCart();
+  const { quantidadeTotal, abrirSacola, fecharSacola, sacolaAberta } = useCart();
   const hidratado = useHidratado();
   if (ehRotaDeCompra(pathname)) return null;
   const whatsapp = linkWhatsapp(home.config.whatsapp || home.loja.telefone, 'Olá! Vim pelo cardápio online.');
 
+  // com a sacola aberta, a aba ativa é a Sacola
+  const naHome = pathname === '/' && !sacolaAberta;
+  const naBusca = pathname === '/busca' && !sacolaAberta;
   const item = (ativo: boolean) =>
     `relative flex-1 flex flex-col items-center justify-center gap-0.5 text-[12px] ${ativo ? 'text-tinta font-bold' : 'text-suave font-medium'}`;
   const traco = <span className="absolute bottom-1 w-6 h-[3px] rounded-full bg-tinta" aria-hidden="true" />;
@@ -44,17 +48,17 @@ export const BarraInferior: React.FC = () => {
       className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-borda pb-[env(safe-area-inset-bottom)]"
     >
       <div className="h-16 flex max-w-[560px] mx-auto">
-        <Link href="/" className={item(pathname === '/')} aria-current={pathname === '/' ? 'page' : undefined}>
+        <Link href="/" onClick={fecharSacola} className={item(naHome)} aria-current={naHome ? 'page' : undefined}>
           <Home className="w-6 h-6" aria-hidden="true" />
           Início
-          {pathname === '/' && traco}
+          {naHome && traco}
         </Link>
-        <Link href="/busca" className={item(pathname === '/busca')} aria-current={pathname === '/busca' ? 'page' : undefined}>
+        <Link href="/busca" onClick={fecharSacola} className={item(naBusca)} aria-current={naBusca ? 'page' : undefined}>
           <Search className="w-6 h-6" aria-hidden="true" />
           Busca
-          {pathname === '/busca' && traco}
+          {naBusca && traco}
         </Link>
-        <button type="button" onClick={abrirSacola} className={item(false)}>
+        <button type="button" onClick={abrirSacola} className={item(sacolaAberta)} aria-expanded={sacolaAberta}>
           <span className="relative">
             <ShoppingBag className="w-6 h-6" aria-hidden="true" />
             {hidratado && quantidadeTotal > 0 && (
@@ -64,6 +68,7 @@ export const BarraInferior: React.FC = () => {
             )}
           </span>
           Sacola
+          {sacolaAberta && traco}
         </button>
         {whatsapp && (
           <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={item(false)} aria-label="WhatsApp da loja">

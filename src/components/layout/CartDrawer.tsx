@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Minus, Plus, ShoppingBag, Trash2, X } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
@@ -13,6 +13,7 @@ import { useFrete } from '@/lib/frete';
 import { detalheVariante, descreverVariante } from '@/lib/ofertas';
 import { subtotalCarrinho, totalDaLinha } from '@/lib/precoQuantidade';
 import { registrarEtapa } from '@/lib/medicao';
+import { ehRotaDeCompra } from '@/lib/rotas';
 import { ImagemProduto } from '@/components/loja/ImagemProduto';
 import { PecaTambem } from '@/components/loja/PecaTambem';
 import { ResumoCombinacao, SeloTemperatura } from '@/components/loja/ProdutoDetalhe';
@@ -41,8 +42,13 @@ export const BarraProgresso: React.FC<{ percentual: number; texto: string; compl
   </div>
 );
 
+/** Fundo escuro e sacola terminam em cima da barra de abas (64 px + área segura do iPhone). */
+const ABAIXO_ATE_AS_ABAS = 'bottom-[calc(64px+env(safe-area-inset-bottom))]';
+
 export const CartDrawer: React.FC = () => {
   const router = useRouter();
+  // a sacola para acima da barra de abas, que segue visível (Início e Busca fecham a sacola)
+  const comAbas = !ehRotaDeCompra(usePathname());
   const { home, status } = useCardapio();
   const { linhas, indisponiveis, subtotal, alterar, remover, removerIndisponiveis, sacolaAberta, fecharSacola, limpar } =
     useCart();
@@ -99,13 +105,17 @@ export const CartDrawer: React.FC = () => {
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] bg-black/50 animate-fade-in" onClick={fecharSacola} aria-hidden="true" />
+      <div
+        className={`fixed inset-x-0 top-0 z-[100] bg-black/50 animate-fade-in ${comAbas ? ABAIXO_ATE_AS_ABAS : 'bottom-0'}`}
+        onClick={fecharSacola}
+        aria-hidden="true"
+      />
 
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="titulo-sacola"
-        className="fixed top-0 right-0 bottom-0 z-[101] w-[400px] max-w-full bg-fundo flex flex-col shadow-[-4px_0_20px_rgba(0,0,0,0.12)] animate-entra-direita"
+        className={`fixed top-0 right-0 ${comAbas ? ABAIXO_ATE_AS_ABAS : 'bottom-0'} z-[101] w-[400px] max-w-full bg-fundo flex flex-col shadow-[-4px_0_20px_rgba(0,0,0,0.12)] animate-entra-direita`}
       >
         <div className="flex items-center justify-center relative px-4 h-14 bg-white text-tinta border-b border-borda shrink-0">
           {linhas.length > 0 && (
@@ -282,7 +292,9 @@ export const CartDrawer: React.FC = () => {
           {!vazia && <PecaTambem />}
         </div>
 
-        <div className="bg-white p-4 pb-[max(16px,env(safe-area-inset-bottom))] shrink-0 border-t border-borda">
+        <div
+          className={`bg-white p-4 ${comAbas ? '' : 'pb-[max(16px,env(safe-area-inset-bottom))]'} shrink-0 border-t border-borda`}
+        >
           {/* taxa de entrega à vista desde a sacola (custo surpresa no fim é o que mais faz desistir):
               com endereço já guardado, o valor certo e o total; sem endereço, "a partir de" */}
           <div className="flex justify-between text-[15px]">

@@ -82,8 +82,13 @@ const CORES_SOBRA: [string, string][] = [
   ['#F6D47A', '#1A1A1A'],
 ];
 
+/** [fundo, texto] da lata da marca, ou null quando o nome não é de uma marca conhecida. */
+export function corDaLata(nome: string): [string, string] | null {
+  return CORES_MARCA.find(([re]) => re.test(nome))?.[1] ?? null;
+}
+
 function coresDaMarca(nome: string, indice: number): [string, string] {
-  return CORES_MARCA.find(([re]) => re.test(nome))?.[1] ?? CORES_SOBRA[indice % CORES_SOBRA.length];
+  return corDaLata(nome) ?? CORES_SOBRA[indice % CORES_SOBRA.length];
 }
 
 // Logo como impresso na lata, com a divisão de cores dele: cores originais mesmo em fundo escuro
