@@ -19,7 +19,7 @@ interface Props {
 export const CategoriasLista: React.FC<Props> = ({ categorias, ativaId }) => {
   if (!categorias.length) return null;
   return (
-    <nav aria-label="Categorias" className="bg-white pt-3 pb-2">
+    <nav aria-label="Categorias" className="bg-white pt-3 pb-3">
       <ul className="flex gap-2 overflow-x-auto no-scrollbar px-4 scroll-px-4">
         {categorias.map((cat, i) => {
           const ativa = cat.id === ativaId;

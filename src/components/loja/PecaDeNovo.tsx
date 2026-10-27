@@ -51,12 +51,12 @@ export const PecaDeNovo: React.FC = () => {
   // depois do banner; o creme parecia aviso.
   // A linha inteira é o botão; a sacola abre em seguida mostrando o que entrou.
   return (
-    <section aria-label="Peça de novo" className="px-4 pt-3">
+    <section aria-label="Peça de novo" className="px-4 pt-4">
       <button
         type="button"
         onClick={repetir}
         aria-label={`Peça de novo: pôr na sacola os ${quantidade} do seu pedido ${quando(anterior.feitoEm)}, ${subtotal}`}
-        className="w-full flex items-center gap-3 rounded-2xl bg-tinta p-3 text-left active:opacity-90 transition-opacity"
+        className="w-full flex items-center gap-3 rounded-2xl bg-tinta px-4 py-3 text-left active:opacity-90 transition-opacity"
       >
         <span className="flex shrink-0 pl-3" aria-hidden="true">
           {fotos.map((l) => (

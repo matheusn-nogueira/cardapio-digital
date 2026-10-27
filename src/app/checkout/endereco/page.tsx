@@ -220,7 +220,7 @@ export default function EtapaEndereco() {
         }}
         noValidate
       >
-        <h1 className="text-[24px] font-black leading-tight mb-5">Como quer receber?</h1>
+        <h1 className="font-condensed text-[28px] font-extrabold uppercase tracking-tight leading-none mb-5">Como quer receber?</h1>
         {/* entrega ou retirada (26/10/2026): retirada não pede endereço nem cobra entrega */}
         <div role="radiogroup" aria-label="Como você quer receber" className="grid gap-2.5 mb-6">
           {[
@@ -239,20 +239,20 @@ export default function EtapaEndereco() {
                   setAviso(null);
                   setErros({});
                 }}
-                className={`w-full min-h-16 text-left flex items-center gap-3.5 px-4 py-3 rounded-xl border-2 ${
-                  escolhido ? 'border-tinta bg-marca-clara' : 'border-borda bg-white'
+                className={`w-full min-h-16 text-left flex items-center gap-3.5 px-4 py-3 rounded-xl border ${
+                  escolhido ? 'border-tinta bg-tinta text-white' : 'border-borda bg-white text-tinta'
                 }`}
               >
-                <span className="shrink-0 text-tinta">{o.icone}</span>
+                <span className="w-10 h-10 shrink-0 rounded-lg bg-white text-tinta flex items-center justify-center">{o.icone}</span>
                 <span className="flex-1 min-w-0">
                   <span className="block text-[16px] font-bold leading-tight">{o.titulo}</span>
-                  <span className="block text-[13px] text-suave leading-snug mt-0.5">{o.detalhe}</span>
+                  <span className={`block text-[13px] leading-snug mt-0.5 ${escolhido ? 'text-white/80' : 'text-suave'}`}>{o.detalhe}</span>
                 </span>
                 <span
-                  className={`w-5 h-5 border-2 rounded-full shrink-0 flex items-center justify-center ${escolhido ? 'border-tinta' : 'border-controle'}`}
+                  className={`w-5 h-5 border-2 rounded-full shrink-0 flex items-center justify-center ${escolhido ? 'border-white' : 'border-controle'}`}
                   aria-hidden="true"
                 >
-                  {escolhido && <span className="w-2.5 h-2.5 rounded-full bg-tinta" />}
+                  {escolhido && <span className="w-2.5 h-2.5 rounded-full bg-white" />}
                 </span>
               </button>
             );

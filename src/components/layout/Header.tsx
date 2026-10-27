@@ -94,10 +94,10 @@ export const Header: React.FC = () => {
         <div className="bg-tinta text-white text-[13px] font-medium text-center px-4 py-2">{config.aviso_topo}</div>
       )}
       <header className="bg-topo text-white px-4 sticky top-0 z-40">
-        <div className="h-16 flex items-center gap-2.5 max-w-[1100px] mx-auto">
+        <div className="pt-3 pb-3 flex items-center gap-2.5 max-w-[1100px] mx-auto">
           {/* o logo já tem a forma da casa: sem círculo atrás (o amarelo do círculo, diferente
               do amarelo do logo, aparecia como um contorno laranja; dono, 27/10/2026) */}
-          <Link href="/" className="w-12 h-12 flex items-center justify-center shrink-0" aria-label={`${loja.nome} — início`}>
+          <Link href="/" className="w-12 h-12 -ml-1.5 flex items-center justify-center shrink-0" aria-label={`${loja.nome} — início`}>
             {loja.logo_url ? (
               <Image src={loja.logo_url} alt="" width={96} height={96} priority className="w-12 h-12 object-contain" />
             ) : (

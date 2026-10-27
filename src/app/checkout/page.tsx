@@ -94,7 +94,7 @@ function EtapaDados() {
         }}
         noValidate
       >
-        <h1 className="text-[24px] font-black leading-tight mb-5">Para quem é o pedido?</h1>
+        <h1 className="font-condensed text-[28px] font-extrabold uppercase tracking-tight leading-none mb-5">Para quem é o pedido?</h1>
 
         {!status.aberta && (
           <div className="mb-4 rounded-xl bg-aviso-claro p-3 text-[15px]">

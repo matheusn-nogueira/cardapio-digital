@@ -33,7 +33,7 @@ export const StatusLojaCard: React.FC = () => {
   }
 
   return (
-    <section aria-label="Funcionamento" className="px-4 pt-4">
+    <section aria-label="Funcionamento" className="px-4 pt-2">
       {status.aberta ? (
         <h2 className="sr-only">{status.titulo}</h2>
       ) : (

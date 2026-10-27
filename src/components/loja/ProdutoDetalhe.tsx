@@ -237,8 +237,8 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
                   type="button"
                   onClick={() => mudar(b.qtd)}
                   aria-pressed={escolhido}
-                  className={`flex-1 min-h-12 rounded-xl border-2 px-2 py-1.5 text-[14px] font-bold leading-tight flex flex-wrap items-center justify-center gap-x-1 ${
-                    escolhido ? 'border-tinta bg-marca-clara text-tinta' : 'border-controle bg-white text-tinta'
+                  className={`flex-1 min-h-12 rounded-xl border px-2 py-1.5 text-[14px] font-bold leading-tight flex flex-wrap items-center justify-center gap-x-1 ${
+                    escolhido ? 'border-tinta bg-tinta text-white' : 'border-controle bg-white text-tinta'
                   }`}
                 >
                   <span>{b.qtd} por</span>

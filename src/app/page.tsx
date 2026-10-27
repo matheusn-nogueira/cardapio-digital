@@ -44,9 +44,9 @@ export default async function Home() {
       <BannerCarrossel banners={home.banners} />
       <StatusLojaCard />
       <PecaDeNovo />
-      <div className="pt-5">{primeira && vitrine(primeira)}</div>
+      <div className="pt-8">{primeira && vitrine(primeira)}</div>
       <MarcasLista marcas={marcas} />
-      <div className="pt-3 pb-1">
+      <div>
         {demais.map(vitrine)}
         {prateleiras.map((c) => (
           <Vitrine key={c.id} titulo={c.nome} ids={c.ids} linkVerTodos={`/categoria/${c.id}`} />

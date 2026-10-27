@@ -55,8 +55,8 @@ export const PecaTambem: React.FC = () => {
 
   return (
     <section className="mt-5" aria-label="Peça também">
-      <h3 className="text-[13px] font-medium uppercase tracking-wide text-suave mb-2">Peça também</h3>
-      <div className="flex gap-2.5 overflow-x-auto no-scrollbar -mx-3.5 px-3.5 scroll-px-3.5 pb-1 snap-x">
+      <h3 className="font-condensed text-[18px] font-extrabold uppercase tracking-tight text-tinta mb-2">Peça também</h3>
+      <div className="flex gap-2.5 overflow-x-auto no-scrollbar -mx-4 px-4 scroll-px-4 pb-1 snap-x">
         {sugestoes.map((produto) => (
           <article key={produto.id} className="w-[112px] shrink-0 snap-start bg-white rounded-xl shadow-cartao overflow-hidden">
             <div className="relative w-full aspect-square p-2 bg-white">

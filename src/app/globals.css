@@ -24,11 +24,8 @@
   --color-topo: #0A2540;
   --color-topo-texto: #A9C3DA;
   --color-banner: #0F3A63;
-  /* marca sem ser ação: superfície creme para destacar uma seção ("Peça de novo",
-     opção escolhida) e o tom escuro para ícone ou texto da marca sobre branco (5,5:1) */
-  --color-marca-clara: #FFF4CC;
-  --color-marca-borda: #F0D78C;
-  --color-marca-escura: #8A6100;
+  /* opção escolhida (pagamento, entrega, promoção da ficha): azul-noite cheio com texto branco,
+     como o chip de categoria ativo (Freezer, 27/10/2026). Usa `tinta`, sem cor própria. */
   /* neutros: uma escala só */
   --color-tinta: #0A2540;      /* texto principal, botão secundário, seleção (azul-noite, 15:1) */
   --color-suave: #4A6075;      /* texto secundário (6,6:1) */
@@ -48,7 +45,8 @@
   --color-perigo: #C62828;
   --color-perigo-claro: #FFF1F1;
   --color-perigo-borda: #F5C2C2;
-  --shadow-cartao: 0 1px 4px rgba(0, 0, 0, 0.12);
+  /* Freezer: cartão branco com fio fino, sem sombra (mesma borda das opções) */
+  --shadow-cartao: 0 0 0 1px var(--color-borda);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-roboto), Arial, Helvetica, sans-serif;

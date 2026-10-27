@@ -117,7 +117,7 @@ export const CartDrawer: React.FC = () => {
               Esvaziar
             </button>
           )}
-          <h2 id="titulo-sacola" className="text-[16px] font-bold">
+          <h2 id="titulo-sacola" className="font-condensed text-[20px] font-extrabold uppercase">
             Sua sacola
           </h2>
           <button
@@ -131,7 +131,7 @@ export const CartDrawer: React.FC = () => {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-3.5 pb-3">
+        <div className="flex-1 overflow-y-auto px-4 pb-3">
           {confirmandoLimpar && linhas.length > 0 && (
             <div className="mt-3 rounded-xl bg-white border-2 border-perigo/40 p-3.5" role="alertdialog" aria-label="Esvaziar a sacola">
               <p className="text-[15px] font-bold">Tirar todos os itens da sacola?</p>
@@ -214,7 +214,7 @@ export const CartDrawer: React.FC = () => {
               {linhas.map((linha) => {
                 const { chave, produto, variante, quantidade } = linha;
                 return (
-                  <li key={chave} className="bg-white rounded-xl shadow-cartao p-3 mt-2.5 flex gap-3 items-start">
+                  <li key={chave} className="bg-white rounded-xl shadow-cartao p-4 mt-2.5 flex gap-3 items-start">
                     <div className="w-[60px] h-[60px] shrink-0 rounded-lg overflow-hidden">
                       <ImagemProduto produto={produto} tamanho="pequena" />
                     </div>

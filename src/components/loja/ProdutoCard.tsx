@@ -105,7 +105,7 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
             type="button"
             onClick={aoAdicionar}
             aria-label={pedeEscolha ? `Escolher versão de ${produto.nome}` : `Adicionar 1 unidade de ${produto.nome} à sacola`}
-            className="absolute bottom-2 right-2 w-9 h-9 rounded-full bg-primaria text-primaria-texto flex items-center justify-center shadow-cartao active:scale-90 transition-transform before:absolute before:-inset-1 before:content-['']"
+            className="absolute bottom-2 right-2 w-9 h-9 rounded-full bg-primaria text-primaria-texto flex items-center justify-center active:scale-90 transition-transform before:absolute before:-inset-1 before:content-['']"
           >
             <Plus className="w-5 h-5" strokeWidth={2.5} aria-hidden="true" />
             {naSacola > 0 && (

@@ -27,7 +27,7 @@ const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean; comLink: boo
   const cor = banner.imagem_url ? corSegura(banner.cor_fundo, '#0F3A63') : 'var(--color-banner)';
   return (
     <div
-      className="relative h-full min-h-44 rounded-2xl overflow-hidden flex items-end p-5"
+      className="relative h-full min-h-44 rounded-2xl overflow-hidden flex items-end p-4 pb-5"
       style={{ background: cor }}
     >
       {banner.imagem_url ? (
@@ -107,7 +107,7 @@ export const BannerCarrossel: React.FC<{ banners: Banner[] }> = ({ banners }) =>
   if (!total) return null;
 
   return (
-    <section aria-roledescription="carrossel" aria-label="Destaques" className="pt-1 pb-2">
+    <section aria-roledescription="carrossel" aria-label="Destaques" className="pb-2">
       <div
         ref={trilho}
         onScroll={() => setAtual(indiceNaTela(trilho.current))}

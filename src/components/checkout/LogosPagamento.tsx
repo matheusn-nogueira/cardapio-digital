@@ -41,9 +41,12 @@ export const LogoElo: React.FC<Props> = ({ className = 'h-4 w-auto' }) => (
 export const BandeirasCartao: React.FC = () => (
   <span className="flex items-center gap-2 mt-1">
     <span className="sr-only">Visa, Mastercard, Elo</span>
-    <LogoVisa className="h-3.5 w-auto" />
-    <LogoMastercard className="h-4 w-auto" />
-    <LogoElo className="h-3.5 w-auto" />
-    <span className="text-[12px] text-suave">e outras</span>
+    {/* plaquinha branca: as bandeiras são escuras e sumiriam na opção escolhida (azul) */}
+    <span className="inline-flex items-center gap-2 rounded-md bg-white px-1.5 py-0.5 -ml-1.5" aria-hidden="true">
+      <LogoVisa className="h-3.5 w-auto" />
+      <LogoMastercard className="h-4 w-auto" />
+      <LogoElo className="h-3.5 w-auto" />
+    </span>
+    <span className="text-[12px]">e outras</span>
   </span>
 );
