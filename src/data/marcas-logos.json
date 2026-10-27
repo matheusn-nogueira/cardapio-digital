@@ -21,7 +21,7 @@
   },
   "Corona": {
     "arquivo": "corona.svg",
-    "fonte": "https://en.wikipedia.org/wiki/File:Corona_Extra.svg"
+    "fonte": "https://cdn.worldvectorlogo.com/logos/corona.svg"
   },
   "Eisenbahn": {
     "arquivo": "eisenbahn.svg",
@@ -29,8 +29,7 @@
   },
   "Heineken": {
     "arquivo": "heineken.svg",
-    "fonte": "https://en.wikipedia.org/wiki/File:Heineken_Logo.svg",
-    "arquivoLata": "heineken-lata.svg"
+    "fonte": "https://cdn.worldvectorlogo.com/logos/heineken-1.svg"
   },
   "Império": {
     "arquivo": "imperio.png",
@@ -46,7 +45,7 @@
   },
   "Skol": {
     "arquivo": "skol.svg",
-    "fonte": "https://en.wikipedia.org/wiki/File:Skol_logo_(2016).svg"
+    "fonte": "https://cdn.worldvectorlogo.com/logos/skol.svg"
   },
   "Spaten": {
     "arquivo": "spaten.svg",

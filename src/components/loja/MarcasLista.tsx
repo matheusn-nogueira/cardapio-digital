@@ -3,9 +3,10 @@ import Link from 'next/link';
 import logos from '@/data/marcas-logos.json';
 import type { Produto } from '@/lib/tipos';
 
-// Logos baixados pelo scripts/baixar-logos-marcas.py (public/marcas/); marca sem logo vira letreiro.
-// arquivoLata: versão recolorida como impressa na lata (Heineken: nome branco e estrela vermelha)
-const LOGOS = logos as Record<string, { arquivo: string; arquivoLata?: string; fonte: string }>;
+// Logos em public/marcas/ (scripts/baixar-logos-marcas.py ou a fonte de cada um no manifesto); marca
+// sem logo vira letreiro. Onde existe, o logo é a versão de rótulo, com traço de desenho como o da
+// Stella (dono, 27/10/2026): selo redondo da Heineken e da Skol, coqueiro da Corona.
+const LOGOS = logos as Record<string, { arquivo: string; fonte: string }>;
 
 /**
  * Marcas reais do catálogo (campo `marca`), ignorando as que são só o nome
@@ -138,7 +139,7 @@ export const MarcasLista: React.FC<{ marcas: string[] }> = ({ marcas }) => {
                   {/* svg/png estático: <img> simples, sem otimizador */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={`/marcas/${logo.arquivoLata ?? logo.arquivo}`}
+                    src={`/marcas/${logo.arquivo}`}
                     alt=""
                     className={`relative w-full h-full object-contain ${
                       branco
@@ -152,8 +153,8 @@ export const MarcasLista: React.FC<{ marcas: string[] }> = ({ marcas }) => {
               </li>
             );
           }
-          // palavra comprida ("Antarctica") diminui em vez de quebrar no meio
-          const comprida = marca.split(/\s+/).some((p) => p.length > 8);
+          // palavra comprida ("Bohemia") diminui em vez de quebrar no meio ou vazar do bloco
+          const comprida = marca.split(/\s+/).some((p) => p.length > 6);
           return (
             <li key={marca} className="snap-start">
               <Link
