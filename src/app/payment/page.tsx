@@ -395,27 +395,31 @@ function EtapaPagamento() {
           </>
         )}
 
-        <section className="mb-3">
+        {/* um cartão só: o cabeçalho "Itens" abre e fecha a lista compacta (nome e preço à
+            esquerda, "− 3 +" à direita); fechado, mostra o resumo */}
+        <section className="mb-3 bg-white rounded-xl shadow-cartao overflow-hidden">
           <button
             type="button"
             onClick={() => setVerItens(!verItens)}
             aria-expanded={verItens}
-            className="w-full bg-white rounded-xl shadow-cartao flex items-center gap-3 p-3.5 text-left"
+            className="w-full flex items-center gap-3 p-3.5 text-left"
           >
             <ShoppingBag className="w-5 h-5 shrink-0" aria-hidden="true" />
             <span className="flex-1 min-w-0 text-[15px]">
               <span className="block font-bold">
                 {unidades} {unidades === 1 ? 'item' : 'itens'}
               </span>
-              <span className="block text-suave text-[14px] truncate">
-                {linhas[0]?.produto.nome}
-                {linhas.length > 1 ? ` e mais ${linhas.length - 1}` : ''}
-              </span>
+              {!verItens && (
+                <span className="block text-suave text-[14px] truncate">
+                  {linhas[0]?.produto.nome}
+                  {linhas.length > 1 ? ` e mais ${linhas.length - 1}` : ''}
+                </span>
+              )}
             </span>
             <span className="text-[14px] font-bold underline shrink-0">{verItens ? 'Esconder' : 'Ver e alterar'}</span>
           </button>
           {verItens && (
-            <div className="mt-2">
+            <div className="border-t border-[#F0F0F0]">
               <ItensEditaveis cartao={cartao} aoMudar={() => setValoresNovos(null)} />
             </div>
           )}

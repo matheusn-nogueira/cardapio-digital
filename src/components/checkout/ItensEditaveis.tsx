@@ -47,10 +47,12 @@ export const ItensEditaveis: React.FC<{ cartao: boolean; aoMudar?: () => void }>
   };
   const unicoItem = linhas.length <= 1;
 
+  // linha compacta, como a sacola do iFood: nome e preço à esquerda, "− 3 +" à direita.
+  // O cartão em volta é da tela (um só, com o cabeçalho "Itens").
   return (
-    <ul className="bg-white rounded-xl shadow-cartao divide-y divide-[#F0F0F0]">
+    <ul className="divide-y divide-[#F0F0F0]">
       {removido && (
-        <li className="p-3.5 flex items-center justify-between gap-3 bg-bloco" role="status">
+        <li className="px-3.5 py-2.5 flex items-center justify-between gap-3 bg-bloco" role="status">
           <span className="text-[14px] min-w-0 truncate">{removido.produto.nome} removido</span>
           <button type="button" onClick={desfazer} className="text-[14px] font-bold underline shrink-0 py-1">
             Desfazer
@@ -58,44 +60,44 @@ export const ItensEditaveis: React.FC<{ cartao: boolean; aoMudar?: () => void }>
         </li>
       )}
       {linhas.map((l) => {
-        const complemento = complementoDaLinha(l, cartao);
+        // versão escolhida (vasilhame…) explica o preço aqui; promoção quem explica é o ResumoCombinacao
+        const complemento = l.variante ? complementoDaLinha(l, cartao) : null;
+        const tiraNoMenos = l.quantidade <= 1 && !unicoItem;
         return (
-          <li key={l.chave} className="p-3.5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-[15px] leading-snug">{l.produto.nome}</p>
-                {complemento && <p className="text-[12px] text-suave">{complemento}</p>}
+          <li key={l.chave} className="px-3.5 py-2.5">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 min-w-0">
+                <p className="text-[15px] leading-snug line-clamp-2">{l.produto.nome}</p>
+                <p className="text-[13px] text-suave tabular-nums">
+                  <span className="font-bold text-tinta">{formatarPreco(totalDaLinha(l, cartao))}</span>
+                  {complemento ? ` · ${complemento}` : ''}
+                </p>
               </div>
-              <span className="text-[15px] font-bold tabular-nums shrink-0">{formatarPreco(totalDaLinha(l, cartao))}</span>
-            </div>
-            <div className="flex items-center gap-1 mt-2">
-              <button
-                type="button"
-                onClick={() => (l.quantidade <= 1 ? tirar(l) : alterar(l.chave, l.quantidade - 1))}
-                disabled={l.quantidade <= 1 && unicoItem}
-                aria-label={l.quantidade <= 1 && !unicoItem ? `Tirar ${l.produto.nome} do pedido` : `Diminuir ${l.produto.nome}`}
-                className="w-9 h-9 rounded-full bg-bloco flex items-center justify-center disabled:opacity-35"
-              >
-                {l.quantidade <= 1 && !unicoItem ? (
-                  <Trash2 className="w-4 h-4 text-desconto" aria-hidden="true" />
-                ) : (
-                  <Minus className="w-4 h-4" aria-hidden="true" />
-                )}
-              </button>
-              <span className="min-w-8 text-center text-[15px] font-bold tabular-nums" aria-live="polite">
-                {l.quantidade}
-              </span>
-              <button
-                type="button"
-                onClick={() => alterar(l.chave, l.quantidade + 1)}
-                aria-label={`Aumentar ${l.produto.nome}`}
-                className="w-9 h-9 rounded-full bg-primaria text-primaria-texto flex items-center justify-center"
-              >
-                <Plus className="w-4 h-4" aria-hidden="true" />
-              </button>
+              <div className="flex items-center shrink-0 h-10 rounded-full border border-borda">
+                <button
+                  type="button"
+                  onClick={() => (l.quantidade <= 1 ? tirar(l) : alterar(l.chave, l.quantidade - 1))}
+                  disabled={l.quantidade <= 1 && unicoItem}
+                  aria-label={tiraNoMenos ? `Tirar ${l.produto.nome} do pedido` : `Diminuir ${l.produto.nome}`}
+                  className="w-10 h-10 flex items-center justify-center disabled:opacity-30"
+                >
+                  {tiraNoMenos ? <Trash2 className="w-4 h-4 text-desconto" aria-hidden="true" /> : <Minus className="w-4 h-4" aria-hidden="true" />}
+                </button>
+                <span className="min-w-6 text-center text-[15px] font-bold tabular-nums" aria-live="polite">
+                  {l.quantidade}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => alterar(l.chave, l.quantidade + 1)}
+                  aria-label={`Aumentar ${l.produto.nome}`}
+                  className="w-10 h-10 flex items-center justify-center"
+                >
+                  <Plus className="w-4 h-4" aria-hidden="true" />
+                </button>
+              </div>
             </div>
             {!l.variante && (
-              <ResumoCombinacao produto={l.produto} unidades={l.quantidade} aoSomar={(n) => alterar(l.chave, l.quantidade + n)} className="mt-2" />
+              <ResumoCombinacao produto={l.produto} unidades={l.quantidade} aoSomar={(n) => alterar(l.chave, l.quantidade + n)} className="mt-1.5" />
             )}
           </li>
         );
