@@ -64,18 +64,23 @@ function EtapaDados() {
     );
   }
 
+  // "editar" volta para a confirmação só se o endereço já está pronto; quem voltou da etapa 2
+  // na primeira compra segue para o endereço (antes caía na confirmação sem endereço)
+  const voltaParaConfirmar =
+    editar && prontoParaConfirmar({ nome: 'ok', telefone: '21999999999' }, endereco, frete?.resultado ?? null, retirada);
+
   const continuar = () => {
     gravarCliente((c) => ({ ...c, nome: formatarNome(c.nome) }));
     const achados = validarDados(cliente);
     setErros(achados);
     if (achados.nome) return nomeRef.current?.focus();
     if (achados.telefone) return telefoneRef.current?.focus();
-    router.push(editar ? '/payment?revisar=1' : '/checkout/endereco');
+    router.push(voltaParaConfirmar ? '/payment?revisar=1' : '/checkout/endereco');
   };
 
   return (
     <main className="pb-32 bg-fundo min-h-screen">
-      <CabecalhoCheckout voltarPara={editar ? '/payment?revisar=1' : '/'} etapa="Etapa 1 de 3" etapaAtual={1} />
+      <CabecalhoCheckout voltarPara={voltaParaConfirmar ? '/payment?revisar=1' : '/'} etapa="Etapa 1 de 3" etapaAtual={1} />
 
       <form
         className="px-4 pt-5 max-w-[560px] mx-auto"
@@ -128,7 +133,7 @@ function EtapaDados() {
               </span>
             }
             erro={erros.telefone}
-            ajuda="Avisamos por aqui quando o pedido sair."
+            ajuda="Avisamos por aqui o andamento do pedido."
           >
             <input
               ref={telefoneRef}
@@ -150,12 +155,12 @@ function EtapaDados() {
           </Campo>
         </div>
         {/* Enter no teclado do celular envia o formulário */}
-        <button type="submit" className="sr-only">
+        <button type="submit" className="sr-only" tabIndex={-1} aria-hidden="true">
           Continuar
         </button>
       </form>
 
-      <BarraDaEtapa rotulo={editar ? 'Salvar' : 'Continuar'} aoTocar={continuar} />
+      <BarraDaEtapa rotulo={voltaParaConfirmar ? 'Salvar' : 'Continuar'} aoTocar={continuar} />
     </main>
   );
 }

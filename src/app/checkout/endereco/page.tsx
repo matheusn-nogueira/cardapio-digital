@@ -50,6 +50,8 @@ export default function EtapaEndereco() {
   const numeroRef = useRef<HTMLInputElement>(null);
   const cepRef = useRef<HTMLInputElement>(null);
   const ruaRef = useRef<HTMLInputElement>(null);
+  // CEP do campo agora: a resposta de um CEP digitado antes não pode sobrescrever o corrigido
+  const cepDigitado = useRef('');
 
   // endereço guardado sem CEP (digitado à mão antes): mostra rua e bairro para conferir
   useEffect(() => {
@@ -90,6 +92,7 @@ export default function EtapaEndereco() {
 
   const aoMudarCep = async (valor: string) => {
     const cep = mascararCep(valor);
+    cepDigitado.current = cep;
     mudarLocal({ cep });
     setErros((x) => ({ ...x, cep: undefined, rua: undefined }));
     if (apenasDigitos(cep).length !== 8) {
@@ -99,19 +102,22 @@ export default function EtapaEndereco() {
     setEstadoCep('buscando');
     try {
       const achado = await buscarCep(cep);
+      if (cepDigitado.current !== cep) return; // a pessoa mudou o CEP enquanto buscava
       if (!achado || !achado.rua) {
         // CEP de cidade inteira ou inexistente: a pessoa digita a rua
         setEstadoCep('nao-achou');
         setEditandoRua(true);
-        if (achado) mudarLocal({ cep, bairro: achado.bairro, cidade: achado.cidade || 'Rio de Janeiro', uf: achado.uf || 'RJ' });
+        // a rua do CEP anterior não vale para este
+        mudarLocal({ rua: '', ...(achado && { bairro: achado.bairro, cidade: achado.cidade || 'Rio de Janeiro', uf: achado.uf || 'RJ' }) });
         setTimeout(() => ruaRef.current?.focus(), 50);
         return;
       }
       setEstadoCep('ocioso');
       setEditandoRua(false);
-      mudarLocal({ cep, rua: achado.rua, bairro: achado.bairro, cidade: achado.cidade, uf: achado.uf });
+      mudarLocal({ rua: achado.rua, bairro: achado.bairro, cidade: achado.cidade, uf: achado.uf });
       setTimeout(() => numeroRef.current?.focus(), 50);
     } catch {
+      if (cepDigitado.current !== cep) return;
       setEstadoCep('erro');
       setEditandoRua(true);
     }
@@ -255,7 +261,7 @@ export default function EtapaEndereco() {
           <div className="rounded-xl bg-white border border-borda p-4">
             <p className="text-[15px] font-bold">Retire na loja quando o pedido estiver pronto</p>
             <p className="text-[14px] text-suave mt-1">
-              {[home.loja.endereco, home.loja.bairro].filter(Boolean).join(' · ')}. Avisamos pelo WhatsApp quando estiver separado.
+              {[home.loja.endereco, home.loja.bairro].filter(Boolean).join(' · ')}. Depois de fazer o pedido, você acompanha o andamento por aqui.
             </p>
           </div>
         ) : (
@@ -435,7 +441,7 @@ export default function EtapaEndereco() {
             {aviso}
           </p>
         )}
-        <button type="submit" className="sr-only">
+        <button type="submit" className="sr-only" tabIndex={-1} aria-hidden="true">
           Continuar
         </button>
       </form>

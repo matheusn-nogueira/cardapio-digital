@@ -44,7 +44,7 @@ const CONFIG_PADRAO: ConfigCardapio = {
   tempo_entrega_min: 30,
   tempo_entrega_max: 60,
   status_loja: 'automatico',
-  mensagem_fechado: 'Estamos fechados agora. Monte sua sacola e faça o pedido quando abrirmos.',
+  mensagem_fechado: 'Monte sua sacola agora e faça o pedido quando abrirmos.',
   aviso_topo: null,
   pedir_confirmacao_idade: true,
   aceita_pix: true,

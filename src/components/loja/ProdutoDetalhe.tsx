@@ -9,7 +9,6 @@ import {
   detalheVariante,
   ofertaPromocional,
   precoCheio,
-  precoPorUnidade,
   rotuloOferta,
   rotuloPadrao,
   rotuloVariante,
@@ -48,10 +47,12 @@ export const ResumoCombinacao: React.FC<{
   unidades: number;
   className?: string;
   aoSomar?: (unidades: number) => void;
-}> = ({ produto, unidades, className = '', aoSomar }) => {
-  const preco = melhorPreco(produto, unidades, false);
+  /** No checkout com cartão escolhido, a promoção sai no preço do cartão (o total da linha já está nele). */
+  cartao?: boolean;
+}> = ({ produto, unidades, className = '', aoSomar, cartao = false }) => {
+  const preco = melhorPreco(produto, unidades, cartao);
   const combinacao = preco.economia > 0 ? descreverPromocao(preco.partes, formatarPreco) : null;
-  const proxima = aoSomar ? proximaPromocao(produto, unidades) : null;
+  const proxima = aoSomar ? proximaPromocao(produto, unidades, cartao) : null;
   if (!combinacao && !proxima) return null;
   return (
     <div className={className}>
@@ -244,8 +245,8 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
             </h3>
             <ul className="flex flex-col gap-1.5">
               {tabela.map((o) => {
-                const porUnidade = precoPorUnidade(o, 'pix');
                 const descontoBloco = descontoDoBloco(o, unidadePadrao);
+                const cheio = precoCheio(o, unidadePadrao);
                 return (
                   <li key={o.qtd} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white border border-borda">
                     <span className="flex-1 min-w-0">
@@ -259,15 +260,16 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
                           )
                         )}
                       </span>
-                      {porUnidade != null && (
-                        <span className="block text-[12px] text-suave">
-                          {o.qtd} un · {formatarPreco(porUnidade)} cada
+                      {/* economia em reais, nunca o preço quebrado por unidade (R$ 3,67 parecia erro na 4ª lata) */}
+                      {descontoBloco > 0 && (
+                        <span className="block text-[12px] text-sucesso font-medium">
+                          Economize {formatarPreco(cheio - o.preco)}
                         </span>
                       )}
                     </span>
                     <span className="shrink-0 text-right tabular-nums">
                       {descontoBloco > 0 && (
-                        <span className="block text-[11px] text-suave line-through">{formatarPreco(precoCheio(o, unidadePadrao))}</span>
+                        <span className="block text-[11px] text-suave line-through">{formatarPreco(cheio)}</span>
                       )}
                       <span className="text-[15px] font-bold">{formatarPreco(o.preco)}</span>
                     </span>

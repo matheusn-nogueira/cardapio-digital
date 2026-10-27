@@ -7,7 +7,7 @@ import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { criarArmazem, useArmazem, useHidratado } from '@/lib/armazenamento';
 import { formatarPreco } from '@/lib/formatacao';
-import { descontoDoBloco, detalheVariante, melhorBloco, precoPorUnidade } from '@/lib/ofertas';
+import { descontoDoBloco, melhorBloco } from '@/lib/ofertas';
 import { melhorPreco } from '@/lib/precoQuantidade';
 import type { Produto } from '@/lib/tipos';
 import { armazemIdade } from './ConfirmacaoIdade';
@@ -270,10 +270,10 @@ export const PopupPromo: React.FC = () => {
             </p>
             {(() => {
               const bloco = melhorBloco(oferta.produto.ofertas);
-              const porUnidade = bloco ? precoPorUnidade(bloco, 'pix') : null;
-              return bloco && porUnidade != null ? (
-                <p className="text-[13px] font-bold mt-1.5">
-                  {detalheVariante(bloco)} sai a {formatarPreco(porUnidade)}/un · -{oferta.desconto}%
+              // a promoção dita como no mercado ("12 por R$ 44,00"), sem o preço quebrado por unidade
+              return bloco ? (
+                <p className="text-[13px] font-bold mt-1.5 tabular-nums">
+                  {bloco.qtd} por {formatarPreco(bloco.preco)} · -{oferta.desconto}%
                 </p>
               ) : null;
             })()}

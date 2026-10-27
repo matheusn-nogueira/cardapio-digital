@@ -97,7 +97,7 @@ export const ItensEditaveis: React.FC<{ cartao: boolean; aoMudar?: () => void }>
               </div>
             </div>
             {!l.variante && (
-              <ResumoCombinacao produto={l.produto} unidades={l.quantidade} aoSomar={(n) => alterar(l.chave, l.quantidade + n)} className="mt-1.5" />
+              <ResumoCombinacao produto={l.produto} unidades={l.quantidade} cartao={cartao} aoSomar={(n) => alterar(l.chave, l.quantidade + n)} className="mt-1.5" />
             )}
           </li>
         );

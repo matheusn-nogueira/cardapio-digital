@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useCardapio } from '@/context/CardapioContext';
-import { filtrarPorTermo } from '@/lib/busca';
+import { buscarProdutos } from '@/lib/busca';
 import { GradeProdutos } from './GradeProdutos';
 
 export const ResultadosBusca: React.FC = () => {
@@ -13,10 +13,11 @@ export const ResultadosBusca: React.FC = () => {
   const marca = params.get('marca')?.trim() ?? '';
   const { produtos, home, categoriaDoProduto } = useCardapio();
 
-  const resultados = useMemo(() => {
+  const busca = useMemo(() => {
     const base = marca ? produtos.filter((p) => p.marca?.toLowerCase() === marca.toLowerCase()) : produtos;
-    return filtrarPorTermo(base, termo, (p) => categoriaDoProduto(p)?.nome ?? '');
+    return buscarProdutos(base, termo, (p) => categoriaDoProduto(p)?.nome ?? '');
   }, [produtos, termo, marca, categoriaDoProduto]);
+  const resultados = busca.produtos;
 
   const titulo = marca ? marca : termo ? `Resultados para “${termo}”` : 'Buscar';
 
@@ -43,6 +44,9 @@ export const ResultadosBusca: React.FC = () => {
         <>
           <p className="text-[13px] text-suave mb-3" aria-live="polite">
             {resultados.length === 1 ? '1 produto' : `${resultados.length} produtos`}
+            {busca.ignoradas.length > 0
+              ? ` · sem “${busca.ignoradas.join(' ')}”`
+              : busca.aproximado && ' · com nomes parecidos'}
           </p>
           {resultados.length ? (
             <GradeProdutos produtos={resultados} />
