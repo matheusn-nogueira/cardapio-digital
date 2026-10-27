@@ -98,11 +98,13 @@ export const Header: React.FC = () => {
       )}
       <header className="bg-topo text-white px-4 sticky top-0 z-40">
         <div className="h-16 flex items-center gap-3 max-w-[1100px] mx-auto">
-          <Link href="/" className="w-11 h-11 rounded-full bg-primaria flex items-center justify-center overflow-hidden shrink-0 font-black text-primaria-texto" aria-label={`${loja.nome} — início`}>
+          {/* o logo já tem a forma da casa: sem círculo atrás (o amarelo do círculo, diferente
+              do amarelo do logo, aparecia como um contorno laranja; dono, 27/10/2026) */}
+          <Link href="/" className="w-12 h-12 flex items-center justify-center shrink-0" aria-label={`${loja.nome} — início`}>
             {loja.logo_url ? (
-              <Image src={loja.logo_url} alt="" width={96} height={96} priority className="w-10 h-10 object-contain" />
+              <Image src={loja.logo_url} alt="" width={96} height={96} priority className="w-12 h-12 object-contain" />
             ) : (
-              loja.nome.charAt(0)
+              <span className="w-11 h-11 rounded-full bg-primaria text-primaria-texto font-black flex items-center justify-center">{loja.nome.charAt(0)}</span>
             )}
           </Link>
           <button
