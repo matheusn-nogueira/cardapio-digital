@@ -12,6 +12,7 @@ import { armazemRetirada } from '@/lib/estado-checkout';
 import { useFrete } from '@/lib/frete';
 import { detalheVariante, descreverVariante } from '@/lib/ofertas';
 import { subtotalCarrinho, totalDaLinha } from '@/lib/precoQuantidade';
+import { registrarEtapa } from '@/lib/medicao';
 import { ImagemProduto } from '@/components/loja/ImagemProduto';
 import { PecaTambem } from '@/components/loja/PecaTambem';
 import { ResumoCombinacao, SeloTemperatura } from '@/components/loja/ProdutoDetalhe';
@@ -51,6 +52,11 @@ export const CartDrawer: React.FC = () => {
   const { config } = home;
   const freteSalvo = useFrete();
   const [retirada] = useArmazem(armazemRetirada);
+
+  const temItens = linhas.length > 0;
+  useEffect(() => {
+    if (sacolaAberta && temItens) registrarEtapa('sacola');
+  }, [sacolaAberta, temItens]);
 
   useEffect(() => {
     if (!sacolaAberta) return;

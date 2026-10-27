@@ -64,6 +64,15 @@ export function montarLinhas(itens: ItemSalvo[], produtoDe: (id: string) => Prod
   return { linhas, indisponiveis, legados };
 }
 
+/** Linhas de volta ao formato salvo no aparelho (para guardar o pedido e repetir depois). */
+export function itensDasLinhas(linhas: LinhaCarrinho[]): ItemSalvo[] {
+  return linhas.map((l) =>
+    l.variante
+      ? { produtoId: l.produto.id, ofertaId: l.variante.id, quantidade: l.quantidade }
+      : { produtoId: l.produto.id, unidades: l.quantidade },
+  );
+}
+
 /** Unidades físicas da linha (variante: blocos × tamanho do bloco). */
 export function unidadesDaLinha(l: LinhaCarrinho): number {
   return l.variante ? l.quantidade * l.variante.qtd : l.quantidade;

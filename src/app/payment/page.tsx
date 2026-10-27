@@ -8,12 +8,13 @@ import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
 import { useArmazem, useHidratado } from '@/lib/armazenamento';
 import { buscarHomeAtualizada, finalizarPedido } from '@/lib/api-cliente';
-import { itensDoPedido, progressoMinimo } from '@/lib/carrinho';
+import { itensDasLinhas, itensDoPedido, progressoMinimo } from '@/lib/carrinho';
 import {
   armazemChavePedido,
   armazemCliente,
   armazemDetalhes,
   armazemEndereco,
+  guardarPedidoAnterior,
   armazemUltimoPedido,
   armazemPagamentoPreferido,
   armazemRetirada,
@@ -25,6 +26,7 @@ import { usaPrecoCartao } from '@/lib/ofertas';
 import { ERROS_DE_REDE, ErroPedido, MENSAGEM_ERRO_GENERICA, montarPayloadPedido, novaChave } from '@/lib/pedido';
 import { subtotalCarrinho } from '@/lib/precoQuantidade';
 import type { DadosHome, FormaPagamento, TotaisServidor } from '@/lib/tipos';
+import { registrarEtapa } from '@/lib/medicao';
 import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
 import { classeCampo } from '@/components/checkout/campos';
 import { InstructionsCard } from '@/components/checkout/InstructionsCard';
@@ -86,6 +88,10 @@ function EtapaPagamento() {
     const ultima = armazemPagamentoPreferido.ler();
     if (ultima) gravarDetalhes((d) => ({ ...d, pagamento: ultima }));
   }, [hidratado, gravarDetalhes]);
+
+  useEffect(() => {
+    if (hidratado && linhas.length > 0) registrarEtapa('pagamento');
+  }, [hidratado, linhas.length]);
 
   // Confere no banco (sem cache) se a loja continua aberta, as regras e os preços atuais.
   useEffect(() => {
@@ -223,6 +229,8 @@ function EtapaPagamento() {
         repetido: resposta.repetido,
       });
       armazemChavePedido.gravar(null);
+      registrarEtapa('pedido');
+      guardarPedidoAnterior(itensDasLinhas(linhas));
       armazemPagamentoPreferido.gravar(pagamento);
       gravarDetalhes((d) => ({ ...d, observacoes: '', trocoPara: '' }));
       limpar();

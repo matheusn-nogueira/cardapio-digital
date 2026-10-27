@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useCardapio } from '@/context/CardapioContext';
 import { buscarProdutos } from '@/lib/busca';
+import { registrarBusca } from '@/lib/medicao';
 import { GradeProdutos } from './GradeProdutos';
 
 export const ResultadosBusca: React.FC = () => {
@@ -18,6 +19,14 @@ export const ResultadosBusca: React.FC = () => {
     return buscarProdutos(base, termo, (p) => categoriaDoProduto(p)?.nome ?? '');
   }, [produtos, termo, marca, categoriaDoProduto]);
   const resultados = busca.produtos;
+
+  // Busca da barra (não a lista da marca), para o dono ver na tela Site do ERP o que não achou
+  // nada. A busca anda a cada letra: registra só o termo que ficou 2 s parado ("hei" não conta).
+  useEffect(() => {
+    if (!termo || marca) return;
+    const espera = window.setTimeout(() => registrarBusca(termo, busca.produtos.length, busca.aproximado), 2000);
+    return () => window.clearTimeout(espera);
+  }, [termo, marca, busca]);
 
   const titulo = marca ? marca : termo ? `Resultados para “${termo}”` : 'Buscar';
 

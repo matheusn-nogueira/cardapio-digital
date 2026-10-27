@@ -13,6 +13,7 @@ import { armazemEndereco, armazemFrete, armazemRetirada, chaveEndereco } from '@
 import { useFrete } from '@/lib/frete';
 import { apenasDigitos, formatarPreco, mascararCep } from '@/lib/formatacao';
 import type { Endereco } from '@/lib/tipos';
+import { registrarEtapa } from '@/lib/medicao';
 import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
 import { BarraDaEtapa, Campo, classeCampo } from '@/components/checkout/campos';
 
@@ -55,6 +56,7 @@ export default function EtapaEndereco() {
 
   // endereço guardado sem CEP (digitado à mão antes): mostra rua e bairro para conferir
   useEffect(() => {
+    if (hidratado) registrarEtapa('endereco');
     if (hidratado && endereco.rua && !endereco.cep) setEditandoRua(true);
     if (hidratado && endereco.referencia) setComReferencia(true);
     // só ao abrir a etapa

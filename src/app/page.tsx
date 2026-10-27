@@ -1,6 +1,7 @@
 import { BannerCarrossel } from '@/components/loja/BannerCarrossel';
 import { CategoriasLista } from '@/components/loja/CategoriasLista';
 import { MarcasLista, marcasDoCatalogo } from '@/components/loja/MarcasLista';
+import { PecaDeNovo } from '@/components/loja/PecaDeNovo';
 import { PopupPromo } from '@/components/loja/PopupPromo';
 import { StatusLojaCard } from '@/components/loja/StatusLojaCard';
 import { Vitrine } from '@/components/loja/Vitrine';
@@ -42,6 +43,7 @@ export default async function Home() {
       <CategoriasLista categorias={categorias} />
       <BannerCarrossel banners={home.banners} />
       <StatusLojaCard />
+      <PecaDeNovo />
       <div className="pt-5">{primeira && vitrine(primeira)}</div>
       <MarcasLista marcas={marcas} />
       <div className="pt-3 pb-1">

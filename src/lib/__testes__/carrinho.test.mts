@@ -4,6 +4,7 @@ import {
   adicionarItem,
   adicionarVariante,
   alterarQuantidade,
+  itensDasLinhas,
   itensDoPedido,
   migrarItens,
   montarLinhas,
@@ -92,4 +93,14 @@ test('separa linhas, produtos/variantes que saíram do cardápio e itens antigos
     { product_id: 'p1', unidades: 2 },
     { oferta_id: 'of-q', quantidade: 3 },
   ]);
+});
+
+test('itensDasLinhas: pedido guardado volta igual para a sacola (Peça de novo)', () => {
+  const p = { id: 'p1', variantes: [{ id: 'of9', qtd: 6 }] } as never;
+  const salvos = [
+    { produtoId: 'p1', unidades: 3 },
+    { produtoId: 'p1', ofertaId: 'of9', quantidade: 2 },
+  ];
+  const { linhas } = montarLinhas(salvos, () => p);
+  assert.deepEqual(itensDasLinhas(linhas), salvos);
 });

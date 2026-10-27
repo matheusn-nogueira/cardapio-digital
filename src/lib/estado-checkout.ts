@@ -3,7 +3,8 @@
 // Dados do checkout salvos no navegador. Cliente e endereço ficam no
 // localStorage (próximo pedido já vem preenchido); o resto só na sessão.
 import { criarArmazem } from './armazenamento';
-import type { Cliente, Endereco, FormaPagamento, ResultadoFrete } from './tipos';
+import { ehLegado, validarItensSalvos } from './carrinho';
+import type { Cliente, Endereco, FormaPagamento, ItemSalvo, ResultadoFrete } from './tipos';
 
 export const ENDERECO_VAZIO: Endereco = {
   cep: '',
@@ -145,6 +146,25 @@ export interface PedidoConfirmado {
 export const armazemUltimoPedido = criarArmazem<PedidoConfirmado | null>('cdf:ultimo-pedido', null, {
   tipo: 'sessao',
 });
+
+/** Itens do último pedido feito neste aparelho, para o "Peça de novo" da home. */
+export interface PedidoAnterior {
+  itens: ItemSalvo[];
+  /** Date.now() de quando o pedido foi aceito. */
+  feitoEm: number;
+}
+
+export const armazemPedidoAnterior = criarArmazem<PedidoAnterior | null>('cdf:pedido-anterior', null, {
+  validar: (b) => {
+    const o = (b ?? {}) as Record<string, unknown>;
+    const itens = validarItensSalvos(o.itens).filter((i) => !ehLegado(i));
+    return itens.length && typeof o.feitoEm === 'number' ? { itens, feitoEm: o.feitoEm } : null;
+  },
+});
+
+export function guardarPedidoAnterior(itens: ItemSalvo[]) {
+  armazemPedidoAnterior.gravar({ itens, feitoEm: Date.now() });
+}
 
 /** Retirada na loja (true) ou entrega (false), lembrada no aparelho para a próxima compra. */
 export const armazemRetirada = criarArmazem<boolean>('cdf:retirada', false, {

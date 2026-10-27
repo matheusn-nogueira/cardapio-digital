@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { registrarEtapa } from '@/lib/medicao';
 import type { StatusLoja } from '@/lib/horarios';
 import type { DadosHome, Produto } from '@/lib/tipos';
 import { CardapioProvider } from './CardapioContext';
@@ -12,6 +13,7 @@ export const AppProviders: React.FC<{
   produtos: Produto[];
   children: React.ReactNode;
 }> = ({ home, status, produtos, children }) => {
+  useEffect(() => registrarEtapa('visita'), []);
   return (
     <CardapioProvider home={home} status={status} produtos={produtos}>
       <CartProvider>{children}</CartProvider>

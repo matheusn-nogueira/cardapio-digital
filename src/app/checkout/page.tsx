@@ -10,6 +10,7 @@ import { formatarNome, prontoParaConfirmar, validarDados, type ErrosDados } from
 import { armazemCliente, armazemEndereco, armazemRetirada } from '@/lib/estado-checkout';
 import { useFrete } from '@/lib/frete';
 import { apenasDigitos, mascararTelefone } from '@/lib/formatacao';
+import { registrarEtapa } from '@/lib/medicao';
 import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
 import { BarraDaEtapa, Campo, classeCampo } from '@/components/checkout/campos';
 import { LogoWhatsApp } from '@/components/checkout/LogosPagamento';
@@ -37,10 +38,13 @@ function EtapaDados() {
     atualizarPrecos();
   }, [atualizarPrecos]);
 
+  // conta só quem vê o formulário de dados (quem pula vai direto para a confirmação)
+  const mostraDados = hidratado && linhas.length > 0;
   const pular = hidratado && !editar && linhas.length > 0 && prontoParaConfirmar(cliente, endereco, frete?.resultado ?? null, retirada);
   useEffect(() => {
     if (pular) router.replace('/payment?revisar=1');
-  }, [pular, router]);
+    else if (mostraDados) registrarEtapa('dados');
+  }, [pular, mostraDados, router]);
 
   if (!hidratado || pular) {
     return (
