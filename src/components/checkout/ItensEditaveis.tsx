@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Minus, Plus, Trash2 } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatarPreco } from '@/lib/formatacao';
 import { totalDaLinha } from '@/lib/precoQuantidade';
@@ -10,18 +10,14 @@ import { complementoDaLinha } from './OrderSummary';
 
 /**
  * Itens do pedido na última etapa, com "−" e "+" (26/10/2026): dá para acertar a quantidade
- * (arredondar o valor, fechar uma promoção) sem voltar à sacola. Fica dentro do bloco
- * recolhido "N itens · Ver", então não pesa a tela para quem não mexe.
+ * (arredondar o valor, fechar uma promoção) sem voltar à sacola. Vem aberto com até 3 itens.
+ * O "−" para no 1: aberto, um toque sem querer não pode apagar item; tirar é na sacola.
  */
 export const ItensEditaveis: React.FC<{ cartao: boolean; aoMudar?: () => void }> = ({ cartao, aoMudar }) => {
-  const { linhas, alterar: alterarSacola, remover: removerSacola } = useCart();
+  const { linhas, alterar: alterarSacola } = useCart();
   // qualquer mudança invalida um "os valores mudaram" que o banco tenha devolvido antes
   const alterar = (chave: string, n: number) => {
     alterarSacola(chave, n);
-    aoMudar?.();
-  };
-  const remover = (chave: string) => {
-    removerSacola(chave);
     aoMudar?.();
   };
   return (
@@ -40,15 +36,12 @@ export const ItensEditaveis: React.FC<{ cartao: boolean; aoMudar?: () => void }>
             <div className="flex items-center gap-1 mt-2">
               <button
                 type="button"
-                onClick={() => (l.quantidade <= 1 ? remover(l.chave) : alterar(l.chave, l.quantidade - 1))}
-                aria-label={l.quantidade <= 1 ? `Tirar ${l.produto.nome} do pedido` : `Diminuir ${l.produto.nome}`}
-                className="w-9 h-9 rounded-full bg-bloco flex items-center justify-center"
+                onClick={() => alterar(l.chave, l.quantidade - 1)}
+                disabled={l.quantidade <= 1}
+                aria-label={`Diminuir ${l.produto.nome}`}
+                className="w-9 h-9 rounded-full bg-bloco flex items-center justify-center disabled:opacity-35"
               >
-                {l.quantidade <= 1 ? (
-                  <Trash2 className="w-4 h-4 text-desconto" aria-hidden="true" />
-                ) : (
-                  <Minus className="w-4 h-4" aria-hidden="true" />
-                )}
+                <Minus className="w-4 h-4" aria-hidden="true" />
               </button>
               <span className="min-w-8 text-center text-[15px] font-bold tabular-nums" aria-live="polite">
                 {l.quantidade}

@@ -38,6 +38,8 @@ function lerValor(texto: string): number | null {
   return Number.isFinite(n) && n > 0 ? Math.round(n * 100) / 100 : null;
 }
 
+const ITENS_ABERTOS_ATE = 3;
+
 const FALTA_PAGAMENTO = 'Escolha a forma de pagamento acima.';
 
 interface ErroTela {
@@ -69,7 +71,10 @@ function EtapaPagamento() {
   const [erro, setErro] = useState<ErroTela | null>(null);
   const [valoresNovos, setValoresNovos] = useState<TotaisServidor | null>(null);
   const [comObservacao, setComObservacao] = useState(false);
-  const [verItens, setVerItens] = useState(false);
+  // pedido pequeno (até 3 itens) já vem com a lista aberta para alterar; maior fica recolhido.
+  // Decide pela sacola já lida do aparelho (no primeiro instante ela vem vazia); depois, vale o toque
+  const [escolhaVerItens, setVerItens] = useState<boolean | null>(null);
+  const verItens = escolhaVerItens ?? linhas.length <= ITENS_ABERTOS_ATE;
   const [trocandoPagamento, setTrocandoPagamento] = useState(false);
   // "Escolha a forma de pagamento" só depois de tocar em Fazer pedido (antes disso não é erro)
   const [tentou, setTentou] = useState(false);
@@ -393,7 +398,7 @@ function EtapaPagamento() {
         <section className="mb-3">
           <button
             type="button"
-            onClick={() => setVerItens((v) => !v)}
+            onClick={() => setVerItens(!verItens)}
             aria-expanded={verItens}
             className="w-full bg-white rounded-xl shadow-cartao flex items-center gap-3 p-3.5 text-left"
           >
