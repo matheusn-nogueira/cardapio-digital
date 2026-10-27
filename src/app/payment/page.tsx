@@ -29,7 +29,8 @@ import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
 import { classeCampo } from '@/components/checkout/campos';
 import { InstructionsCard } from '@/components/checkout/InstructionsCard';
 import { BandeirasCartao, LogoPix, LogoWhatsApp } from '@/components/checkout/LogosPagamento';
-import { complementoDaLinha, OrderSummary, totaisDoPedido } from '@/components/checkout/OrderSummary';
+import { ItensEditaveis } from '@/components/checkout/ItensEditaveis';
+import { complementoDaLinha, totaisDoPedido } from '@/components/checkout/OrderSummary';
 import { PaymentOption } from '@/components/payment/PaymentOption';
 
 function lerValor(texto: string): number | null {
@@ -406,11 +407,11 @@ function EtapaPagamento() {
                 {linhas.length > 1 ? ` e mais ${linhas.length - 1}` : ''}
               </span>
             </span>
-            <span className="text-[14px] font-bold underline shrink-0">{verItens ? 'Esconder' : 'Ver'}</span>
+            <span className="text-[14px] font-bold underline shrink-0">{verItens ? 'Esconder' : 'Ver e alterar'}</span>
           </button>
           {verItens && (
             <div className="mt-2">
-              <OrderSummary forma={pagamento} freteBase={frete && !frete.bloqueado ? frete.frete : undefined} />
+              <ItensEditaveis cartao={cartao} aoMudar={() => setValoresNovos(null)} />
             </div>
           )}
         </section>
