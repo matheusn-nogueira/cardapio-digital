@@ -31,7 +31,7 @@ import { ImagemProduto } from './ImagemProduto';
 export const SeloTemperatura: React.FC<{ quente: boolean }> = ({ quente }) => {
   if (!quente) return null;
   return (
-    <span className="inline-flex items-center text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-[#FFE7CC] text-[#8A4B00]">
+    <span className="inline-flex items-center text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-aviso-claro text-aviso">
       Natural/quente
     </span>
   );
@@ -61,7 +61,7 @@ export const ResumoCombinacao: React.FC<{
         <button
           type="button"
           onClick={() => aoSomar(proxima.mais)}
-          className="mt-1.5 w-full flex items-center justify-between gap-2 rounded-xl bg-[#E7F6EC] text-[#0B5D3B] px-3 py-2 text-left text-[13px]"
+          className="mt-1.5 w-full flex items-center justify-between gap-2 rounded-xl bg-sucesso-claro text-sucesso px-3 py-2 text-left text-[13px]"
         >
           <span>
             Leve <strong>mais {proxima.mais} por {formatarPreco(proxima.custo)}</strong>
@@ -125,18 +125,29 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
   // nos atalhos e no resumo, não como um preço por unidade quebrado (R$ 3,67)
   const precoMostrado = variante ? variante.preco : unidadePadrao;
   const natural = produto.quente || variante?.quente === true;
-  const etiqueta = 'text-[13px] font-semibold px-2 py-1 rounded-lg inline-flex items-center gap-1.5';
+  const etiqueta = 'text-[13px] font-semibold px-2 py-1 rounded-md inline-flex items-center gap-1.5';
   const titulo = React.createElement(
     paginaPropria ? 'h1' : 'h2',
-    { id: idTitulo, className: 'text-[17px] leading-snug text-tinta' },
+    { id: idTitulo, className: paginaPropria ? 'text-[20px] font-bold leading-snug text-tinta' : 'text-[17px] leading-snug text-tinta' },
     produto.nome,
   );
 
   return (
     <div className="flex flex-col">
-      <div className={`flex items-center gap-4 ${paginaPropria ? '' : 'bg-bloco px-4 pt-14 pb-10'}`}>
-        <div className="w-28 h-28 shrink-0 bg-white rounded-2xl border border-[#E8E8E8] overflow-hidden flex items-center justify-center p-2">
-          <ImagemProduto produto={produto} tamanho="grande" />
+      {/* página própria: foto grande em cima, como vitrine (27/10/2026: a foto de 112 px com metade
+          da tela vazia parecia rascunho); na ficha que sobe, foto pequena ao lado do nome, como no Zé */}
+      <div className={paginaPropria ? 'flex flex-col gap-4' : 'flex items-center gap-4 bg-bloco px-4 pt-14 pb-10'}>
+        <div
+          className={
+            paginaPropria
+              ? 'w-full aspect-[4/3] bg-bloco rounded-2xl overflow-hidden flex items-center justify-center p-6'
+              : 'w-28 h-28 shrink-0 bg-white rounded-2xl border border-borda overflow-hidden flex items-center justify-center p-2'
+          }
+        >
+          {/* multiply: a foto de fundo branco some no cinza do quadro, como nos cards */}
+          <span className={`block w-full h-full ${paginaPropria ? 'mix-blend-multiply' : ''}`}>
+            <ImagemProduto produto={produto} tamanho="grande" />
+          </span>
         </div>
         <div className="min-w-0">
           {titulo}
@@ -146,15 +157,15 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
           </p>
           <div className="flex flex-wrap gap-1.5 mt-2.5">
             {natural ? (
-              <span className={`${etiqueta} bg-[#FFE7CC] text-[#8A4B00]`}>Natural</span>
+              <span className={`${etiqueta} bg-aviso-claro text-aviso`}>Natural</span>
             ) : (
-              <span className={`${etiqueta} bg-white text-tinta`}>
+              <span className={`${etiqueta} ${paginaPropria ? 'bg-bloco' : 'bg-white'} text-tinta`}>
                 <Snowflake className="w-4 h-4 text-[#1E7FB8]" aria-hidden="true" />
                 Gelado
               </span>
             )}
-            {produto.retornavel && <span className={`${etiqueta} bg-[#E7F6EC] text-sucesso`}>Retornável</span>}
-            {produto.selo && <span className={`${etiqueta} bg-desconto text-white`}>{produto.selo}</span>}
+            {produto.retornavel && <span className={`${etiqueta} ${paginaPropria ? 'bg-bloco' : 'bg-white'} text-tinta`}>Retornável</span>}
+            {produto.selo && <span className={`${etiqueta} bg-tinta text-white`}>{produto.selo}</span>}
           </div>
         </div>
       </div>
@@ -177,8 +188,8 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
                     role="radio"
                     aria-checked={selecionada}
                     onClick={() => escolher(v?.id ?? null)}
-                    className={`h-10 px-4 rounded-full border text-[14px] ${
-                      selecionada ? 'border-tinta bg-tinta text-white font-bold' : 'border-borda bg-white text-tinta'
+                    className={`h-10 px-4 rounded-xl text-[14px] font-medium ${
+                      selecionada ? 'bg-tinta text-white font-bold' : 'bg-bloco text-tinta'
                     }`}
                   >
                     {v ? descreverVariante(v) : rotuloPadrao(produto)}
@@ -189,7 +200,7 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
           </div>
         )}
 
-        <div className="flex items-center justify-between h-14 rounded-2xl border border-[#D6D6D6] px-1.5">
+        <div className="flex items-center justify-between h-14 rounded-xl border border-controle px-1.5">
           <button
             type="button"
             onClick={() => mudar(quantidade - 1)}
@@ -226,8 +237,8 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
                   type="button"
                   onClick={() => mudar(b.qtd)}
                   aria-pressed={escolhido}
-                  className={`flex-1 min-h-12 rounded-2xl border-2 px-2 py-1.5 text-[14px] font-bold leading-tight flex flex-col items-center justify-center ${
-                    escolhido ? 'border-sucesso bg-[#E7F6EC] text-[#0B5D3B]' : 'border-[#D6D6D6] bg-white text-tinta'
+                  className={`flex-1 min-h-12 rounded-xl border-2 px-2 py-1.5 text-[14px] font-bold leading-tight flex flex-wrap items-center justify-center gap-x-1 ${
+                    escolhido ? 'border-tinta bg-marca-clara text-tinta' : 'border-controle bg-white text-tinta'
                   }`}
                 >
                   <span>{b.qtd} por</span>
@@ -248,15 +259,15 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
                 const descontoBloco = descontoDoBloco(o, unidadePadrao);
                 const cheio = precoCheio(o, unidadePadrao);
                 return (
-                  <li key={o.qtd} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white border border-borda">
+                  <li key={o.qtd} className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white border border-borda">
                     <span className="flex-1 min-w-0">
                       <span className="flex flex-wrap items-center gap-1.5">
                         <span className="text-[14px] font-semibold">{rotuloOferta(o)}</span>
                         {descontoBloco > 0 ? (
-                          <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-desconto text-white">-{descontoBloco}%</span>
+                          <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-sucesso text-white">-{descontoBloco}%</span>
                         ) : (
                           ofertaPromocional(o) && (
-                            <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-desconto text-white">Promo</span>
+                            <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-tinta text-white">Promo</span>
                           )
                         )}
                       </span>
@@ -289,7 +300,7 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
         <button
           type="button"
           onClick={confirmar}
-          className="mt-4 w-full h-14 rounded-2xl bg-primaria text-primaria-texto font-bold text-[17px] active:scale-[0.99] transition-transform tabular-nums"
+          className="mt-4 w-full h-14 rounded-xl bg-primaria text-primaria-texto font-bold text-[17px] active:scale-[0.99] transition-transform tabular-nums"
         >
           Adicionar ({quantidade}) • {formatarPreco(total)}
         </button>

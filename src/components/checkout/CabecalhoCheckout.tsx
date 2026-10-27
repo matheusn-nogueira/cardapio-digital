@@ -15,7 +15,7 @@ export const CabecalhoCheckout: React.FC<{ voltarPara?: string; etapa?: string; 
 }) => {
   const { home } = useCardapio();
   return (
-    <div className="bg-white text-tinta sticky top-0 z-40 border-b border-[#EFEFEF]">
+    <div className="bg-white text-tinta sticky top-0 z-40 border-b border-borda">
       <div className="h-14 flex items-center justify-center relative px-14">
         {voltarPara && (
           <Link
@@ -36,7 +36,7 @@ export const CabecalhoCheckout: React.FC<{ voltarPara?: string; etapa?: string; 
       {etapaAtual != null && (
         <div className="flex gap-1.5 px-4 pb-2 max-w-[560px] mx-auto" aria-hidden="true">
           {Array.from({ length: TOTAL_ETAPAS }, (_, i) => (
-            <span key={i} className={`h-1 flex-1 rounded-full ${i < etapaAtual ? 'bg-primaria' : 'bg-bloco'}`} />
+            <span key={i} className={`h-1 flex-1 rounded-full ${i < etapaAtual ? 'bg-tinta' : 'bg-borda'}`} />
           ))}
         </div>
       )}

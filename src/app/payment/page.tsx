@@ -123,7 +123,7 @@ function EtapaPagamento() {
         <CabecalhoCheckout voltarPara="/" etapa="Etapa 3 de 3" etapaAtual={3} />
         <div className="text-center px-6 py-16">
           <p className="text-[17px] font-bold">Sua sacola está vazia</p>
-          <Link href="/" className="mt-4 inline-flex h-12 px-6 items-center rounded-lg bg-primaria text-primaria-texto font-bold">
+          <Link href="/" className="mt-4 inline-flex h-12 px-6 items-center rounded-xl bg-primaria text-primaria-texto font-bold">
             Ver o cardápio
           </Link>
         </div>
@@ -164,8 +164,9 @@ function EtapaPagamento() {
     apenasDigitos(cliente.telefone).length >= 10 &&
     (retirada || (endereco.rua.trim() !== '' && endereco.numero.trim() !== ''));
 
+  const avisoFechada = `A loja está fechada agora.${status.detalhe ? ` ${status.detalhe}.` : ''}`;
   const bloqueios = [
-    !aberta && `A loja está fechada agora.${status.detalhe ? ` ${status.detalhe}.` : ''}`,
+    !aberta && avisoFechada,
     !dadosOk && 'Falta seu nome, WhatsApp ou endereço. Toque em Alterar.',
     dadosOk && !frete && 'Confirme o endereço para calcular a entrega (toque em Alterar).',
     frete?.bloqueado && 'Ainda não entregamos nesse endereço.',
@@ -279,7 +280,7 @@ function EtapaPagamento() {
       <h2 id="titulo-entrega" className="text-[17px] font-black mb-2">
         {retirada ? 'Retirada' : revisar ? 'Entregar em' : 'Entrega'}
       </h2>
-      <div className="bg-white rounded-xl shadow-cartao divide-y divide-[#F0F0F0]">
+      <div className="bg-white rounded-xl shadow-cartao divide-y divide-borda">
         <div className="flex items-start gap-3 p-3.5">
           {retirada ? <Store className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" /> : <MapPin className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />}
           <div className="flex-1 min-w-0 text-[15px]">
@@ -352,7 +353,7 @@ function EtapaPagamento() {
       )}
 
       {cartao && subtotal !== subtotalPix && (
-        <p className="rounded-lg bg-[#FFF8E1] border border-[#F1D58A] p-3 text-[14px] mt-1" role="status">
+        <p className="rounded-xl bg-aviso-claro border border-aviso-borda p-3 text-[14px] mt-1" role="status">
           No cartão alguns itens têm outro preço: os itens passam de {formatarPreco(subtotalPix)} para{' '}
           <strong>{formatarPreco(subtotal)}</strong>.
         </p>
@@ -427,7 +428,7 @@ function EtapaPagamento() {
             <span className="text-[14px] font-bold underline shrink-0">{verItens ? 'Esconder' : 'Ver e alterar'}</span>
           </button>
           {verItens && (
-            <div className="border-t border-[#F0F0F0]">
+            <div className="border-t border-borda">
               <ItensEditaveis cartao={cartao} aoMudar={() => setValoresNovos(null)} />
             </div>
           )}
@@ -446,16 +447,16 @@ function EtapaPagamento() {
       </div>
 
       {/* total sempre visível, colado no botão */}
-      <div className="fixed bottom-0 inset-x-0 z-30 bg-white border-t border-[#EFEFEF] px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+      <div className="fixed bottom-0 inset-x-0 z-30 bg-white border-t border-borda px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         <div className="max-w-[560px] mx-auto space-y-2">
           {precosMudaram && !valoresNovos && (
-            <p className="rounded-lg bg-[#FFF8E1] border border-[#F1D58A] p-2.5 text-[13px]" role="status">
+            <p className="rounded-xl bg-aviso-claro border border-aviso-borda p-2.5 text-[13px]" role="status">
               Alguns preços da sua sacola foram atualizados. O total já mostra os valores atuais.
             </p>
           )}
 
           {valoresNovos ? (
-            <div className="rounded-lg bg-[#FFF8E1] border border-[#F1D58A] p-3 text-[14px]" role="alert">
+            <div className="rounded-xl bg-aviso-claro border border-aviso-borda p-3 text-[14px]" role="alert">
               <p className="font-bold">Os valores do pedido mudaram</p>
               <dl className="mt-1.5 space-y-0.5 tabular-nums">
                 <div className="flex justify-between">
@@ -466,14 +467,14 @@ function EtapaPagamento() {
                   <dt>Entrega</dt>
                   <dd>{valoresNovos.frete === 0 ? 'Grátis' : formatarPreco(valoresNovos.frete)}</dd>
                 </div>
-                <div className="flex justify-between font-black text-[16px] pt-1 mt-1 border-t border-[#F1D58A]">
+                <div className="flex justify-between font-black text-[16px] pt-1 mt-1 border-t border-aviso-borda">
                   <dt>Total</dt>
                   <dd>{formatarPreco(valoresNovos.total)}</dd>
                 </div>
               </dl>
               <button
                 type="button"
-                className="mt-3 w-full h-14 rounded-xl bg-primaria text-primaria-texto text-[17px] font-black flex items-center justify-center gap-2 disabled:bg-[#DDD] disabled:text-suave"
+                className="mt-3 w-full h-14 rounded-xl bg-primaria text-primaria-texto text-[17px] font-black flex items-center justify-center gap-2 disabled:bg-borda disabled:text-suave"
                 disabled={bloqueios.length > 0 || enviando}
                 onClick={() => finalizar(valoresNovos.total)}
               >
@@ -492,7 +493,7 @@ function EtapaPagamento() {
           ) : (
             <>
               {erro && (
-                <div className="rounded-lg bg-[#FFF1F1] border border-[#F5C2C2] p-3 text-[14px]" role="alert">
+                <div className="rounded-xl bg-perigo-claro border border-perigo-borda p-3 text-[14px]" role="alert">
                   <p className="text-perigo font-medium">{erro.texto}</p>
                   {erro.deRede && (
                     <p className="text-[13px] text-tinta/80 mt-1">
@@ -512,9 +513,12 @@ function EtapaPagamento() {
               )}
 
               {avisos.length > 0 && (
-                <ul className="text-[14px] text-perigo font-medium space-y-0.5" aria-label="O que falta" role="alert">
+                <ul className="text-[14px] font-medium space-y-0.5" aria-label="O que falta" role="alert">
                   {avisos.map((b) => (
-                    <li key={b}>{b}</li>
+                    // loja fechada é aviso (laranja); o resto é o que a pessoa precisa corrigir (vermelho)
+                    <li key={b} className={b === avisoFechada ? 'text-aviso' : 'text-perigo'}>
+                      {b}
+                    </li>
                   ))}
                 </ul>
               )}
@@ -527,7 +531,7 @@ function EtapaPagamento() {
               </div>
               <button
                 type="button"
-                className="w-full h-14 rounded-xl bg-primaria text-primaria-texto text-[17px] font-black flex items-center justify-center gap-2 disabled:bg-[#DDD] disabled:text-suave"
+                className="w-full h-14 rounded-xl bg-primaria text-primaria-texto text-[17px] font-black flex items-center justify-center gap-2 disabled:bg-borda disabled:text-suave"
                 disabled={travado}
                 onClick={() => {
                   setTentou(true);

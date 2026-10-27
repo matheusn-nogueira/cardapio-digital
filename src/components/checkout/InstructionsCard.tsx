@@ -15,7 +15,7 @@ export const InstructionsCard: React.FC<{ valor: string; aoMudar: (valor: string
             value={valor}
             maxLength={500}
             onChange={(e) => aoMudar(e.target.value)}
-            className="w-full min-h-[84px] mt-2 p-3 border border-borda rounded-xl text-[16px] text-tinta resize-none outline-none focus:border-tinta focus:ring-2 focus:ring-primaria/40"
+            className="w-full min-h-[84px] mt-2 p-3 border border-borda rounded-xl text-[16px] text-tinta resize-none outline-none focus:border-tinta focus:ring-2 focus:ring-tinta/15"
             placeholder="Ex.: tocar o interfone 302, gelo à parte…"
           />
         </div>

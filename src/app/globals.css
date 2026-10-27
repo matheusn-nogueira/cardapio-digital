@@ -10,19 +10,38 @@
 }
 
 @theme inline {
+  /* Sistema de cores (revisão de 27/10/2026). Cada cor tem UM papel; não reaproveite
+     uma cor para outro papel. Contrastes medidos sobre branco (WCAG AA: texto 4,5:1,
+     bordas de controle 3:1). Detalhes e o porquê: CLAUDE.md, "Cores e formas". */
+  /* ação: amarelo da loja só como FUNDO de botão de ação (+, Adicionar, Continuar,
+     Fazer pedido) e na aba ativa, sempre com texto escuro (11,5:1). Nunca como texto,
+     borda, seleção ou enfeite (1,8:1 sobre branco: some para quem enxerga menos). */
   --color-primaria: var(--cor-primaria);
   --color-primaria-texto: var(--cor-texto-primaria);
-  --color-fundo: #F5F5F5;
-  --color-tinta: #1A1A1A;
-  --color-suave: #626262;
-  --color-borda: #E6E6E6;
+  /* marca sem ser ação: superfície creme para destacar uma seção ("Peça de novo",
+     opção escolhida) e o tom escuro para ícone ou texto da marca sobre branco (5,5:1) */
+  --color-marca-clara: #FFF4CC;
+  --color-marca-borda: #F0D78C;
+  --color-marca-escura: #8A6100;
+  /* neutros: uma escala só */
+  --color-tinta: #1A1A1A;      /* texto principal, botão secundário, seleção (16:1) */
+  --color-suave: #5C5C5C;      /* texto secundário (6,7:1) */
+  --color-apagado: #767676;    /* placeholder e desabilitado (4,5:1) */
+  --color-controle: #8F8F8F;   /* borda de campo, rádio desmarcado, bolinhas (3,2:1) */
+  --color-borda: #E5E5E5;      /* divisória e contorno de cartão (decorativo) */
+  --color-bloco: #F2F2F2;      /* superfície cinza sobre branco (chips, foto do produto) */
+  --color-fundo: #F5F5F5;      /* fundo das telas de compra */
+  /* vantagem: promoção de verdade, "Economize", entrega grátis, pedido confirmado (5,6:1) */
   --color-sucesso: #0F7A3D;
+  --color-sucesso-claro: #E7F5EC;
+  /* atenção sem erro: loja fechada, preço mudou, item indisponível, GPS (6,2:1 no claro) */
+  --color-aviso: #8A4B00;
+  --color-aviso-claro: #FFF3E0;
+  --color-aviso-borda: #F2C98A;
+  /* erro e ação destrutiva: falha, fora da área, esvaziar, lixeira (5,6:1) */
   --color-perigo: #C62828;
-  /* visual estilo Zé Delivery: topo grafite, rótulos de seção cinza, blocos cinza-claro */
-  --color-topo: #333333;
-  --color-rotulo: #6B6B6B;
-  --color-bloco: #F2F2F2;
-  --color-desconto: #E8343B;
+  --color-perigo-claro: #FFF1F1;
+  --color-perigo-borda: #F5C2C2;
   --shadow-cartao: 0 1px 4px rgba(0, 0, 0, 0.12);
   --color-background: var(--background);
   --color-foreground: var(--foreground);

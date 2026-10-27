@@ -58,7 +58,7 @@ export const AndamentoPedido: React.FC<{ pedidoId?: string; retirada: boolean; p
             <div className="flex flex-col items-center">
               <span
                 className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
-                  e.estado === 'feita' ? 'bg-sucesso text-white' : e.estado === 'atual' ? 'bg-primaria text-primaria-texto' : 'bg-bloco'
+                  e.estado === 'feita' ? 'bg-sucesso text-white' : e.estado === 'atual' ? 'bg-tinta text-white' : 'bg-bloco'
                 }`}
                 aria-hidden="true"
               >

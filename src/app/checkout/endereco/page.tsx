@@ -239,8 +239,8 @@ export default function EtapaEndereco() {
                   setAviso(null);
                   setErros({});
                 }}
-                className={`w-full min-h-16 text-left flex items-center gap-3.5 px-4 py-3 rounded-xl border-2 bg-white ${
-                  escolhido ? 'border-primaria bg-[color-mix(in_srgb,var(--cor-primaria)_12%,white)]' : 'border-borda'
+                className={`w-full min-h-16 text-left flex items-center gap-3.5 px-4 py-3 rounded-xl border-2 ${
+                  escolhido ? 'border-tinta bg-marca-clara' : 'border-borda bg-white'
                 }`}
               >
                 <span className="shrink-0 text-tinta">{o.icone}</span>
@@ -249,7 +249,7 @@ export default function EtapaEndereco() {
                   <span className="block text-[13px] text-suave leading-snug mt-0.5">{o.detalhe}</span>
                 </span>
                 <span
-                  className={`w-5 h-5 border-2 rounded-full shrink-0 flex items-center justify-center ${escolhido ? 'border-tinta' : 'border-[#BDBDBD]'}`}
+                  className={`w-5 h-5 border-2 rounded-full shrink-0 flex items-center justify-center ${escolhido ? 'border-tinta' : 'border-controle'}`}
                   aria-hidden="true"
                 >
                   {escolhido && <span className="w-2.5 h-2.5 rounded-full bg-tinta" />}
@@ -274,7 +274,7 @@ export default function EtapaEndereco() {
           type="button"
           onClick={usarLocalizacao}
           disabled={estadoGps === 'buscando'}
-          className="w-full h-14 rounded-xl border-2 border-primaria bg-white text-tinta text-[16px] font-bold flex items-center justify-center gap-2 active:scale-[0.99] transition-transform"
+          className="w-full h-14 rounded-xl border-2 border-tinta bg-white text-tinta text-[16px] font-bold flex items-center justify-center gap-2 active:scale-[0.99] transition-transform"
         >
           {estadoGps === 'buscando' ? (
             <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
@@ -284,7 +284,7 @@ export default function EtapaEndereco() {
           {estadoGps === 'buscando' ? 'Procurando sua rua…' : 'Usar minha localização'}
         </button>
         {AVISO_GPS[estadoGps] && (
-          <p className="text-[14px] text-tinta mt-2 rounded-lg bg-[#FFF8E1] border border-[#F1D58A] p-2.5" role="status">
+          <p className="text-[14px] text-tinta mt-2 rounded-xl bg-aviso-claro border border-aviso-borda p-2.5" role="status">
             {AVISO_GPS[estadoGps]}
           </p>
         )}
@@ -439,7 +439,7 @@ export default function EtapaEndereco() {
         )}
 
         {aviso && (
-          <p className="mt-4 rounded-xl bg-[#FFF1F1] border border-[#F5C2C2] p-3 text-[15px] text-perigo font-medium" role="alert">
+          <p className="mt-4 rounded-xl bg-perigo-claro border border-perigo-borda p-3 text-[15px] text-perigo font-medium" role="alert">
             {aviso}
           </p>
         )}

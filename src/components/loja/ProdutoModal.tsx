@@ -39,13 +39,13 @@ export const ProdutoModal: React.FC = () => {
         className="relative w-full sm:max-w-[440px] max-h-[92vh] overflow-y-auto bg-white rounded-t-3xl sm:rounded-3xl animate-sobe"
       >
         {/* alça da folha no celular, como nos apps: dá a pista de que ela desce */}
-        <span className="absolute left-1/2 -translate-x-1/2 top-2.5 w-12 h-1.5 rounded-full bg-[#D0D0D0] sm:hidden" aria-hidden="true" />
+        <span className="absolute left-1/2 -translate-x-1/2 top-2.5 w-12 h-1.5 rounded-full bg-controle sm:hidden" aria-hidden="true" />
         <button
           ref={botaoFechar}
           type="button"
           onClick={fecharProduto}
           aria-label="Fechar"
-          className="absolute right-4 top-4 z-10 w-11 h-11 rounded-full bg-[#E3E3E3] flex items-center justify-center"
+          className="absolute right-4 top-4 z-10 w-11 h-11 rounded-full bg-borda flex items-center justify-center"
         >
           <X className="w-6 h-6" aria-hidden="true" />
         </button>

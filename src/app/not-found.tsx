@@ -9,7 +9,7 @@ export default function NaoEncontrado() {
       </div>
       <h1 className="text-[20px] font-black mt-4">Não encontramos essa página</h1>
       <p className="text-[14px] text-suave mt-1">O produto ou a categoria pode ter saído do cardápio.</p>
-      <Link href="/" className="mt-5 h-12 px-6 rounded-lg bg-primaria text-primaria-texto font-bold text-[15px] inline-flex items-center">
+      <Link href="/" className="mt-5 h-12 px-6 rounded-xl bg-primaria text-primaria-texto font-bold text-[15px] inline-flex items-center">
         Voltar ao cardápio
       </Link>
     </main>

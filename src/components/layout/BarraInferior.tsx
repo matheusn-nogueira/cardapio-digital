@@ -41,7 +41,7 @@ export const BarraInferior: React.FC = () => {
   return (
     <nav
       aria-label="Navegação"
-      className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#EFEFEF] pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-borda pb-[env(safe-area-inset-bottom)]"
     >
       <div className="h-16 flex max-w-[560px] mx-auto">
         <Link href="/" className={item(pathname === '/')} aria-current={pathname === '/' ? 'page' : undefined}>
@@ -58,7 +58,7 @@ export const BarraInferior: React.FC = () => {
           <span className="relative">
             <ShoppingBag className="w-6 h-6" aria-hidden="true" />
             {hidratado && quantidadeTotal > 0 && (
-              <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primaria text-primaria-texto text-[10px] font-bold flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 rounded-full bg-tinta text-white text-[10px] font-bold flex items-center justify-center">
                 {quantidadeTotal > 99 ? '99+' : quantidadeTotal}
               </span>
             )}

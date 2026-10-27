@@ -9,7 +9,7 @@ export const Badge: React.FC<BadgeProps> = ({ count }) => {
 
   return (
     <span
-      className="absolute -top-1 -right-1 bg-primaria text-primaria-texto text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center"
+      className="absolute -top-1 -right-1 bg-tinta text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center"
       aria-hidden="true"
     >
       {count > 99 ? '99+' : count}

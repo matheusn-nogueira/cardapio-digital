@@ -54,7 +54,7 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
 
   return (
     <article className={`flex flex-col ${formato === 'carrossel' ? 'w-[150px] shrink-0 snap-start' : 'w-full'}`}>
-      <div className="relative w-full aspect-square rounded-2xl bg-[#F4F4F4]">
+      <div className="relative w-full aspect-square rounded-2xl bg-bloco">
         <button type="button" onClick={abrir} className="absolute inset-0 p-4 rounded-2xl" aria-label={`Ver ${produto.nome}`}>
           {/* a foto tem fundo branco: multiply funde o branco com o cinza do bloco */}
           <span className="block w-full h-full mix-blend-multiply">
@@ -63,8 +63,8 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
         </button>
         {selo && (
           <span
-            className={`absolute top-2 left-2 right-2 w-fit truncate pointer-events-none text-[11px] font-bold px-2 py-0.5 rounded-full tabular-nums ${
-              bloco ? (bloco.desconto ? 'bg-sucesso text-white' : 'bg-tinta text-white') : selo === 'Natural' ? 'bg-white text-[#4A4A4A]' : 'bg-tinta text-white'
+            className={`absolute top-2 left-2 right-2 w-fit truncate pointer-events-none text-[11px] font-bold px-2 py-0.5 rounded-md tabular-nums ${
+              bloco ? (bloco.desconto ? 'bg-sucesso text-white' : 'bg-tinta text-white') : selo === 'Natural' ? 'bg-white text-tinta' : 'bg-tinta text-white'
             }`}
           >
             {selo}
@@ -76,7 +76,7 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
               type="button"
               onClick={diminuir}
               aria-label={naLinha <= 1 ? `Tirar ${produto.nome} da sacola` : `Tirar 1 unidade de ${produto.nome}`}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-desconto active:scale-90 transition-transform"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-perigo active:scale-90 transition-transform"
             >
               {naLinha <= 1 ? <Trash2 className="w-[18px] h-[18px]" aria-hidden="true" /> : <Minus className="w-5 h-5" strokeWidth={2.5} aria-hidden="true" />}
             </button>
@@ -114,7 +114,7 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
       <div onClick={abrir} className="flex flex-col pt-3 cursor-pointer">
         <span className="text-[18px] font-bold text-tinta leading-tight tabular-nums">{formatarPreco(unidade)}</span>
         {/* sempre 2 linhas de altura, mesmo com nome curto */}
-        <span className="text-[15px] text-[#3A3A3A] leading-snug line-clamp-2 min-h-[2.75em] mt-1">{produto.nome}</span>
+        <span className="text-[15px] text-tinta leading-snug line-clamp-2 min-h-[2.75em] mt-1">{produto.nome}</span>
       </div>
     </article>
   );

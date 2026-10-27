@@ -18,8 +18,8 @@ interface Props {
 export const CategoriasLista: React.FC<Props> = ({ categorias, ativaId }) => {
   if (!categorias.length) return null;
   const chip = (ativa: boolean) =>
-    `flex items-center gap-2 h-11 pl-2 pr-4 rounded-xl border whitespace-nowrap text-[15px] ${
-      ativa ? 'border-tinta bg-tinta text-white font-bold' : 'border-[#E3E3E3] bg-white text-tinta'
+    `flex items-center gap-2 h-11 pl-2 pr-4 rounded-xl whitespace-nowrap text-[15px] font-medium ${
+      ativa ? 'bg-tinta text-white font-bold' : 'bg-bloco text-tinta'
     }`;
   return (
     <nav aria-label="Categorias" className="bg-white pt-3 pb-2">

@@ -169,7 +169,7 @@ export const PopupPromo: React.FC = () => {
       type="button"
       onClick={fechar}
       aria-label="Fechar"
-      className="absolute right-3 top-3 z-20 w-10 h-10 rounded-lg bg-[#333333] text-primaria flex items-center justify-center shadow-md"
+      className="absolute right-3 top-3 z-20 w-10 h-10 rounded-full bg-tinta text-primaria flex items-center justify-center shadow-md"
     >
       <X className="w-6 h-6" strokeWidth={3} aria-hidden="true" />
     </button>

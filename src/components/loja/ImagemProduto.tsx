@@ -46,7 +46,7 @@ export const ImagemProduto: React.FC<{ produto: Produto; tamanho?: 'pequena' | '
     // Versão reduzida pelo otimizador do Next (as originais têm ~500 KB).
     const larguras = tamanho === 'grande' ? '(max-width: 640px) 90vw, 480px' : tamanho === 'pequena' ? '64px' : '(max-width: 640px) 45vw, 220px';
     return (
-      <div className={`relative w-full h-full ${carregou ? '' : 'animate-pulse bg-[#F2F2F2] rounded-xl'}`}>
+      <div className={`relative w-full h-full ${carregou ? '' : 'animate-pulse bg-bloco rounded-xl'}`}>
         <Image
           src={produto.imagem_url}
           alt={produto.nome}

@@ -21,7 +21,7 @@ export const FloatingCart: React.FC = () => {
       <button
         type="button"
         onClick={abrirSacola}
-        className="pointer-events-auto w-full max-w-[560px] mx-auto bg-primaria text-primaria-texto font-bold text-[15px] h-13 py-3.5 rounded-xl flex items-center justify-between px-5 shadow-lg active:scale-[0.99] transition-transform"
+        className="pointer-events-auto w-full max-w-[560px] mx-auto bg-primaria text-primaria-texto font-bold text-[15px] h-14 rounded-xl flex items-center justify-between px-5 shadow-lg active:scale-[0.99] transition-transform"
       >
         <span>Ver sacola ({quantidadeTotal})</span>
         <span>{formatarPreco(subtotal)}</span>

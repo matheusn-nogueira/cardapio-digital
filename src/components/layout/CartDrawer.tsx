@@ -26,7 +26,7 @@ export const BarraProgresso: React.FC<{ percentual: number; texto: string; compl
   <div>
     <p className={`text-[13px] font-medium mb-1.5 ${completo ? 'text-sucesso' : 'text-tinta'}`}>{texto}</p>
     <div
-      className="h-2 rounded-full bg-[#E3E3E3] overflow-hidden"
+      className="h-2 rounded-full bg-borda overflow-hidden"
       role="progressbar"
       aria-valuemin={0}
       aria-valuemax={100}
@@ -107,7 +107,7 @@ export const CartDrawer: React.FC = () => {
         aria-labelledby="titulo-sacola"
         className="fixed top-0 right-0 bottom-0 z-[101] w-[400px] max-w-full bg-fundo flex flex-col shadow-[-4px_0_20px_rgba(0,0,0,0.12)] animate-entra-direita"
       >
-        <div className="flex items-center justify-center relative px-4 h-14 bg-white text-tinta border-b border-[#EFEFEF] shrink-0">
+        <div className="flex items-center justify-center relative px-4 h-14 bg-white text-tinta border-b border-borda shrink-0">
           {linhas.length > 0 && (
             <button
               type="button"
@@ -157,14 +157,14 @@ export const CartDrawer: React.FC = () => {
             </div>
           )}
           {!status.aberta && (
-            <div className="mt-3 rounded-lg bg-[#FFF1F1] border border-[#F5C2C2] p-3 text-[13px]">
-              <strong className="text-perigo">Estamos fechados agora.</strong> Você pode montar a sacola, mas só dá para
+            <div className="mt-3 rounded-xl bg-aviso-claro border border-aviso-borda p-3 text-[13px]">
+              <strong className="text-aviso">Estamos fechados agora.</strong> Você pode montar a sacola, mas só dá para
               fazer o pedido quando abrirmos{status.detalhe ? ` (${status.detalhe.toLowerCase()})` : ''}.
             </div>
           )}
 
           {!vazia && (minimo.exige || freteGratis) && (
-            <div className="mt-3 bg-white rounded-lg p-3 space-y-3">
+            <div className="mt-3 bg-white rounded-xl p-3 space-y-3">
               {minimo.exige && (
                 <BarraProgresso
                   percentual={minimo.percentual}
@@ -191,7 +191,7 @@ export const CartDrawer: React.FC = () => {
           )}
 
           {indisponiveis > 0 && (
-            <div className="mt-3 rounded-lg bg-[#FFF8E1] border border-[#F1D58A] p-3 text-[13px] flex items-center gap-2">
+            <div className="mt-3 rounded-xl bg-aviso-claro border border-aviso-borda p-3 text-[13px] flex items-center gap-2">
               <span className="flex-1">
                 {indisponiveis === 1
                   ? '1 item da sua sacola não está mais disponível.'
@@ -214,7 +214,7 @@ export const CartDrawer: React.FC = () => {
               {linhas.map((linha) => {
                 const { chave, produto, variante, quantidade } = linha;
                 return (
-                  <li key={chave} className="bg-white rounded-lg shadow-cartao p-3 mt-2.5 flex gap-3 items-start">
+                  <li key={chave} className="bg-white rounded-xl shadow-cartao p-3 mt-2.5 flex gap-3 items-start">
                     <div className="w-[60px] h-[60px] shrink-0 rounded-lg overflow-hidden">
                       <ImagemProduto produto={produto} tamanho="pequena" />
                     </div>
@@ -314,7 +314,7 @@ export const CartDrawer: React.FC = () => {
 
           <button
             type="button"
-            className="w-full mt-3 h-13 py-3.5 rounded-lg text-[15px] font-bold transition-all bg-primaria text-primaria-texto disabled:bg-[#DDD] disabled:text-suave"
+            className="w-full mt-3 h-14 rounded-xl text-[15px] font-bold transition-all bg-primaria text-primaria-texto disabled:bg-borda disabled:text-suave"
             onClick={continuar}
             disabled={vazia || !minimo.atingido}
           >

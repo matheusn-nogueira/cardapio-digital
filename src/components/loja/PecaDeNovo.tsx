@@ -47,6 +47,8 @@ export const PecaDeNovo: React.FC = () => {
   };
 
   // Uma linha só (dono, 27/10/2026: o cartão com lista de itens ocupava a tela de cima).
+  // Preto com o botão amarelo (dono, 27/10/2026): é o atalho pessoal e o bloco mais forte
+  // depois do banner; o creme parecia aviso.
   // A linha inteira é o botão; a sacola abre em seguida mostrando o que entrou.
   return (
     <section aria-label="Peça de novo" className="px-4 pt-3">
@@ -54,22 +56,22 @@ export const PecaDeNovo: React.FC = () => {
         type="button"
         onClick={repetir}
         aria-label={`Peça de novo: pôr na sacola os ${quantidade} do seu pedido ${quando(anterior.feitoEm)}, ${subtotal}`}
-        className="w-full flex items-center gap-3 rounded-xl border border-[#EFEFEF] p-2.5 text-left active:bg-bloco transition-colors"
+        className="w-full flex items-center gap-3 rounded-2xl bg-tinta p-3 text-left active:opacity-90 transition-opacity"
       >
         <span className="flex shrink-0 pl-3" aria-hidden="true">
           {fotos.map((l) => (
-            <span key={l.chave} className="relative -ml-3 w-10 h-10 rounded-lg bg-white border border-[#EFEFEF] p-0.5">
+            <span key={l.chave} className="relative -ml-3 w-10 h-10 rounded-lg bg-white border-2 border-tinta p-0.5">
               <ImagemProduto produto={l.produto} tamanho="pequena" />
             </span>
           ))}
         </span>
         <span className="flex-1 min-w-0">
-          <span className="block text-[15px] font-bold text-tinta leading-tight whitespace-nowrap">Peça de novo</span>
-          <span className="block text-[13px] text-suave truncate mt-0.5">
+          <span className="block text-[16px] font-bold text-white leading-tight whitespace-nowrap">Peça de novo</span>
+          <span className="block text-[13px] text-white/70 truncate mt-0.5">
             {quando(anterior.feitoEm).replace(/^de /, '')} · {quantidade}
           </span>
         </span>
-        <span className="shrink-0 h-9 px-3.5 rounded-full bg-primaria text-primaria-texto text-[14px] font-bold flex items-center" aria-hidden="true">
+        <span className="shrink-0 h-10 px-4 rounded-xl bg-primaria text-primaria-texto text-[14px] font-bold flex items-center" aria-hidden="true">
           Adicionar
         </span>
       </button>

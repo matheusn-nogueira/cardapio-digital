@@ -55,10 +55,10 @@ export const PecaTambem: React.FC = () => {
 
   return (
     <section className="mt-5" aria-label="Peça também">
-      <h3 className="text-[13px] font-medium uppercase tracking-wide text-rotulo mb-2">Peça também</h3>
+      <h3 className="text-[13px] font-medium uppercase tracking-wide text-suave mb-2">Peça também</h3>
       <div className="flex gap-2.5 overflow-x-auto no-scrollbar -mx-3.5 px-3.5 scroll-px-3.5 pb-1 snap-x">
         {sugestoes.map((produto) => (
-          <article key={produto.id} className="w-[112px] shrink-0 snap-start bg-white rounded-lg shadow-cartao overflow-hidden">
+          <article key={produto.id} className="w-[112px] shrink-0 snap-start bg-white rounded-xl shadow-cartao overflow-hidden">
             <div className="relative w-full aspect-square p-2 bg-white">
               <ImagemProduto produto={produto} />
               <button
@@ -73,8 +73,8 @@ export const PecaTambem: React.FC = () => {
                 <Plus className="w-4 h-4" strokeWidth={3} aria-hidden="true" />
               </button>
             </div>
-            <div className="px-2 pt-1.5 pb-2 border-t border-[#EFEFEF]">
-              <span className="block text-[12px] text-[#4A4A4A] leading-snug line-clamp-2 min-h-[2.5em]">{produto.nome}</span>
+            <div className="px-2 pt-1.5 pb-2 border-t border-borda">
+              <span className="block text-[12px] text-tinta leading-snug line-clamp-2 min-h-[2.5em]">{produto.nome}</span>
               <span className="block text-[14px] font-bold text-tinta tabular-nums mt-1">
                 {formatarPreco(melhorPreco(produto, 1, false).total)}
               </span>

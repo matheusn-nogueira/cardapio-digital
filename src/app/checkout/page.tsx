@@ -97,8 +97,8 @@ function EtapaDados() {
         <h1 className="text-[24px] font-black leading-tight mb-5">Para quem é o pedido?</h1>
 
         {!status.aberta && (
-          <div className="mb-4 rounded-xl bg-[#FFF1F1] border border-[#F5C2C2] p-3 text-[15px]">
-            <strong className="text-perigo">{status.titulo}.</strong> {home.config.mensagem_fechado}
+          <div className="mb-4 rounded-xl bg-aviso-claro p-3 text-[15px]">
+            <strong className="text-aviso">{status.titulo}.</strong> {home.config.mensagem_fechado}
             {status.detalhe ? ` ${status.detalhe}.` : ''}
           </div>
         )}

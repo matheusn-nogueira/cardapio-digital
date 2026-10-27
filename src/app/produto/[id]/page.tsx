@@ -26,7 +26,7 @@ export default async function ProdutoPage({ params }: Props) {
   if (!produto) notFound();
 
   return (
-    <main className="px-4 pt-3 pb-6 min-h-screen max-w-[520px] mx-auto">
+    <main className="px-4 pt-3 pb-6 min-h-screen max-w-[520px] mx-auto bg-white">
       <Link href="/" className="inline-flex items-center gap-1.5 h-10 text-[14px] font-medium mb-1">
         <ArrowLeft className="w-5 h-5" aria-hidden="true" /> Voltar ao cardápio
       </Link>

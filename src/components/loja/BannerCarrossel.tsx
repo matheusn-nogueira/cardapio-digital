@@ -20,33 +20,27 @@ function destinoBanner(b: Banner): { href: string; externo: boolean } | null {
   return null;
 }
 
-// Banner sem foto ganha um fundo em degradê com a cor escolhida no ERP e
-// círculos na cor da loja, para não parecer um bloco vazio.
+// Banner sem foto: a cor escolhida no ERP, chapada (27/10/2026: o degradê para o amarelo e
+// as bolhas davam cara de modelo pronto). O que chama é o título grande e o botão amarelo.
 const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean; comLink: boolean }> = ({ banner, primeiro, comLink }) => {
   const cor = corSegura(banner.cor_fundo, '#1A1A1A');
   return (
     <div
-      className="relative h-44 rounded-2xl overflow-hidden flex items-end p-5"
-      style={{ background: banner.imagem_url ? cor : `linear-gradient(135deg, ${cor} 0%, ${cor} 45%, var(--cor-primaria) 160%)` }}
+      className="relative h-full min-h-44 rounded-2xl overflow-hidden flex items-end p-5"
+      style={{ background: cor }}
     >
       {banner.imagem_url ? (
         <>
           <Image src={banner.imagem_url} alt="" fill priority={primeiro} sizes="(max-width: 640px) 100vw, 640px" quality={75} className="object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" aria-hidden="true" />
         </>
-      ) : (
-        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <span className="absolute -right-12 -top-20 w-60 h-60 rounded-full bg-primaria/15" />
-          <span className="absolute right-10 top-16 w-28 h-28 rounded-full bg-primaria/25" />
-          <span className="absolute right-28 -bottom-10 w-24 h-24 rounded-full bg-white/5" />
-        </div>
-      )}
+      ) : null}
       {(banner.titulo || banner.subtitulo) && (
-        <div className="relative z-10 max-w-[70%]">
-          {banner.titulo && <h2 className="text-white font-black text-[22px] leading-[1.1] tracking-tight drop-shadow-sm">{banner.titulo}</h2>}
-          {banner.subtitulo && <p className="text-white/90 text-[13px] mt-1.5 leading-snug">{banner.subtitulo}</p>}
+        <div className="relative z-10 max-w-[85%]">
+          {banner.titulo && <h2 className="text-white font-black text-[24px] leading-[1.1] tracking-tight text-balance">{banner.titulo}</h2>}
+          {banner.subtitulo && <p className="text-white/80 text-[14px] mt-1.5 leading-snug">{banner.subtitulo}</p>}
           {comLink && (
-            <span className="inline-flex items-center h-9 px-5 mt-3 rounded-lg bg-primaria text-primaria-texto text-[14px] font-bold">
+            <span className="inline-flex items-center h-10 px-5 mt-3 rounded-xl bg-primaria text-primaria-texto text-[14px] font-bold">
               {banner.link_tipo === 'categoria' ? 'Ver promoções' : banner.link_tipo === 'produto' ? 'Ver produto' : 'Saiba mais'}
             </span>
           )}
@@ -146,7 +140,7 @@ export const BannerCarrossel: React.FC<{ banners: Banner[] }> = ({ banners }) =>
               aria-current={i === atual}
               className="p-1.5"
             >
-              <span className={`block h-1.5 rounded-full transition-all ${i === atual ? 'w-4 bg-tinta' : 'w-1.5 bg-[#C8C8C8]'}`} />
+              <span className={`block h-1.5 rounded-full transition-all ${i === atual ? 'w-4 bg-tinta' : 'w-1.5 bg-controle'}`} />
             </button>
           ))}
         </div>

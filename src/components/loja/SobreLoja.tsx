@@ -97,7 +97,7 @@ export const SobreLoja: React.FC<{ aberta: boolean; aoFechar: () => void }> = ({
                 href={rota!}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="relative block mt-2.5 h-40 rounded-2xl overflow-hidden border border-[#EFEFEF] bg-[#E8E4DC]"
+                className="relative block mt-2.5 h-40 rounded-2xl overflow-hidden border border-borda bg-[#E8E4DC]"
                 aria-label="Ver a rota até a loja no mapa"
               >
                 {/* tiles montados para 440 px de largura, com o ponto no centro: cabe em qualquer largura menor */}
@@ -126,7 +126,7 @@ export const SobreLoja: React.FC<{ aberta: boolean; aoFechar: () => void }> = ({
                 href={rota}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2.5 w-full h-11 rounded-xl border border-borda flex items-center justify-center gap-2 text-[15px] font-bold"
+                className="mt-2.5 w-full h-12 rounded-xl border-2 border-tinta flex items-center justify-center gap-2 text-[15px] font-bold"
               >
                 <Navigation className="w-4 h-4" aria-hidden="true" /> Como chegar
               </a>
@@ -181,7 +181,7 @@ export const SobreLoja: React.FC<{ aberta: boolean; aoFechar: () => void }> = ({
           </a>
         )}
 
-        <p className="flex items-center gap-2.5 pt-4 border-t border-[#EFEFEF] text-[12px] text-suave leading-snug">
+        <p className="flex items-center gap-2.5 pt-4 border-t border-borda text-[12px] text-suave leading-snug">
           <span
             className="inline-flex items-center justify-center w-7 h-7 rounded-full border border-borda text-[10px] font-black text-tinta shrink-0"
             aria-hidden="true"

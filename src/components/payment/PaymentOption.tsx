@@ -16,7 +16,7 @@ export const PaymentOption: React.FC<PaymentOptionProps> = ({ id, icon, label, d
       role="radio"
       aria-checked={isSelected}
       className={`w-full min-h-16 text-left flex items-center gap-3.5 px-4 py-3 rounded-xl mb-2.5 border-2 transition-colors
-        ${isSelected ? 'border-primaria bg-[color-mix(in_srgb,var(--cor-primaria)_12%,white)]' : 'border-borda bg-white'}`}
+        ${isSelected ? 'border-tinta bg-marca-clara' : 'border-borda bg-white'}`}
       onClick={() => onSelect(id)}
     >
       <span className="w-8 h-8 shrink-0 flex items-center justify-center" aria-hidden="true">
@@ -27,7 +27,7 @@ export const PaymentOption: React.FC<PaymentOptionProps> = ({ id, icon, label, d
         {descricao && <span className="block text-[13px] text-suave leading-snug mt-0.5">{descricao}</span>}
       </span>
       <span
-        className={`w-5 h-5 border-2 rounded-full shrink-0 flex items-center justify-center ${isSelected ? 'border-tinta' : 'border-[#BDBDBD]'}`}
+        className={`w-5 h-5 border-2 rounded-full shrink-0 flex items-center justify-center ${isSelected ? 'border-tinta' : 'border-controle'}`}
         aria-hidden="true"
       >
         {isSelected && <span className="w-2.5 h-2.5 rounded-full bg-tinta" />}

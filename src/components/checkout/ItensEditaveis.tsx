@@ -50,7 +50,7 @@ export const ItensEditaveis: React.FC<{ cartao: boolean; aoMudar?: () => void }>
   // linha compacta, como a sacola do iFood: nome e preço à esquerda, "− 3 +" à direita.
   // O cartão em volta é da tela (um só, com o cabeçalho "Itens").
   return (
-    <ul className="divide-y divide-[#F0F0F0]">
+    <ul className="divide-y divide-borda">
       {removido && (
         <li className="px-3.5 py-2.5 flex items-center justify-between gap-3 bg-bloco" role="status">
           <span className="text-[14px] min-w-0 truncate">{removido.produto.nome} removido</span>
@@ -81,7 +81,7 @@ export const ItensEditaveis: React.FC<{ cartao: boolean; aoMudar?: () => void }>
                   aria-label={tiraNoMenos ? `Tirar ${l.produto.nome} do pedido` : `Diminuir ${l.produto.nome}`}
                   className="w-10 h-10 flex items-center justify-center disabled:opacity-30"
                 >
-                  {tiraNoMenos ? <Trash2 className="w-4 h-4 text-desconto" aria-hidden="true" /> : <Minus className="w-4 h-4" aria-hidden="true" />}
+                  {tiraNoMenos ? <Trash2 className="w-4 h-4 text-perigo" aria-hidden="true" /> : <Minus className="w-4 h-4" aria-hidden="true" />}
                 </button>
                 <span className="min-w-6 text-center text-[15px] font-bold tabular-nums" aria-live="polite">
                   {l.quantidade}

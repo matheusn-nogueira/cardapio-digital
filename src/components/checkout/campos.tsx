@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 // Campos do checkout: altos (48 px) e com letra de 17 px, para quem tem pouca prática no
 // celular; o título fica acima da caixa e o erro logo embaixo, em vermelho.
 export const classeCampo =
-  'w-full h-12 px-3.5 border border-borda rounded-xl text-[17px] text-tinta bg-white outline-none focus:border-tinta focus:ring-2 focus:ring-primaria/40 aria-[invalid=true]:border-perigo';
+  'w-full h-12 px-3.5 border border-borda rounded-xl text-[17px] text-tinta bg-white outline-none focus:border-tinta focus:ring-2 focus:ring-tinta/15 aria-[invalid=true]:border-perigo';
 
 export const Campo: React.FC<{
   id: string;
@@ -40,7 +40,7 @@ export const BarraDaEtapa: React.FC<{
   rotuloCarregando?: string;
   children?: React.ReactNode;
 }> = ({ rotulo, aoTocar, carregando, rotuloCarregando, children }) => (
-  <div className="fixed bottom-0 inset-x-0 z-30 bg-white border-t border-[#EFEFEF] px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+  <div className="fixed bottom-0 inset-x-0 z-30 bg-white border-t border-borda px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
     <div className="max-w-[560px] mx-auto">
       {children}
       <button

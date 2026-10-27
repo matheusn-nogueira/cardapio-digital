@@ -37,7 +37,7 @@ export const ListaCategoria: React.FC<{ ids: string[]; nomeCategoria: string }> 
           value={termo}
           onChange={(e) => setTermo(e.target.value)}
           placeholder={`Buscar em ${nomeCategoria}`}
-          className="w-full h-11 pl-10 pr-3 rounded-lg bg-white border border-borda text-[16px] outline-none focus:border-topo placeholder:text-[14px] placeholder:text-[#9B9B9B]"
+          className="w-full h-11 pl-10 pr-3 rounded-xl bg-white border border-borda text-[16px] outline-none focus:border-tinta placeholder:text-[14px] placeholder:text-apagado"
         />
       </div>
 
@@ -51,8 +51,8 @@ export const ListaCategoria: React.FC<{ ids: string[]; nomeCategoria: string }> 
                 type="button"
                 aria-pressed={ativa}
                 onClick={() => setMarca(m)}
-                className={`shrink-0 h-9 px-3.5 rounded-full text-[13px] font-medium border ${
-                  ativa ? 'bg-topo text-white border-topo' : 'bg-white text-tinta border-borda'
+                className={`shrink-0 h-10 px-4 rounded-xl text-[14px] font-medium ${
+                  ativa ? 'bg-tinta text-white font-bold' : 'bg-bloco text-tinta'
                 }`}
               >
                 {m ?? 'Todas'}

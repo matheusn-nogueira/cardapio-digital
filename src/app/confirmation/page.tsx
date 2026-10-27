@@ -35,7 +35,7 @@ export default function ConfirmationPage() {
         <CabecalhoCheckout voltarPara="/" />
         <div className="text-center px-6 py-16">
           <p className="text-[17px] font-bold">Nenhum pedido recente por aqui</p>
-          <Link href="/" className="mt-4 inline-flex h-12 px-6 items-center rounded-lg bg-primaria text-primaria-texto font-bold">
+          <Link href="/" className="mt-4 inline-flex h-12 px-6 items-center rounded-xl bg-primaria text-primaria-texto font-bold">
             Ver o cardápio
           </Link>
         </div>
@@ -84,11 +84,11 @@ export default function ConfirmationPage() {
               <>
                 <p className="text-[13px] text-suave mt-1">Faça o Pix de {formatarPreco(pedido.total)} para a chave abaixo.</p>
                 <div className="mt-3 flex items-center gap-2">
-                  <code className="flex-1 min-w-0 break-all bg-fundo rounded-lg px-3 py-2.5 text-[14px]">{config.chave_pix}</code>
+                  <code className="flex-1 min-w-0 break-all bg-fundo rounded-xl px-3 py-2.5 text-[14px]">{config.chave_pix}</code>
                   <button
                     type="button"
                     onClick={copiarPix}
-                    className="h-11 px-3 rounded-lg border-2 border-tinta font-bold text-[13px] flex items-center gap-1.5 shrink-0"
+                    className="h-11 px-3 rounded-xl border-2 border-tinta font-bold text-[13px] flex items-center gap-1.5 shrink-0"
                   >
                     {copiado ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
                     {copiado ? 'Copiado' : 'Copiar'}
@@ -118,14 +118,14 @@ export default function ConfirmationPage() {
               href={rotaLoja}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 inline-flex items-center gap-2 h-11 px-5 rounded-xl border border-borda bg-white text-[15px] font-bold"
+              className="mt-2 inline-flex items-center gap-2 h-12 px-5 rounded-xl border-2 border-tinta bg-white text-[15px] font-bold"
             >
               <Navigation className="w-4 h-4" aria-hidden="true" /> Como chegar
             </a>
           </div>
         )}
 
-        <section className="bg-white rounded-lg p-4 mt-5 text-left shadow-cartao text-[14px]">
+        <section className="bg-white rounded-xl p-4 mt-5 text-left shadow-cartao text-[14px]">
           <div className="flex justify-between">
             <span>Subtotal</span>
             <span>{formatarPreco(pedido.subtotal)}</span>
@@ -147,7 +147,7 @@ export default function ConfirmationPage() {
         <Link
           href="/"
           onClick={() => armazemUltimoPedido.gravar(null)}
-          className="mt-3 w-full h-13 py-3.5 rounded-lg bg-primaria text-primaria-texto font-bold text-[15px] flex items-center justify-center"
+          className="mt-3 w-full h-14 rounded-xl bg-primaria text-primaria-texto font-bold text-[15px] flex items-center justify-center"
         >
           Fazer novo pedido
         </Link>
