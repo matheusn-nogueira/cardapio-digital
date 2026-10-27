@@ -27,7 +27,7 @@ const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean; comLink: boo
   const cor = banner.imagem_url ? corSegura(banner.cor_fundo, '#0F3A63') : 'var(--color-banner)';
   return (
     <div
-      className="relative h-full min-h-44 rounded-2xl overflow-hidden flex items-end p-4 pb-5"
+      className="relative w-full min-h-44 rounded-2xl overflow-hidden flex items-end p-4 pb-5"
       style={{ background: cor }}
     >
       {banner.imagem_url ? (
@@ -84,11 +84,11 @@ export const BannerCarrossel: React.FC<{ banners: Banner[] }> = ({ banners }) =>
       conteudo: !destino ? (
         conteudo
       ) : destino.externo ? (
-        <a href={destino.href} target="_blank" rel="noopener noreferrer" className="block rounded-2xl">
+        <a href={destino.href} target="_blank" rel="noopener noreferrer" className="flex w-full rounded-2xl">
           {conteudo}
         </a>
       ) : (
-        <Link href={destino.href} className="block rounded-2xl">
+        <Link href={destino.href} className="flex w-full rounded-2xl">
           {conteudo}
         </Link>
       ),
@@ -118,7 +118,8 @@ export const BannerCarrossel: React.FC<{ banners: Banner[] }> = ({ banners }) =>
         {slides.map((slide, i) => (
           <div
             key={slide.id}
-            className={`shrink-0 snap-start ${total > 1 ? 'w-[calc(100%-28px)] sm:w-[calc(50%-6px)]' : 'w-full'}`}
+            // flex: o slide estica até o mais alto da fileira (banner de texto longo x banner do app)
+            className={`flex shrink-0 snap-start ${total > 1 ? 'w-[calc(100%-28px)] sm:w-[calc(50%-6px)]' : 'w-full'}`}
             role="group"
             aria-roledescription="slide"
             aria-label={`${i + 1} de ${total}`}

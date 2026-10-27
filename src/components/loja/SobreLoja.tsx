@@ -160,7 +160,7 @@ export const SobreLoja: React.FC<{ aberta: boolean; aoFechar: () => void }> = ({
             )}
             {config.aceita_dinheiro && (
               <li className="flex items-center gap-1.5">
-                <Banknote className="w-5 h-5 text-sucesso" strokeWidth={1.75} aria-hidden="true" /> Dinheiro
+                <Banknote className="w-5 h-5 text-tinta" strokeWidth={1.75} aria-hidden="true" /> Dinheiro
               </li>
             )}
             {config.aceita_cartao_entrega && (

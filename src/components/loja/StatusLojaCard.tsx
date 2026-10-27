@@ -47,7 +47,7 @@ export const StatusLojaCard: React.FC = () => {
         </div>
       )}
 
-      <dl className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[14px] text-tinta">
+      <dl className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[14px] text-tinta">
         {fatos.map((f) => (
           <div key={f.rotulo} className="flex items-center gap-1.5">
             <dt className="text-suave">
@@ -60,7 +60,7 @@ export const StatusLojaCard: React.FC = () => {
       </dl>
 
       {config.frete_gratis_acima != null && config.frete_gratis_acima > 0 && (
-        <p className="mt-1.5 text-[13px] font-bold text-sucesso">Entrega grátis acima de {formatarPreco(config.frete_gratis_acima)}</p>
+        <p className="mt-1.5 text-center text-[13px] font-bold text-sucesso">Entrega grátis acima de {formatarPreco(config.frete_gratis_acima)}</p>
       )}
     </section>
   );

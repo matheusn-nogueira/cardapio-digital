@@ -137,7 +137,7 @@ function EtapaPagamento() {
       ? [{ id: 'pix' as const, rotulo: 'Pix', descricao: 'Chave no fim do pedido', icone: <LogoPix className="w-7 h-7" /> }]
       : []),
     ...(config.aceita_dinheiro
-      ? [{ id: 'dinheiro' as const, rotulo: 'Dinheiro', descricao: retirada ? 'Pague na retirada' : 'Pague na entrega', icone: <Banknote className="w-7 h-7 text-sucesso" strokeWidth={1.75} /> }]
+      ? [{ id: 'dinheiro' as const, rotulo: 'Dinheiro', descricao: retirada ? 'Pague na retirada' : 'Pague na entrega', icone: <Banknote className="w-7 h-7 text-tinta" strokeWidth={1.75} /> }]
       : []),
     ...(config.aceita_cartao_entrega
       ? [

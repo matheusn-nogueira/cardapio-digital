@@ -67,7 +67,7 @@ export const BarraInferior: React.FC = () => {
         </button>
         {whatsapp && (
           <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={item(false)} aria-label="WhatsApp da loja">
-            <IconeWhatsApp className="w-6 h-6 text-[#1A9E4B]" />
+            <IconeWhatsApp className="w-6 h-6" />
             WhatsApp
           </a>
         )}

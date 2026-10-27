@@ -238,24 +238,25 @@ export const CartDrawer: React.FC = () => {
                         />
                       )}
                       <div className="flex items-center justify-between mt-2 gap-2">
-                        <div className="flex items-center gap-1">
+                        {/* contador numa moldura só, igual ao do pagamento e ao do card (27/10/2026) */}
+                        <div className="flex items-center h-10 rounded-full border border-borda">
                           <button
                             type="button"
-                            className="w-9 h-9 rounded-full bg-bloco flex items-center justify-center"
+                            className="w-10 h-10 flex items-center justify-center"
                             onClick={() => alterar(chave, quantidade - 1)}
                             aria-label={`Diminuir ${produto.nome}`}
                           >
                             <Minus className="w-4 h-4" aria-hidden="true" />
                           </button>
                           <span
-                            className="min-w-8 px-1 text-center text-[14px] font-bold tabular-nums"
+                            className="min-w-6 text-center text-[15px] font-bold tabular-nums"
                             aria-label={variante ? `${quantidade}` : `${quantidade} unidades`}
                           >
                             {quantidade}
                           </span>
                           <button
                             type="button"
-                            className="w-9 h-9 rounded-full bg-primaria text-primaria-texto flex items-center justify-center"
+                            className="w-8 h-8 mx-1 rounded-full bg-primaria text-primaria-texto flex items-center justify-center"
                             onClick={() => alterar(chave, quantidade + 1)}
                             aria-label={`Aumentar ${produto.nome}`}
                           >

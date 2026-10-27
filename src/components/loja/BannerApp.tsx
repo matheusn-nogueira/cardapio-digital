@@ -83,7 +83,7 @@ export const SlideApp: React.FC<{ modo: ModoBanner }> = ({ modo }) => {
   );
 
   return (
-    <div className="relative h-44 rounded-2xl bg-tinta text-white p-4 overflow-hidden flex flex-col">
+    <div className="relative w-full min-h-44 rounded-2xl bg-tinta text-white p-4 overflow-hidden flex flex-col">
       <span className="absolute -right-8 -top-10 w-32 h-32 rounded-full bg-white/10" aria-hidden="true" />
       <button
         type="button"
