@@ -66,7 +66,7 @@ export const PecaDeNovo: React.FC = () => {
           ))}
         </span>
         <span className="flex-1 min-w-0">
-          <span className="block text-[16px] font-bold text-white leading-tight whitespace-nowrap">Peça de novo</span>
+          <span className="block font-condensed text-[19px] font-extrabold uppercase text-white leading-none whitespace-nowrap">Peça de novo</span>
           <span className="block text-[13px] text-white/70 truncate mt-0.5">
             {quando(anterior.feitoEm).replace(/^de /, '')} · {quantidade}
           </span>

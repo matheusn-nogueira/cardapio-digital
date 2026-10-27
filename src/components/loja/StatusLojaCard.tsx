@@ -12,8 +12,8 @@ interface Fato {
 }
 
 /**
- * Fatos da loja, logo abaixo do banner: tempo de entrega, entrega mais barata, horário de
- * hoje e pedido mínimo, numa linha só de texto como no iFood (27/10/2026: os quadros com
+ * Fatos da loja, logo abaixo do banner: tempo de entrega, entrega mais barata e pedido mínimo,
+ * numa linha só de texto como no iFood (27/10/2026: os quadros com
  * borda, um ao lado do outro, davam cara de formulário). Com a loja fechada, um aviso
  * compacto em laranja vem antes (aviso, não erro).
  */
@@ -28,8 +28,7 @@ export const StatusLojaCard: React.FC = () => {
   if (home.frete_minimo != null && home.frete_minimo > 0) {
     fatos.push({ icone: icone(Truck), valor: `Entrega desde ${formatarPreco(home.frete_minimo)}`, rotulo: 'Taxa de entrega' });
   }
-  // fechada, o aviso acima já diz quando abre
-  if (status.aberta) fatos.push({ icone: icone(Clock), valor: status.horarioHoje.replace(': ', ' ').replace(' às ', '–'), rotulo: 'Horário' });
+  // horário de hoje fica de fora: aberta, o topo já diz "Fecha em…"; fechada, o aviso acima diz quando abre
   if (config.pedido_minimo > 0) {
     fatos.push({ icone: icone(ShoppingBag), valor: `Mínimo ${formatarPreco(config.pedido_minimo)}`, rotulo: 'Pedido mínimo' });
   }

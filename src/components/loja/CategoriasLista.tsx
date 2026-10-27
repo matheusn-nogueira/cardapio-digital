@@ -1,47 +1,38 @@
 'use client';
 
-import Image from 'next/image';
 import React from 'react';
 import Link from 'next/link';
-import { LayoutGrid } from 'lucide-react';
 import type { Categoria } from '@/lib/tipos';
 
 interface Props {
-  /** `imagem_url` já resolvida pela página (foto da categoria ou de um produto dela). */
   categorias: Categoria[];
   ativaId?: string;
   /** Mantido por compatibilidade: os chips já são compactos. */
   compacta?: boolean;
 }
 
-/** Chips de categoria como no app do Zé: "Categorias" primeiro, depois cada uma com a foto pequena do produto principal. */
+/**
+ * Chips de categoria só com o nome, sem foto nem ícone (dono, 27/10/2026, Freezer). Na home o
+ * primeiro (promoções) fica em destaque; na página de categoria, a categoria aberta.
+ * Todas as categorias juntas ficam na aba Busca.
+ */
 export const CategoriasLista: React.FC<Props> = ({ categorias, ativaId }) => {
   if (!categorias.length) return null;
-  const chip = (ativa: boolean) =>
-    `flex items-center gap-2 h-11 pl-2 pr-4 rounded-xl whitespace-nowrap text-[15px] font-medium ${
-      ativa ? 'bg-tinta text-white font-bold' : 'bg-bloco text-tinta'
-    }`;
   return (
     <nav aria-label="Categorias" className="bg-white pt-3 pb-2">
       <ul className="flex gap-2 overflow-x-auto no-scrollbar px-4 scroll-px-4">
-        <li className="shrink-0">
-          <Link href="/busca" className={chip(false)}>
-            <LayoutGrid className="w-6 h-6 ml-1" aria-hidden="true" />
-            Categorias
-          </Link>
-        </li>
-        {categorias.map((cat) => {
+        {categorias.map((cat, i) => {
           const ativa = cat.id === ativaId;
+          const destaque = ativaId ? ativa : i === 0;
           return (
             <li key={cat.id} className="shrink-0">
-              <Link href={`/categoria/${cat.id}`} aria-current={ativa ? 'page' : undefined} className={chip(ativa)}>
-                <span className="w-7 h-7 rounded-md bg-white flex items-center justify-center overflow-hidden" aria-hidden="true">
-                  {cat.imagem_url ? (
-                    <Image src={cat.imagem_url} alt="" width={56} height={56} quality={70} className="w-full h-full object-contain" />
-                  ) : (
-                    <span className="text-[16px]">{cat.icone || '🛒'}</span>
-                  )}
-                </span>
+              <Link
+                href={`/categoria/${cat.id}`}
+                aria-current={ativa ? 'page' : undefined}
+                className={`flex items-center h-9 px-3.5 rounded-xl whitespace-nowrap text-[14px] ${
+                  destaque ? 'bg-tinta text-white font-bold' : 'bg-bloco text-tinta font-semibold'
+                }`}
+              >
                 {cat.nome}
               </Link>
             </li>

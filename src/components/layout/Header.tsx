@@ -4,13 +4,10 @@ import Image from 'next/image';
 import React, { Suspense, useCallback, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { ChevronDown, Search, ShoppingBag, X } from 'lucide-react';
+import { ChevronDown, Search, X } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
-import { useCart } from '@/context/CartContext';
-import { useHidratado } from '@/lib/armazenamento';
 import { ehRotaDeCompra } from '@/lib/rotas';
 import { SobreLoja } from '@/components/loja/SobreLoja';
-import { Badge } from '@/components/ui/Badge';
 
 
 const CampoBusca: React.FC = () => {
@@ -57,7 +54,7 @@ const CampoBusca: React.FC = () => {
         onChange={(e) => buscar(e.target.value)}
         autoFocus={naBusca && !termoUrl}
         className="w-full h-12 pr-11 pl-12 rounded-xl bg-white text-[16px] text-tinta outline-none placeholder:text-[14px] placeholder:text-apagado [&::-webkit-search-cancel-button]:hidden"
-        placeholder="Busque por bebida ou marca"
+        placeholder="Buscar cerveja, gelo, carvão"
       />
       {texto && (
         <button
@@ -73,14 +70,14 @@ const CampoBusca: React.FC = () => {
   );
 };
 
-/** Topo claro como o app do Zé: logo, nome e status no meio, sacola à direita. A busca fica só na aba Busca. */
+/**
+ * Topo azul-noite (Freezer, 27/10/2026): logo, nome e status à esquerda e a busca sempre à mão logo
+ * abaixo, como no protótipo aprovado pelo dono. A sacola fica na barra de baixo e no botão flutuante.
+ */
 export const Header: React.FC = () => {
   const { home, status } = useCardapio();
-  const { quantidadeTotal, abrirSacola } = useCart();
-  const hidratado = useHidratado();
   const pathname = usePathname();
   const { loja, config } = home;
-  const naBusca = pathname === '/busca';
   const [sobreAberto, setSobreAberto] = useState(false);
   // função estável: a folha não reabre o foco a cada atualização do topo ("Fecha em…")
   const fecharSobre = useCallback(() => setSobreAberto(false), []);
@@ -97,7 +94,7 @@ export const Header: React.FC = () => {
         <div className="bg-tinta text-white text-[13px] font-medium text-center px-4 py-2">{config.aviso_topo}</div>
       )}
       <header className="bg-topo text-white px-4 sticky top-0 z-40">
-        <div className="h-16 flex items-center gap-3 max-w-[1100px] mx-auto">
+        <div className="h-16 flex items-center gap-2.5 max-w-[1100px] mx-auto">
           {/* o logo já tem a forma da casa: sem círculo atrás (o amarelo do círculo, diferente
               do amarelo do logo, aparecia como um contorno laranja; dono, 27/10/2026) */}
           <Link href="/" className="w-12 h-12 flex items-center justify-center shrink-0" aria-label={`${loja.nome} — início`}>
@@ -110,14 +107,14 @@ export const Header: React.FC = () => {
           <button
             type="button"
             onClick={() => setSobreAberto(true)}
-            className="min-w-0 flex-1 text-center"
+            className="min-w-0 flex-1 text-left"
             aria-label={`${loja.nome}: ver horário, endereço e formas de pagamento`}
           >
-            <span className="flex items-center justify-center gap-1 text-[17px] font-bold leading-tight">
+            <span className="flex items-center gap-1 font-condensed text-[21px] font-extrabold uppercase leading-none">
               <span className="truncate">{loja.nome}</span>
-              <ChevronDown className="w-4 h-4 shrink-0" aria-hidden="true" />
+              <ChevronDown className="w-4 h-4 shrink-0" strokeWidth={2.5} aria-hidden="true" />
             </span>
-            <span className={`inline-flex items-center gap-1.5 text-[13px] font-medium leading-tight mt-0.5 ${status.aberta ? 'text-topo-texto' : 'text-[#FFC98A]'}`}>
+            <span className={`inline-flex items-center gap-1.5 text-[13px] font-medium leading-tight mt-1 ${status.aberta ? 'text-topo-texto' : 'text-[#FFC98A]'}`}>
               <span className={`w-2 h-2 rounded-full ${status.aberta ? 'bg-[#4ADE80]' : 'bg-[#FFC98A]'}`} aria-hidden="true" />
               <span className="truncate">
                 {status.aberta ? 'Aberto' : 'Fechado'}
@@ -125,23 +122,12 @@ export const Header: React.FC = () => {
               </span>
             </span>
           </button>
-          <button
-            type="button"
-            onClick={abrirSacola}
-            className="relative w-11 h-11 rounded-full bg-white/10 flex items-center justify-center shrink-0 text-white"
-            aria-label={`Abrir sacola${hidratado && quantidadeTotal ? ` (${quantidadeTotal} itens)` : ''}`}
-          >
-            <ShoppingBag className="w-5 h-5" aria-hidden="true" />
-            {hidratado && <Badge count={quantidadeTotal} />}
-          </button>
         </div>
-        {naBusca && (
-          <div className="max-w-[1100px] mx-auto pb-3">
-            <Suspense fallback={<div className="h-12 rounded-xl bg-white" />}>
-              <CampoBusca />
-            </Suspense>
-          </div>
-        )}
+        <div className="max-w-[1100px] mx-auto pb-3">
+          <Suspense fallback={<div className="h-12 rounded-xl bg-white" />}>
+            <CampoBusca />
+          </Suspense>
+        </div>
       </header>
       <SobreLoja aberta={sobreAberto} aoFechar={fecharSobre} />
     </>
