@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Bike, Clock, ShoppingBag, Truck } from 'lucide-react';
+import { Bike, Clock, ShoppingBag } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { formatarPreco } from '@/lib/formatacao';
 
@@ -12,7 +12,7 @@ interface Fato {
 }
 
 /**
- * Fatos da loja, logo abaixo do banner: tempo de entrega, entrega mais barata e pedido mínimo,
+ * Fatos da loja, logo abaixo do banner: tempo de entrega, área de entrega e pedido mínimo,
  * numa linha só de texto como no iFood (27/10/2026: os quadros com
  * borda, um ao lado do outro, davam cara de formulário). Com a loja fechada, um aviso
  * compacto em laranja vem antes (aviso, não erro).
@@ -22,12 +22,11 @@ export const StatusLojaCard: React.FC = () => {
   const { config } = home;
   const icone = (I: typeof Bike) => <I className="w-4 h-4 shrink-0" aria-hidden="true" />;
 
+  // como no protótipo Freezer (dono, 27/10/2026): tempo e área de entrega; a taxa aparece no checkout
   const fatos: Fato[] = [
-    { icone: icone(Bike), valor: `${config.tempo_entrega_min}–${config.tempo_entrega_max} min`, rotulo: 'Tempo de entrega' },
+    { icone: icone(Clock), valor: `${config.tempo_entrega_min}–${config.tempo_entrega_max} min`, rotulo: 'Tempo de entrega' },
+    { icone: icone(Bike), valor: `Entrega em ${home.loja.bairro || 'Realengo'} e região`, rotulo: 'Área de entrega' },
   ];
-  if (home.frete_minimo != null && home.frete_minimo > 0) {
-    fatos.push({ icone: icone(Truck), valor: `Entrega desde ${formatarPreco(home.frete_minimo)}`, rotulo: 'Taxa de entrega' });
-  }
   // horário de hoje fica de fora: aberta, o topo já diz "Fecha em…"; fechada, o aviso acima diz quando abre
   if (config.pedido_minimo > 0) {
     fatos.push({ icone: icone(ShoppingBag), valor: `Mínimo ${formatarPreco(config.pedido_minimo)}`, rotulo: 'Pedido mínimo' });
@@ -48,14 +47,14 @@ export const StatusLojaCard: React.FC = () => {
         </div>
       )}
 
-      <dl className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13.5px] text-tinta">
+      <dl className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[14px] text-tinta">
         {fatos.map((f) => (
           <div key={f.rotulo} className="flex items-center gap-1.5">
             <dt className="text-suave">
               {f.icone}
               <span className="sr-only">{f.rotulo}</span>
             </dt>
-            <dd className="font-medium tabular-nums">{f.valor}</dd>
+            <dd className="font-semibold tabular-nums">{f.valor}</dd>
           </div>
         ))}
       </dl>
