@@ -220,7 +220,7 @@ export default function EtapaEndereco() {
         }}
         noValidate
       >
-        <h1 className="font-condensed text-[28px] font-extrabold uppercase tracking-tight leading-none mb-5">Como quer receber?</h1>
+        <h1 className="font-condensed text-[24px] font-bold uppercase tracking-[0.02em] leading-none mb-5">Como quer receber?</h1>
         {/* entrega ou retirada (26/10/2026): retirada não pede endereço nem cobra entrega */}
         <div role="radiogroup" aria-label="Como você quer receber" className="grid gap-2.5 mb-6">
           {[

@@ -46,7 +46,7 @@ export const ImagemProduto: React.FC<{ produto: Produto; tamanho?: 'pequena' | '
     // Versão reduzida pelo otimizador do Next (as originais têm ~500 KB).
     const larguras = tamanho === 'grande' ? '(max-width: 640px) 90vw, 480px' : tamanho === 'pequena' ? '64px' : '(max-width: 640px) 45vw, 220px';
     return (
-      <div className={`relative w-full h-full ${carregou ? '' : 'animate-pulse bg-bloco rounded-xl'}`}>
+      <div className="relative w-full h-full">
         <Image
           src={produto.imagem_url}
           alt={produto.nome}
@@ -55,7 +55,8 @@ export const ImagemProduto: React.FC<{ produto: Produto; tamanho?: 'pequena' | '
           quality={70}
           onLoad={() => setCarregou(true)}
           onError={() => setQuebrou(true)}
-          className="object-contain"
+          // aparece suave quando chega, em vez de um bloco cinza piscando
+          className={`object-contain transition-opacity duration-300 ${carregou ? 'opacity-100' : 'opacity-0'}`}
         />
       </div>
     );

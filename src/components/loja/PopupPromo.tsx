@@ -177,7 +177,7 @@ export const PopupPromo: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 animate-fade-in" onClick={fechar} aria-hidden="true" />
+      <div className="absolute inset-0 bg-tinta/55 backdrop-blur-[3px] animate-fade-in" onClick={fechar} aria-hidden="true" />
 
       {aberto === 'lista' && lista && (
         <div

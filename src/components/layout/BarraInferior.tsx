@@ -45,7 +45,7 @@ export const BarraInferior: React.FC = () => {
   return (
     <nav
       aria-label="Navegação"
-      className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-borda pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-borda pb-[env(safe-area-inset-bottom)]"
     >
       <div className="h-16 flex max-w-[560px] mx-auto">
         <Link href="/" onClick={fecharSacola} className={item(naHome)} aria-current={naHome ? 'page' : undefined}>

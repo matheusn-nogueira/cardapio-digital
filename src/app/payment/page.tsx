@@ -389,7 +389,7 @@ function EtapaPagamento() {
       />
 
       <div className="px-4 pt-5 max-w-[560px] mx-auto">
-        <h1 className="font-condensed text-[28px] font-extrabold uppercase tracking-tight leading-none mb-4">{revisar ? 'Confirme seu pedido' : 'Como vai pagar?'}</h1>
+        <h1 className="font-condensed text-[24px] font-bold uppercase tracking-[0.02em] leading-none mb-4">{revisar ? 'Confirme seu pedido' : 'Como vai pagar?'}</h1>
 
         {/* na primeira compra, a decisão (pagamento) vem antes do que já foi confirmado */}
         {revisar ? (

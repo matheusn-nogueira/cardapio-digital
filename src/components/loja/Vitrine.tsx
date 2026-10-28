@@ -23,7 +23,7 @@ export const Vitrine: React.FC<VitrineProps> = ({ titulo, ids, linkVerTodos }) =
   return (
     <section className="mb-8" aria-label={titulo}>
       <div className="flex items-center justify-between px-4 mb-3">
-        <h2 className="font-condensed text-[24px] font-extrabold uppercase text-tinta tracking-tight leading-tight">{titulo}</h2>
+        <h2 className="font-condensed text-[20px] font-bold uppercase text-tinta tracking-[0.04em] leading-tight">{titulo}</h2>
         {linkVerTodos && (
           <Link href={linkVerTodos} aria-label={`Ver todos: ${titulo}`} className="w-10 h-9 -mr-2 flex items-center justify-center text-tinta">
             <ChevronRight className="w-6 h-6" aria-hidden="true" />

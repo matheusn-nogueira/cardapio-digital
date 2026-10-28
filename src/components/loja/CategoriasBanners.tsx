@@ -44,7 +44,7 @@ export const CategoriasBanners: React.FC<{ categorias: Categoria[] }> = ({ categ
             href={`/categoria/${cat.id}`}
             style={{ background: fundo, color: texto }}
             // fundo claro (lata branca da Stella e da Corona) ganha o fio fino dos cartões
-            className="flex items-end h-[88px] p-3 rounded-2xl shadow-cartao font-condensed text-[20px] font-extrabold uppercase leading-[1.05] active:scale-[0.98] transition-transform"
+            className="flex items-end h-[88px] p-3 rounded-2xl shadow-cartao font-condensed text-[19px] font-bold uppercase tracking-[0.03em] leading-[1.05] active:scale-[0.98] transition-transform"
           >
             {cat.nome}
           </Link>

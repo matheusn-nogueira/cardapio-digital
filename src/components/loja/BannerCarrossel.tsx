@@ -38,7 +38,7 @@ const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean; comLink: boo
       ) : null}
       {(banner.titulo || banner.subtitulo) && (
         <div className="relative z-10 max-w-[85%]">
-          {banner.titulo && <h2 className="text-white font-condensed font-extrabold uppercase text-[30px] leading-[1] tracking-tight text-balance">{banner.titulo}</h2>}
+          {banner.titulo && <h2 className="text-white font-condensed font-bold uppercase text-[28px] leading-[1.02] tracking-[0.01em] text-balance">{banner.titulo}</h2>}
           {banner.subtitulo && <p className="text-white/80 text-[14px] mt-1.5 leading-snug">{banner.subtitulo}</p>}
           {comLink && (
             <span className="inline-flex items-center h-10 px-5 mt-3 rounded-xl bg-primaria text-primaria-texto text-[14px] font-bold">

@@ -51,8 +51,8 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
   const diminuir = () => (naLinha <= 1 ? remover(produto.id) : alterar(produto.id, naLinha - 1));
 
   const selo = bloco ? `${bloco.qtd} por ${formatarPreco(bloco.preco)}` : produto.selo ?? (produto.quente ? 'Natural' : null);
-  // Freezer: selo "Gelada" na cerveja que sai do freezer (some quando o contador cobre a base da foto)
-  const gelada = !produto.quente && /cerveja/i.test(produto.categoria) && !(naLinha > 0 && !pedeEscolha);
+  // Freezer: floco cor de neve no canto de cima da cerveja que sai do freezer (só o ícone, dono, 27/10/2026)
+  const gelada = !produto.quente && /cerveja/i.test(produto.categoria);
 
   return (
     <article className={`flex flex-col ${formato === 'carrossel' ? 'w-[150px] shrink-0 snap-start' : 'w-full'}`}>
@@ -65,7 +65,7 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
         </button>
         {selo && (
           <span
-            className={`absolute top-2 left-2 right-2 w-fit truncate pointer-events-none text-[11px] font-bold px-2 py-0.5 rounded-md tabular-nums ${
+            className={`absolute top-2 left-2 ${gelada ? 'right-8' : 'right-2'} w-fit truncate pointer-events-none text-[11px] font-bold px-2 py-0.5 rounded-md tabular-nums ${
               bloco ? 'bg-sucesso text-white' : selo === 'Natural' ? 'bg-white text-tinta' : 'bg-tinta text-white'
             }`}
           >
@@ -73,9 +73,9 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
           </span>
         )}
         {gelada && (
-          <span className="absolute left-2 bottom-2 pointer-events-none inline-flex items-center gap-1 h-6 px-1.5 rounded-md bg-tinta text-white text-[10px] font-bold uppercase tracking-wide">
-            <Snowflake className="w-3 h-3" aria-hidden="true" />
-            Gelada
+          <span className="absolute top-2 right-2 pointer-events-none text-neve" title="Gelada">
+            <Snowflake className="w-[18px] h-[18px]" strokeWidth={2.25} aria-hidden="true" />
+            <span className="sr-only">Gelada</span>
           </span>
         )}
         {naLinha > 0 && !pedeEscolha ? (
@@ -120,9 +120,9 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
 
       {/* a ação de abrir já está no botão da foto; aqui é só o texto, clicável por conveniência */}
       <div onClick={abrir} className="flex flex-col pt-3 cursor-pointer">
-        <span className="font-condensed text-[21px] font-extrabold text-tinta leading-tight tabular-nums">{formatarPreco(unidade)}</span>
+        <span className="font-condensed text-[20px] font-bold text-tinta tracking-[0.01em] leading-tight tabular-nums">{formatarPreco(unidade)}</span>
         {/* sempre 2 linhas de altura, mesmo com nome curto */}
-        <span className="text-[15px] text-tinta leading-snug line-clamp-2 min-h-[2.75em] mt-1">{produto.nome}</span>
+        <span className="text-[14px] text-suave leading-snug line-clamp-2 min-h-[2.75em] mt-0.5">{produto.nome}</span>
       </div>
     </article>
   );

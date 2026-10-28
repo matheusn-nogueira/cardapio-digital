@@ -47,7 +47,7 @@ export const SobreLoja: React.FC<{ aberta: boolean; aoFechar: () => void }> = ({
 
   return (
     <div className="fixed inset-0 z-[150] flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/50 animate-fade-in" onClick={aoFechar} aria-hidden="true" />
+      <div className="absolute inset-0 bg-tinta/45 backdrop-blur-[3px] animate-fade-in" onClick={aoFechar} aria-hidden="true" />
       <div
         role="dialog"
         aria-modal="true"

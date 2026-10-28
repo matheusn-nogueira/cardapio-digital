@@ -56,7 +56,7 @@ function EtapaDados() {
 
   if (linhas.length === 0) {
     return (
-      <main className="min-h-[70vh] bg-fundo">
+      <main className="min-h-screen bg-fundo">
         <CabecalhoCheckout voltarPara="/" etapa="Etapa 1 de 3" etapaAtual={1} />
         <div className="text-center px-6 py-16">
           <p className="text-[18px] font-bold">Sua sacola está vazia</p>
@@ -94,7 +94,7 @@ function EtapaDados() {
         }}
         noValidate
       >
-        <h1 className="font-condensed text-[28px] font-extrabold uppercase tracking-tight leading-none mb-5">Para quem é o pedido?</h1>
+        <h1 className="font-condensed text-[24px] font-bold uppercase tracking-[0.02em] leading-none mb-5">Para quem é o pedido?</h1>
 
         {!status.aberta && (
           <div className="mb-4 rounded-xl bg-aviso-claro p-3 text-[15px]">

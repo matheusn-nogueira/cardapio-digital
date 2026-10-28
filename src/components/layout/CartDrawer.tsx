@@ -106,7 +106,7 @@ export const CartDrawer: React.FC = () => {
   return (
     <>
       <div
-        className={`fixed inset-x-0 top-0 z-[100] bg-black/50 animate-fade-in ${comAbas ? ABAIXO_ATE_AS_ABAS : 'bottom-0'}`}
+        className={`fixed inset-x-0 top-0 z-[100] bg-tinta/45 backdrop-blur-[3px] animate-fade-in ${comAbas ? ABAIXO_ATE_AS_ABAS : 'bottom-0'}`}
         onClick={fecharSacola}
         aria-hidden="true"
       />
@@ -127,7 +127,7 @@ export const CartDrawer: React.FC = () => {
               Esvaziar
             </button>
           )}
-          <h2 id="titulo-sacola" className="font-condensed text-[20px] font-extrabold uppercase">
+          <h2 id="titulo-sacola" className="font-condensed text-[18px] font-bold uppercase tracking-[0.06em]">
             Sua sacola
           </h2>
           <button

@@ -42,7 +42,7 @@ export default async function CategoriaPage({ params }: Props) {
           <Link href="/" aria-label="Voltar ao início" className="w-10 h-10 -ml-2 rounded-full flex items-center justify-center">
             <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </Link>
-          <h1 className="font-condensed text-[26px] font-extrabold uppercase tracking-tight leading-tight">{categoria.nome}</h1>
+          <h1 className="font-condensed text-[24px] font-bold uppercase tracking-[0.03em] leading-tight">{categoria.nome}</h1>
         </div>
         <ListaCategoria ids={daCategoria.map((p) => p.id)} />
       </div>

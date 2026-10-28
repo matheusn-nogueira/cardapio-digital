@@ -31,7 +31,7 @@ const armazemPrimeiraAbertura = criarArmazem<boolean>('cdf:primeira-abertura-app
 /** Folha para iPhone no navegador: instalar é o único caminho para receber os avisos. */
 const ConviteInstalarIphone: React.FC<{ nomeLoja: string; aoFechar: () => void }> = ({ nomeLoja, aoFechar }) => (
   <div className="fixed inset-0 z-[160] flex items-end justify-center">
-    <div className="absolute inset-0 bg-black/50 animate-fade-in" onClick={aoFechar} aria-hidden="true" />
+    <div className="absolute inset-0 bg-tinta/45 backdrop-blur-[3px] animate-fade-in" onClick={aoFechar} aria-hidden="true" />
     <div
       role="dialog"
       aria-modal="true"
@@ -181,7 +181,7 @@ export const ConvitePush: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-[160] flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/50 animate-fade-in" onClick={dispensar} aria-hidden="true" />
+      <div className="absolute inset-0 bg-tinta/45 backdrop-blur-[3px] animate-fade-in" onClick={dispensar} aria-hidden="true" />
       <div
         role="dialog"
         aria-modal="true"

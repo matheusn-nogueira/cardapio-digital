@@ -160,7 +160,7 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
               <span className={`${etiqueta} bg-aviso-claro text-aviso`}>Natural</span>
             ) : (
               <span className={`${etiqueta} ${paginaPropria ? 'bg-bloco' : 'bg-white'} text-tinta`}>
-                <Snowflake className="w-4 h-4 text-[#1E7FB8]" aria-hidden="true" />
+                <Snowflake className="w-4 h-4 text-neve" aria-hidden="true" />
                 Gelado
               </span>
             )}

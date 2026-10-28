@@ -110,7 +110,7 @@ export const Header: React.FC = () => {
             className="min-w-0 flex-1 text-left"
             aria-label={`${loja.nome}: ver horário, endereço e formas de pagamento`}
           >
-            <span className="flex items-center gap-1 font-condensed text-[21px] font-extrabold uppercase leading-none">
+            <span className="flex items-center gap-1 font-condensed text-[20px] font-bold uppercase tracking-[0.03em] leading-none">
               <span className="truncate">{loja.nome}</span>
               <ChevronDown className="w-4 h-4 shrink-0" strokeWidth={2.5} aria-hidden="true" />
             </span>

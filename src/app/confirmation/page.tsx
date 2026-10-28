@@ -65,7 +65,7 @@ export default function ConfirmationPage() {
         <div className="w-16 h-16 mx-auto rounded-full bg-sucesso text-white flex items-center justify-center">
           <Check className="w-9 h-9" strokeWidth={3} aria-hidden="true" />
         </div>
-        <h1 className="font-condensed text-[30px] font-extrabold uppercase tracking-tight leading-none mt-4">Pedido recebido!</h1>
+        <h1 className="font-condensed text-[26px] font-bold uppercase tracking-[0.02em] leading-none mt-4">Pedido recebido!</h1>
         <p className="text-[15px] text-suave mt-1">
           Pedido <strong className="text-tinta">#{pedido.numero}</strong> · {formatarPreco(pedido.total)}
         </p>
