@@ -35,7 +35,7 @@ export function useModoBannerApp(): ModoBanner | null {
   return pushSuportado() && Notification.permission === 'default' ? 'notificar' : null;
 }
 
-/** Slide no mesmo tamanho dos banners do ERP (h-44), com a mesma arte (botão saindo pela borda). */
+/** Slide no mesmo tamanho dos banners do ERP (h-44), com a mesma arte (botão amarelo no canto de baixo). */
 export const SlideApp: React.FC<{ modo: ModoBanner }> = ({ modo }) => {
   const { home } = useCardapio();
   const [, gravarFechado] = useArmazem(armazemBanner);
@@ -80,10 +80,10 @@ export const SlideApp: React.FC<{ modo: ModoBanner }> = ({ modo }) => {
       <span>{conteudo}</span>
     </li>
   );
-  const botao = 'absolute left-4 bottom-0 translate-y-1/2 z-20 inline-flex items-center h-10 px-5 rounded-xl bg-primaria text-primaria-texto font-condensed font-bold uppercase text-[15px] tracking-[0.05em] shadow-[0_4px_10px_rgb(0_0_0/0.25)] disabled:opacity-60';
+  const botao = 'absolute left-4 bottom-4 z-20 inline-flex items-center h-10 px-5 rounded-xl bg-primaria text-primaria-texto font-condensed font-bold uppercase text-[15px] tracking-[0.05em] shadow-[0_4px_10px_rgb(0_0_0/0.25)] disabled:opacity-60';
 
   // Arte no estilo dos banners do Zé (28/10/2026): celular desenhado com o aviso do pedido
-  // chegando, título grande em letra condensada e o botão saindo pela borda de baixo.
+  // chegando, título grande em letra condensada e o botão amarelo no canto de baixo.
   return (
     <div className="relative w-full min-h-44 rounded-2xl bg-tinta text-white">
       <div className="absolute inset-0 rounded-2xl overflow-hidden" aria-hidden="true">
@@ -125,7 +125,7 @@ export const SlideApp: React.FC<{ modo: ModoBanner }> = ({ modo }) => {
       </button>
 
       {passos ? (
-        <div className="relative z-10 p-4 pb-8 pr-10">
+        <div className="relative z-10 p-4 pb-16 pr-10">
           <h2 className="font-condensed font-bold uppercase text-[20px] leading-none tracking-[0.03em]">Instale em 3 passos</h2>
           <ol className="mt-2.5 space-y-1.5 text-[13px]">
             {passo(1, <>Toque em <Share className="w-4 h-4 inline text-primaria" aria-label="Compartilhar" /> na barra do Safari</>)}
@@ -134,7 +134,7 @@ export const SlideApp: React.FC<{ modo: ModoBanner }> = ({ modo }) => {
           </ol>
         </div>
       ) : (
-        <div className="relative z-10 p-4 pb-8 max-w-[52%]">
+        <div className="relative z-10 p-4 pb-16 max-w-[52%]">
           <p className="font-condensed font-bold uppercase text-[13px] tracking-[0.08em] text-topo-texto">App {home.loja.nome}</p>
           <h2 className="font-condensed font-bold uppercase text-[26px] leading-[0.95] tracking-[0.02em] mt-1 text-balance">{titulo}</h2>
           <p className="text-[12px] text-topo-texto leading-snug mt-1.5">{texto}</p>

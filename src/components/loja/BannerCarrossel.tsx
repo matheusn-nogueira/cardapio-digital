@@ -76,16 +76,16 @@ const LEQUE: Record<number, { left: string; rotate: number; escala: number; z: n
   ],
 };
 
-/** Botão amarelo que sai metade para fora da borda de baixo do banner (como no Zé). */
+/** Botão amarelo no canto de baixo, dentro do banner (dono, 28/10/2026). */
 export const BotaoBanner: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <span className="absolute left-4 bottom-0 translate-y-1/2 z-20 inline-flex items-center h-10 px-5 rounded-xl bg-primaria text-primaria-texto font-condensed font-bold uppercase text-[15px] tracking-[0.05em] shadow-[0_4px_10px_rgb(0_0_0/0.25)]">
+  <span className="absolute left-4 bottom-4 z-20 inline-flex items-center h-10 px-5 rounded-xl bg-primaria text-primaria-texto font-condensed font-bold uppercase text-[15px] tracking-[0.05em] shadow-[0_4px_10px_rgb(0_0_0/0.25)]">
     {children}
   </span>
 );
 
 // Banner sem foto vira arte no estilo do Zé (28/10/2026, dono: "estão muito ruins"): fundo azul
 // com um brilho gelado atrás das latas recortadas em leque, nome e preço grandes em letra
-// condensada e o botão saindo pela borda de baixo (sem selo de moderação: dono, 28/10/2026).
+// condensada e o botão amarelo no canto de baixo (sem selo de moderação: dono, 28/10/2026).
 // Com foto, vale a foto.
 const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean; comLink: boolean }> = ({ banner, primeiro, comLink }) => {
   const { produtos } = useCardapio();
@@ -137,7 +137,7 @@ const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean; comLink: boo
         )}
       </div>
 
-      <div className={`relative z-10 p-4 pb-8 ${latas.length ? 'max-w-[56%]' : 'max-w-[85%]'}`}>
+      <div className={`relative z-10 p-4 pb-16 ${latas.length ? 'max-w-[56%]' : 'max-w-[85%]'}`}>
         {nome && (
           <h2 className="text-white font-condensed font-bold uppercase text-[24px] leading-[1] tracking-[0.02em] text-balance">{nome}</h2>
         )}
@@ -223,8 +223,7 @@ export const BannerCarrossel: React.FC<{ banners: Banner[] }> = ({ banners }) =>
           <div
             key={slide.id}
             // flex: o slide estica até o mais alto da fileira (banner de texto longo x banner do app)
-            // pb-5: espaço para o botão que sai metade para fora da borda de baixo do banner
-            className={`flex shrink-0 snap-start pb-5 ${total > 1 ? 'w-[calc(100%-28px)] sm:w-[calc(50%-6px)]' : 'w-full'}`}
+            className={`flex shrink-0 snap-start ${total > 1 ? 'w-[calc(100%-28px)] sm:w-[calc(50%-6px)]' : 'w-full'}`}
             role="group"
             aria-roledescription="slide"
             aria-label={`${i + 1} de ${total}`}
@@ -234,7 +233,7 @@ export const BannerCarrossel: React.FC<{ banners: Banner[] }> = ({ banners }) =>
         ))}
       </div>
       {total > 1 && (
-        <div className="flex items-center justify-center gap-1">
+        <div className="flex items-center justify-center gap-1 mt-2">
           {slides.map((slide, i) => (
             <button
               key={slide.id}
