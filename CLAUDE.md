@@ -182,6 +182,13 @@ Escolhida pelo dono entre 10 opções (estudo em `~/Pessoal/marca/identidade-10-
 - Cartão com QR code para imprimir (sacola, geladeira, balcão): `node scripts/cartao-qrcode.mjs` gera em `divulgacao/` o PDF de 10×15 cm (gráfica), o PNG (WhatsApp) e o QR solto em SVG. Usa a dependência de desenvolvimento `qrcode` e o Chrome instalado. O QR aponta para `https://cardapio.casadosfundos.cloud` (correção alta, lê mesmo amassado).
 - Ideia adiada: "indique e ganhe" com cupom. O checkout ainda não tem cupom.
 
+## Segurança (auditoria de 28/10/2026)
+
+- Next 16.4.3: a 16.1.6 tinha RCE no otimizador de imagens e DoS sem login. Rode `npm audit --omit=dev` ao mexer em dependência.
+- Cabeçalhos de segurança em `next.config.ts` (`headers()`).
+- `cardapio_criar_pedido` limita o tamanho dos campos, a 3 pedidos aguardando por telefone em 2 h e a 30 pedidos do site em 10 min (`MUITOS_PEDIDOS`, mensagem em `src/lib/pedido.ts`). SQL: `erp-consumer-2.0/supabase_cardapio_limites.sql`; teste: `pdv-balcao/supabase/testes/cardapio_pedido.sql`.
+- Push: só aceita endpoints de FCM, Mozilla, Apple e Windows (`supabase/cardapio_push_servicos.sql`; teste: `pdv-balcao/supabase/testes/cardapio_push.sql`).
+
 ## Regras do domínio
 
 - Preço por quantidade: o cliente escolhe unidades e a sacola monta a combinação de blocos mais barata (`src/lib/precoQuantidade.ts`), mesma regra do ERP e do banco (`erp_melhor_preco`). Se mudar aqui, mude lá.

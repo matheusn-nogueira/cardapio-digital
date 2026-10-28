@@ -54,13 +54,16 @@ export default function EtapaEndereco() {
   // CEP do campo agora: a resposta de um CEP digitado antes não pode sobrescrever o corrigido
   const cepDigitado = useRef('');
 
-  // endereço guardado sem CEP (digitado à mão antes): mostra rua e bairro para conferir
+  // endereço guardado sem CEP (digitado à mão antes): mostra rua e bairro para conferir. Só ao
+  // abrir a etapa, ajustado na renderização (o lint do Next 16.4 não aceita setState no efeito)
+  const [abriuEtapa, setAbriuEtapa] = useState(false);
+  if (hidratado && !abriuEtapa) {
+    setAbriuEtapa(true);
+    if (endereco.rua && !endereco.cep) setEditandoRua(true);
+    if (endereco.referencia) setComReferencia(true);
+  }
   useEffect(() => {
     if (hidratado) registrarEtapa('endereco');
-    if (hidratado && endereco.rua && !endereco.cep) setEditandoRua(true);
-    if (hidratado && endereco.referencia) setComReferencia(true);
-    // só ao abrir a etapa
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hidratado]);
 
   if (!hidratado) {

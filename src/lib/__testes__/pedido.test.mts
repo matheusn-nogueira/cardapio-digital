@@ -89,6 +89,7 @@ test('traduz os códigos de erro do banco em mensagens amigáveis', async () => 
     'DADOS_INVALIDOS',
     'PAGAMENTO_INVALIDO',
     'PRECO_MUDOU',
+    'MUITOS_PEDIDOS',
   ];
   for (const codigo of codigos) {
     const fetchFalso = (async () =>

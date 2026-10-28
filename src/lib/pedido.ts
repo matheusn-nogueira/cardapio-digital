@@ -21,6 +21,8 @@ export const MENSAGENS_ERRO_PEDIDO: Record<string, string> = {
   DADOS_INVALIDOS: 'Confira seu nome, WhatsApp e o endereço (rua e número) e tente de novo.',
   PAGAMENTO_INVALIDO: 'Essa forma de pagamento não está disponível agora. Escolha outra.',
   PRECO_MUDOU: 'Os valores do pedido mudaram. Confira o novo total antes de enviar.',
+  // limite contra pedido falso em massa (auditoria de 28/10/2026): 3 aguardando por telefone em 2 h
+  MUITOS_PEDIDOS: 'Já recebemos seus pedidos e eles estão sendo preparados. Para pedir mais, chame a loja no WhatsApp.',
   TEMPO_ESGOTADO: 'Conexão lenta. Verifique se o pedido chegou antes de tentar de novo.',
   SEM_CONEXAO: 'Sem conexão com a internet. Verifique sua conexão e tente de novo.',
 };
