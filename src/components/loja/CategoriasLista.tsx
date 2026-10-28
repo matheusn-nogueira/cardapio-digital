@@ -59,12 +59,18 @@ export const CategoriasLista: React.FC<Props> = ({ categorias, ativaId, acompanh
   const naTela = useCategoriaNaTela(acompanharRolagem, nav);
   const destaqueId = ativaId ?? naTela ?? categorias[0]?.id;
 
-  // o chip marcado entra na tela dos chips, sem mexer na rolagem da página
+  // o chip marcado entra na tela dos chips, sem mexer na rolagem da página. Na página de categoria
+  // a barra já abre com a categoria atual à vista (dono, 27/10/2026: tocar em Tabacaria abria a barra
+  // no começo, sem mostrar onde a pessoa estava); na home, acompanha a rolagem com animação.
+  const primeiraVez = useRef(true);
   useEffect(() => {
-    if (!acompanharRolagem || !trilho.current || !destaqueId) return;
+    if (!trilho.current || !destaqueId || (!acompanharRolagem && !ativaId)) return;
     const chip = trilho.current.querySelector<HTMLElement>(`[data-chip="${CSS.escape(destaqueId)}"]`);
-    if (chip) trilho.current.scrollTo({ left: chip.offsetLeft - 16, behavior: 'smooth' });
-  }, [acompanharRolagem, destaqueId]);
+    if (chip) {
+      trilho.current.scrollTo({ left: chip.offsetLeft - 16, behavior: primeiraVez.current ? 'instant' : 'smooth' });
+    }
+    primeiraVez.current = false;
+  }, [acompanharRolagem, ativaId, destaqueId]);
 
   if (!categorias.length) return null;
   return (
