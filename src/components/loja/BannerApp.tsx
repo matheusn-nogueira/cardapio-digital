@@ -20,6 +20,10 @@ const armazemBanner = criarArmazem<number>('cdf:banner-app', 0, {
   validar: (v) => (typeof v === 'number' && Number.isFinite(v) ? v : 0),
 });
 
+/** Botão amarelo dos banners do carrossel (os do ERP e este), no canto de baixo à esquerda. */
+export const CLASSE_BOTAO_BANNER =
+  'inline-flex items-center h-10 px-4 rounded-xl bg-primaria text-primaria-texto font-condensed font-bold uppercase text-[14px] tracking-[0.06em] disabled:opacity-60';
+
 const fechadoHaPouco = (em: number) => Date.now() - em < PAUSA_MS;
 
 type ModoBanner = 'ios' | 'instalar' | 'notificar';
@@ -70,22 +74,21 @@ export const SlideApp: React.FC<{ modo: ModoBanner }> = ({ modo }) => {
   const titulo = modo === 'notificar' ? 'Acompanhe seu pedido' : 'Baixe nosso app';
   const texto =
     modo === 'ios'
-      ? 'No iPhone, é o único jeito de receber os avisos do pedido.'
-      : modo === 'instalar'
-        ? 'Abre da tela de início e avisa quando o pedido sair.'
-        : 'Receba um aviso quando o pedido sair para entrega.';
+      ? 'No iPhone, os avisos do pedido só chegam pelo app.'
+      : 'Avisamos quando o pedido sair para entrega.';
   const passo = (n: number, conteudo: React.ReactNode) => (
     <li className="flex items-center gap-2">
       <span className="w-5 h-5 rounded-full bg-primaria text-primaria-texto text-[11px] font-bold flex items-center justify-center shrink-0">{n}</span>
       <span>{conteudo}</span>
     </li>
   );
-  const botao = 'absolute left-4 bottom-4 z-20 inline-flex items-center h-10 px-5 rounded-xl bg-primaria text-primaria-texto font-condensed font-bold uppercase text-[15px] tracking-[0.05em] shadow-[0_4px_10px_rgb(0_0_0/0.25)] disabled:opacity-60';
 
   // Arte no estilo dos banners do Zé (28/10/2026): celular desenhado com o aviso do pedido
   // chegando, título grande em letra condensada e o botão amarelo no canto de baixo.
   return (
-    <div className="relative w-full min-h-44 rounded-2xl bg-tinta text-white">
+    // mesma grade do banner de promoção (BannerCarrossel): 176 px, 16 px de margem, texto no
+    // alto e botão embaixo alinhados à esquerda, arte à direita
+    <div className="relative flex flex-col w-full h-44 rounded-2xl bg-tinta text-white">
       <div className="absolute inset-0 rounded-2xl overflow-hidden" aria-hidden="true">
         <span
           className="absolute -right-10 top-1/2 -translate-y-1/2 w-60 h-60 rounded-full"
@@ -104,7 +107,7 @@ export const SlideApp: React.FC<{ modo: ModoBanner }> = ({ modo }) => {
               )}
             </span>
             {/* aviso do pedido chegando, por cima do celular */}
-            <span className="absolute right-[30px] top-[100px] w-[118px] rounded-xl bg-white text-tinta p-2 -rotate-[4deg] shadow-[0_8px_16px_rgb(0_0_0/0.3)]">
+            <span className="absolute right-[26px] top-[80px] w-[118px] rounded-xl bg-white text-tinta p-2 -rotate-[4deg] shadow-[0_8px_16px_rgb(0_0_0/0.3)]">
               <span className="flex items-center gap-1 text-[8.5px] text-suave">
                 <Bell className="w-2.5 h-2.5" />
                 {home.loja.nome} · agora
@@ -125,8 +128,8 @@ export const SlideApp: React.FC<{ modo: ModoBanner }> = ({ modo }) => {
       </button>
 
       {passos ? (
-        <div className="relative z-10 p-4 pb-16 pr-10">
-          <h2 className="font-condensed font-bold uppercase text-[20px] leading-none tracking-[0.03em]">Instale em 3 passos</h2>
+        <div className="relative z-10 px-4 pt-4 pr-10">
+          <h2 className="font-condensed font-bold uppercase text-[22px] leading-none tracking-[0.04em]">Instale em 3 passos</h2>
           <ol className="mt-2.5 space-y-1.5 text-[13px]">
             {passo(1, <>Toque em <Share className="w-4 h-4 inline text-primaria" aria-label="Compartilhar" /> na barra do Safari</>)}
             {passo(2, <>Escolha <strong>Adicionar à Tela de Início</strong></>)}
@@ -134,32 +137,35 @@ export const SlideApp: React.FC<{ modo: ModoBanner }> = ({ modo }) => {
           </ol>
         </div>
       ) : (
-        <div className="relative z-10 p-4 pb-16 max-w-[52%]">
-          <p className="font-condensed font-bold uppercase text-[13px] tracking-[0.08em] text-topo-texto">App {home.loja.nome}</p>
-          <h2 className="font-condensed font-bold uppercase text-[26px] leading-[0.95] tracking-[0.02em] mt-1 text-balance">{titulo}</h2>
-          <p className="text-[12px] text-topo-texto leading-snug mt-1.5">{texto}</p>
-          {modo === 'instalar' && notificacoesAqui && (
-            <button type="button" onClick={notificar} disabled={ocupado} className="link-acao text-[12px] text-white mt-1.5 disabled:opacity-60">
-              Só ativar os avisos
-            </button>
-          )}
+        <div className="relative z-10 px-4 pt-4 max-w-[52%]">
+          <h2 className="font-condensed font-bold uppercase text-[22px] leading-none tracking-[0.04em] text-balance">{titulo}</h2>
+          <p className="text-[12px] text-topo-texto leading-[1.35] mt-2 line-clamp-2">{texto}</p>
         </div>
       )}
 
-      {modo === 'instalar' && (
-        <button type="button" onClick={instalar} disabled={ocupado} className={botao}>
-          Instalar app
-        </button>
-      )}
-      {modo === 'ios' && !passos && (
-        <button type="button" onClick={() => setPassos(true)} className={botao}>
-          Como instalar
-        </button>
-      )}
-      {modo === 'notificar' && (
-        <button type="button" onClick={notificar} disabled={ocupado} className={botao}>
-          Ativar avisos
-        </button>
+      {!passos && (
+        <div className="relative z-10 mt-auto px-4 pb-4 flex items-center gap-3">
+          {modo === 'instalar' && (
+            <button type="button" onClick={instalar} disabled={ocupado} className={CLASSE_BOTAO_BANNER}>
+              Instalar app
+            </button>
+          )}
+          {modo === 'ios' && (
+            <button type="button" onClick={() => setPassos(true)} className={CLASSE_BOTAO_BANNER}>
+              Como instalar
+            </button>
+          )}
+          {modo === 'notificar' && (
+            <button type="button" onClick={notificar} disabled={ocupado} className={CLASSE_BOTAO_BANNER}>
+              Ativar avisos
+            </button>
+          )}
+          {modo === 'instalar' && notificacoesAqui && (
+            <button type="button" onClick={notificar} disabled={ocupado} className="link-acao text-[12px] text-white disabled:opacity-60">
+              Só os avisos
+            </button>
+          )}
+        </div>
       )}
     </div>
   );

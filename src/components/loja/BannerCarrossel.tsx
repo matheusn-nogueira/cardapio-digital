@@ -8,7 +8,7 @@ import { useCardapio } from '@/context/CardapioContext';
 import { corSegura, normalizarTexto, urlExternaSegura } from '@/lib/formatacao';
 import { ofertaPromocional } from '@/lib/ofertas';
 import type { Banner, Produto } from '@/lib/tipos';
-import { SlideApp, useModoBannerApp } from './BannerApp';
+import { CLASSE_BOTAO_BANNER, SlideApp, useModoBannerApp } from './BannerApp';
 
 const RECORTES = recortes as Record<string, string>;
 
@@ -76,9 +76,9 @@ const LEQUE: Record<number, { left: string; rotate: number; escala: number; z: n
   ],
 };
 
-/** Botão amarelo no canto de baixo, dentro do banner (dono, 28/10/2026). */
+/** Botão amarelo no canto de baixo, dentro do banner e alinhado com o título (dono, 28/10/2026). */
 export const BotaoBanner: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <span className="absolute left-4 bottom-4 z-20 inline-flex items-center h-10 px-5 rounded-xl bg-primaria text-primaria-texto font-condensed font-bold uppercase text-[15px] tracking-[0.05em] shadow-[0_4px_10px_rgb(0_0_0/0.25)]">
+  <span className={CLASSE_BOTAO_BANNER}>
     {children}
   </span>
 );
@@ -107,14 +107,16 @@ const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean; comLink: boo
   const apoio = latas.length ? null : banner.subtitulo?.split(/(?<=\.)\s/)[0];
 
   return (
-    <div className="relative w-full min-h-44 rounded-2xl bg-banner">
+    // grade comum aos banners: 176 px fixos, 16 px de margem, texto no alto e botão embaixo,
+    // os dois alinhados à esquerda; a arte fica à direita, centrada na altura
+    <div className="relative flex flex-col w-full h-44 rounded-2xl bg-banner">
       <div className="absolute inset-0 rounded-2xl overflow-hidden" aria-hidden="true">
         <span
           className="absolute -right-12 top-1/2 -translate-y-1/2 w-64 h-64 rounded-full"
           style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--color-topo-texto) 55%, transparent) 0%, transparent 68%)' }}
         />
         {latas.length > 0 && (
-          <span className="absolute right-4 top-4 bottom-2 w-[40%] max-w-[170px]">
+          <span className="absolute right-4 top-3 bottom-3 w-[40%] max-w-[170px]">
             {latas.map((url, i) => {
               const pos = leque[i];
               return (
@@ -137,20 +139,24 @@ const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean; comLink: boo
         )}
       </div>
 
-      <div className={`relative z-10 p-4 pb-16 ${latas.length ? 'max-w-[56%]' : 'max-w-[85%]'}`}>
+      <div className={`relative z-10 px-4 pt-4 ${latas.length ? 'max-w-[56%]' : 'max-w-[85%]'}`}>
         {nome && (
-          <h2 className="text-white font-condensed font-bold uppercase text-[24px] leading-[1] tracking-[0.02em] text-balance">{nome}</h2>
+          <h2 className="text-white font-condensed font-bold uppercase text-[22px] leading-none tracking-[0.04em] line-clamp-2 text-balance">{nome}</h2>
         )}
         {(chamada || preco) && (
-          <p className="mt-1.5 font-condensed font-bold uppercase text-primaria leading-none">
-            {chamada && <span className="block text-[18px] tracking-[0.04em]">{chamada}</span>}
-            {preco && <span className="block text-[38px] tracking-[0.01em] tabular-nums">{preco}</span>}
+          <p className="mt-2 font-condensed font-bold uppercase text-primaria leading-none">
+            {chamada && <span className="block text-[15px] tracking-[0.08em]">{chamada}</span>}
+            {preco && <span className="block text-[32px] tracking-[0.02em] tabular-nums mt-0.5">{preco}</span>}
           </p>
         )}
-        {apoio && <p className="mt-1.5 text-[12px] text-topo-texto leading-snug">{apoio}</p>}
+        {apoio && <p className="mt-1.5 text-[12px] text-topo-texto leading-[1.35] line-clamp-2">{apoio}</p>}
       </div>
 
-      {comLink && <BotaoBanner>{rotulo}</BotaoBanner>}
+      {comLink && (
+        <div className="relative z-10 mt-auto px-4 pb-4">
+          <BotaoBanner>{rotulo}</BotaoBanner>
+        </div>
+      )}
     </div>
   );
 };
