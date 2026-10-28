@@ -68,9 +68,12 @@ export const PecaTambem: React.FC = () => {
                   toastEvent.show(`${produto.nome} na sacola`);
                 }}
                 aria-label={`Adicionar 1 unidade de ${produto.nome} à sacola`}
-                className="absolute bottom-1.5 right-1.5 w-8 h-8 rounded-full bg-primaria text-primaria-texto flex items-center justify-center shadow-md active:scale-95 transition-transform"
+                // 40 px de toque, a bolinha amarela de 32 por dentro (cabe no card pequeno)
+                className="absolute bottom-0.5 right-0.5 w-10 h-10 flex items-center justify-center active:scale-95 transition-transform"
               >
-                <Plus className="w-4 h-4" strokeWidth={3} aria-hidden="true" />
+                <span className="w-8 h-8 rounded-full bg-primaria text-primaria-texto flex items-center justify-center shadow-md">
+                  <Plus className="w-4 h-4" strokeWidth={3} aria-hidden="true" />
+                </span>
               </button>
             </div>
             <div className="px-2 pt-1.5 pb-2 border-t border-borda">

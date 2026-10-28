@@ -34,13 +34,14 @@ function indiceDe(texto: string): number {
 }
 
 /** Foto do produto ou, sem foto (ou se a URL quebrar), um placeholder com o ícone da categoria. */
-export const ImagemProduto: React.FC<{ produto: Produto; tamanho?: 'pequena' | 'media' | 'grande' }> = ({
-  produto,
-  tamanho = 'media',
-}) => {
+export const ImagemProduto: React.FC<{
+  produto: Produto;
+  tamanho?: 'pequena' | 'media' | 'grande';
+  /** primeiras fotos da tela: baixam antes das outras, sem esperar a rolagem */
+  prioridade?: boolean;
+}> = ({ produto, tamanho = 'media', prioridade = false }) => {
   const { categoriaDoProduto } = useCardapio();
   const [quebrou, setQuebrou] = useState(false);
-  const [carregou, setCarregou] = useState(false);
 
   if (produto.imagem_url && !quebrou) {
     // Versão reduzida pelo otimizador do Next (as originais têm ~500 KB).
@@ -53,10 +54,11 @@ export const ImagemProduto: React.FC<{ produto: Produto; tamanho?: 'pequena' | '
           fill
           sizes={larguras}
           quality={70}
-          onLoad={() => setCarregou(true)}
+          priority={prioridade}
           onError={() => setQuebrou(true)}
-          // aparece suave quando chega, em vez de um bloco cinza piscando
-          className={`object-contain transition-opacity duration-300 ${carregou ? 'opacity-100' : 'opacity-0'}`}
+          // Entrada suave só com CSS (28/10/2026): antes a foto vinha escondida e só aparecia quando o
+          // JavaScript carregava e avisava que ela chegou; num 4G fraco os cards ficavam vazios por segundos.
+          className="object-contain animate-fade-in"
         />
       </div>
     );
@@ -73,7 +75,7 @@ export const ImagemProduto: React.FC<{ produto: Produto; tamanho?: 'pequena' | '
     >
       {icone}
       {tamanho !== 'pequena' && (
-        <span className="px-2 text-center text-[10px] font-bold uppercase tracking-wide text-tinta/50 line-clamp-1">
+        <span className="px-2 text-center text-[12px] font-bold uppercase tracking-wide text-tinta/60 line-clamp-1">
           {produto.marca && produto.marca !== produto.categoria ? produto.marca : produto.categoria}
         </span>
       )}

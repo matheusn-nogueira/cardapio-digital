@@ -10,6 +10,7 @@ import { FloatingCart } from '@/components/ui/FloatingCart';
 import { BarraInferior } from '@/components/layout/BarraInferior';
 import { ConvitePush } from '@/components/ui/ConvitePush';
 import { Toast } from '@/components/ui/Toast';
+import { FocoNasFolhas } from '@/components/ui/FocoNasFolhas';
 import { ProdutoModal } from '@/components/loja/ProdutoModal';
 import { ConfirmacaoIdade } from '@/components/loja/ConfirmacaoIdade';
 import { buscarEsgotados, buscarHome, buscarProdutos } from '@/lib/cardapio';
@@ -88,6 +89,7 @@ export default async function RootLayout({
           <ProdutoModal />
           <ConfirmacaoIdade />
           <Toast />
+          <FocoNasFolhas />
         </AppProviders>
       </body>
     </html>

@@ -229,7 +229,7 @@ export const BannerCarrossel: React.FC<{ banners: Banner[] }> = ({ banners }) =>
           <div
             key={slide.id}
             // flex: o slide estica até o mais alto da fileira (banner de texto longo x banner do app)
-            className={`flex shrink-0 snap-start ${total > 1 ? 'w-[calc(100%-28px)] sm:w-[calc(50%-6px)]' : 'w-full'}`}
+            className={`flex shrink-0 snap-start ${total > 1 ? 'w-[calc(100%-28px)] sm:w-[calc(50%-6px)]' : 'w-full sm:w-[calc(50%-6px)]'}`}
             role="group"
             aria-roledescription="slide"
             aria-label={`${i + 1} de ${total}`}

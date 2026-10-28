@@ -60,7 +60,7 @@ const CampoBusca: React.FC = () => {
         value={texto}
         onChange={(e) => buscar(e.target.value)}
         autoFocus={naBusca && !termoUrl}
-        className="w-full h-12 pr-11 pl-12 rounded-xl bg-white text-[16px] text-tinta outline-none placeholder:text-[14px] placeholder:text-apagado [&::-webkit-search-cancel-button]:hidden"
+        className="w-full h-12 pr-11 pl-12 rounded-xl bg-white text-[16px] text-tinta outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white placeholder:text-[14px] placeholder:text-apagado [&::-webkit-search-cancel-button]:hidden"
         placeholder="Buscar cerveja, gelo, carvão"
       />
       {texto && (
@@ -68,7 +68,7 @@ const CampoBusca: React.FC = () => {
           type="button"
           onClick={() => buscar('')}
           aria-label="Limpar busca"
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center text-suave"
+          className="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-suave"
         >
           <X className="w-4 h-4" aria-hidden="true" />
         </button>
@@ -132,8 +132,8 @@ export const Header: React.FC = () => {
               <span className="truncate">{loja.nome}</span>
               <ChevronDown className="w-4 h-4 shrink-0" strokeWidth={2.5} aria-hidden="true" />
             </span>
-            <span className={`inline-flex items-center gap-1.5 text-[13px] font-medium leading-tight mt-1 ${status.aberta ? 'text-topo-texto' : 'text-[#FFC98A]'}`}>
-              <span className={`w-2 h-2 rounded-full ${status.aberta ? 'bg-[#4ADE80]' : 'bg-[#FFC98A]'}`} aria-hidden="true" />
+            <span className={`inline-flex items-center gap-1.5 text-[13px] font-medium leading-tight mt-1 ${status.aberta ? 'text-topo-texto' : 'text-status-fechado'}`}>
+              <span className={`w-2 h-2 rounded-full ${status.aberta ? 'bg-status-aberto' : 'bg-status-fechado'}`} aria-hidden="true" />
               <span className="truncate">
                 {status.aberta ? 'Aberto' : 'Fechado'}
                 {status.fechaEm ?? status.detalhe ? ` · ${status.fechaEm ?? status.detalhe}` : ''}

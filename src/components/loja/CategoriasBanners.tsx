@@ -6,7 +6,7 @@ import { corDaLata } from './MarcasLista';
 // Uma cor sólida por tipo de bebida, todas escuras o bastante para o texto branco (3:1 ou mais em
 // letra grande). [fundo, texto]; promoções no azul-noite com o amarelo de destaque.
 const CORES_TIPO: [RegExp, [string, string]][] = [
-  [/promo/i, ['#0A2540', '#FFD200']],
+  [/promo/i, ['var(--color-tinta)', 'var(--color-primaria)']],
   [/cervej/i, ['#8C5A00', '#FFFFFF']],
   [/gelo|carv/i, ['#1F6FA8', '#FFFFFF']],
   [/drink/i, ['#A62A62', '#FFFFFF']],
@@ -26,7 +26,7 @@ const CORES_TIPO: [RegExp, [string, string]][] = [
  * (Império, Heineken…) não casa com tipo nenhum e fica com a cor da lata, como nas marcas da home.
  */
 function coresDaCategoria(nome: string): [string, string] {
-  return CORES_TIPO.find(([re]) => re.test(nome))?.[1] ?? corDaLata(nome) ?? ['#0F3A63', '#FFFFFF'];
+  return CORES_TIPO.find(([re]) => re.test(nome))?.[1] ?? corDaLata(nome) ?? ['var(--color-banner)', '#FFFFFF'];
 }
 
 /**

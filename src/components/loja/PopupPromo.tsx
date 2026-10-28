@@ -209,7 +209,7 @@ export const PopupPromo: React.FC = () => {
                       invertido ? '-mr-4 rotate-6' : '-ml-4 -rotate-6'
                     }`}
                   >
-                    <span className="text-[9px] font-bold uppercase tracking-wide">por apenas</span>
+                    <span className="text-[12px] font-bold uppercase leading-none">por apenas</span>
                     <span className="font-condensed font-bold text-[22px] leading-none mt-0.5">{formatarPreco(melhorPreco(p, 1, false).total)}</span>
                   </div>
                   <div className={`flex-1 min-w-0 font-condensed uppercase text-tinta leading-[0.95] ${invertido ? 'text-right' : ''}`}>
@@ -229,7 +229,7 @@ export const PopupPromo: React.FC = () => {
             >
               Ver {lista.titulo.toLowerCase()}
             </Link>
-            <p className="text-[10px] text-tinta/70 text-center mt-2">Preços do delivery, enquanto durar o estoque.</p>
+            <p className="text-[12px] text-tinta/80 text-center mt-2">Preços do delivery, enquanto durar o estoque.</p>
           </div>
         </div>
       )}
@@ -277,7 +277,7 @@ export const PopupPromo: React.FC = () => {
                 </p>
               ) : null;
             })()}
-            <p className="text-[10px] italic mt-1 text-tinta/70">Preço do delivery, enquanto durar o estoque.</p>
+            <p className="text-[12px] italic mt-1 text-tinta/80">Preço do delivery, enquanto durar o estoque.</p>
             <button
               type="button"
               onClick={() => {

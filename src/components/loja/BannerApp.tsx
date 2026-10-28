@@ -78,7 +78,7 @@ export const SlideApp: React.FC<{ modo: ModoBanner }> = ({ modo }) => {
       : 'Avisamos quando o pedido sair para entrega.';
   const passo = (n: number, conteudo: React.ReactNode) => (
     <li className="flex items-center gap-2">
-      <span className="w-5 h-5 rounded-full bg-primaria text-primaria-texto text-[11px] font-bold flex items-center justify-center shrink-0">{n}</span>
+      <span className="w-5 h-5 rounded-full bg-primaria text-primaria-texto text-[12px] font-bold flex items-center justify-center shrink-0">{n}</span>
       <span>{conteudo}</span>
     </li>
   );
@@ -107,12 +107,12 @@ export const SlideApp: React.FC<{ modo: ModoBanner }> = ({ modo }) => {
               )}
             </span>
             {/* aviso do pedido chegando, por cima do celular */}
-            <span className="absolute right-[26px] top-[80px] w-[118px] rounded-xl bg-white text-tinta p-2 -rotate-[4deg] shadow-[0_8px_16px_rgb(0_0_0/0.3)]">
-              <span className="flex items-center gap-1 text-[8.5px] text-suave">
+            <span className="absolute right-[22px] top-[78px] w-[132px] rounded-xl bg-white text-tinta p-2 -rotate-[4deg] shadow-[0_8px_16px_rgb(0_0_0/0.3)]">
+              <span className="flex items-center gap-1 text-[10px] text-suave">
                 <Bell className="w-2.5 h-2.5" />
                 {home.loja.nome} · agora
               </span>
-              <span className="block text-[11px] font-bold leading-tight mt-0.5">Pedido #12 saiu para entrega</span>
+              <span className="block text-[12px] font-bold leading-tight mt-0.5">Pedido #12 saiu para entrega</span>
             </span>
           </>
         )}

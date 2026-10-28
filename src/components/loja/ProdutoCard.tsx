@@ -13,6 +13,8 @@ interface ProdutoCardProps {
   produto: Produto;
   /** carrossel = largura fixa (vitrines); grade = ocupa a coluna */
   formato?: 'carrossel' | 'grade';
+  /** card que aparece na primeira tela: a foto baixa antes das outras */
+  prioridade?: boolean;
 }
 
 /**
@@ -27,7 +29,7 @@ interface ProdutoCardProps {
  * - texto de altura fixa (preço + nome em 2 linhas): todas as prateleiras ficam da mesma altura
  *   e o espaço entre elas é sempre o mesmo.
  */
-export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'grade' }) => {
+export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'grade', prioridade = false }) => {
   const { abrirProduto } = useCardapio();
   const { adicionar, alterar, remover, unidadesDoProduto, quantidadeNaLinha } = useCart();
   const unidade = melhorPreco(produto, 1, false).total;
@@ -62,12 +64,12 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
         <button type="button" onClick={abrir} className="absolute inset-0 p-4 rounded-2xl" aria-label={`Ver ${produto.nome}`}>
           {/* a foto tem fundo branco: multiply funde o branco com o cinza do bloco */}
           <span className="block w-full h-full mix-blend-multiply">
-            <ImagemProduto produto={produto} />
+            <ImagemProduto produto={produto} prioridade={prioridade} />
           </span>
         </button>
         {selo && (
           <span
-            className={`absolute top-2 left-2 ${gelada ? 'right-8' : 'right-2'} w-fit truncate pointer-events-none text-[11px] font-bold px-2 py-0.5 rounded-md tabular-nums ${
+            className={`absolute top-2 left-2 ${gelada ? 'right-8' : 'right-2'} w-fit truncate pointer-events-none text-[12px] font-bold px-2 py-0.5 rounded-md tabular-nums ${
               bloco ? 'bg-sucesso text-white' : selo === 'Natural' ? 'bg-white text-tinta' : 'bg-tinta text-white'
             }`}
           >
@@ -81,12 +83,12 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
           </span>
         )}
         {naLinha > 0 && !pedeEscolha ? (
-          <div className="absolute left-1.5 right-1.5 bottom-1.5 h-11 rounded-full bg-white shadow-cartao flex items-center justify-between px-1 animate-fade-in">
+          <div className="absolute left-1.5 right-1.5 bottom-1.5 h-11 rounded-full bg-white shadow-cartao flex items-center justify-between px-0.5 animate-fade-in">
             <button
               type="button"
               onClick={diminuir}
               aria-label={naLinha <= 1 ? `Tirar ${produto.nome} da sacola` : `Tirar 1 unidade de ${produto.nome}`}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-perigo active:scale-90 transition-transform"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-perigo active:scale-90 transition-transform"
             >
               {naLinha <= 1 ? <Trash2 className="w-[18px] h-[18px]" aria-hidden="true" /> : <Minus className="w-5 h-5" strokeWidth={2.5} aria-hidden="true" />}
             </button>
@@ -97,7 +99,7 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
               type="button"
               onClick={() => adicionar(produto.id, 1)}
               aria-label={`Adicionar mais 1 unidade de ${produto.nome}`}
-              className="w-9 h-9 rounded-full bg-primaria text-primaria-texto flex items-center justify-center active:scale-90 transition-transform"
+              className="w-10 h-10 rounded-full bg-primaria text-primaria-texto flex items-center justify-center active:scale-90 transition-transform"
             >
               <Plus className="w-5 h-5" strokeWidth={2.5} aria-hidden="true" />
             </button>
@@ -107,11 +109,11 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
             type="button"
             onClick={aoAdicionar}
             aria-label={pedeEscolha ? `Escolher versão de ${produto.nome}` : `Adicionar 1 unidade de ${produto.nome} à sacola`}
-            className="absolute bottom-2 right-2 w-9 h-9 rounded-full bg-primaria text-primaria-texto flex items-center justify-center active:scale-90 transition-transform before:absolute before:-inset-1 before:content-['']"
+            className="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-primaria text-primaria-texto flex items-center justify-center active:scale-90 transition-transform before:absolute before:-inset-1 before:content-['']"
           >
             <Plus className="w-5 h-5" strokeWidth={2.5} aria-hidden="true" />
             {naSacola > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 rounded-full bg-tinta text-white text-[11px] font-bold flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 rounded-full bg-tinta text-white text-[12px] font-bold flex items-center justify-center">
                 {naSacola}
                 <span className="sr-only"> na sacola</span>
               </span>

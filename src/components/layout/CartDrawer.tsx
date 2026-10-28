@@ -131,6 +131,7 @@ export const CartDrawer: React.FC = () => {
       <div
         role="dialog"
         aria-modal="true"
+        data-manter-barra
         aria-labelledby="titulo-sacola"
         className={`fixed top-0 right-0 ${comAbas ? ABAIXO_ATE_AS_ABAS : 'bottom-0'} z-[101] w-[400px] max-w-full bg-fundo flex flex-col shadow-[-4px_0_20px_rgba(0,0,0,0.12)] animate-entra-direita`}
       >
@@ -286,13 +287,16 @@ export const CartDrawer: React.FC = () => {
                           >
                             {quantidade}
                           </span>
+                          {/* 40 px de toque como o "−"; a bolinha amarela continua com 32 por dentro */}
                           <button
                             type="button"
-                            className="w-8 h-8 mx-1 rounded-full bg-primaria text-primaria-texto flex items-center justify-center"
+                            className="w-10 h-10 flex items-center justify-center"
                             onClick={() => alterar(chave, quantidade + 1)}
                             aria-label={`Aumentar ${produto.nome}`}
                           >
-                            <Plus className="w-4 h-4" aria-hidden="true" />
+                            <span className="w-8 h-8 rounded-full bg-primaria text-primaria-texto flex items-center justify-center">
+                              <Plus className="w-4 h-4" aria-hidden="true" />
+                            </span>
                           </button>
                         </div>
                         <span className="text-[15px] font-bold tabular-nums">{formatarPreco(totalDaLinha(linha, false))}</span>
@@ -300,7 +304,7 @@ export const CartDrawer: React.FC = () => {
                     </div>
                     <button
                       type="button"
-                      className="w-9 h-9 -mr-1 -mt-1 flex items-center justify-center text-suave hover:text-perigo"
+                      className="w-10 h-10 -mr-1.5 -mt-1.5 flex items-center justify-center text-suave hover:text-perigo"
                       onClick={() => tirar(chave)}
                       aria-label={`Remover ${produto.nome} da sacola`}
                     >

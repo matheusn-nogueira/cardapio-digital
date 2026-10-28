@@ -301,7 +301,7 @@ function EtapaPagamento() {
               <p className="font-bold">Endereço não informado</p>
             )}
           </div>
-          <Link href="/checkout/endereco" className="text-[14px] font-bold link-acao py-1 shrink-0">
+          <Link href="/checkout/endereco" className="text-[14px] font-bold link-acao min-h-10 -my-2 flex items-center shrink-0">
             Alterar
           </Link>
         </div>
@@ -314,7 +314,7 @@ function EtapaPagamento() {
               {cliente.telefone ? mascararTelefone(cliente.telefone) : 'WhatsApp não informado'}
             </p>
           </div>
-          <Link href="/checkout?editar=1" className="text-[14px] font-bold link-acao py-1 shrink-0">
+          <Link href="/checkout?editar=1" className="text-[14px] font-bold link-acao min-h-10 -my-2 flex items-center shrink-0">
             Alterar
           </Link>
         </div>
@@ -437,13 +437,13 @@ function EtapaPagamento() {
         {comObservacao || detalhes.observacoes ? (
           <InstructionsCard valor={detalhes.observacoes} aoMudar={(observacoes) => gravarDetalhes((d) => ({ ...d, observacoes }))} />
         ) : (
-          <button type="button" onClick={() => setComObservacao(true)} className="flex items-center gap-2 text-[15px] font-bold link-acao py-2">
+          <button type="button" onClick={() => setComObservacao(true)} className="flex items-center gap-2 text-[15px] font-bold link-acao min-h-10">
             <PenLine className="w-4 h-4" aria-hidden="true" /> Adicionar observação
           </button>
         )}
 
         {indisponiveis > 0 && <p className="text-[13px] text-suave mt-2">Itens que saíram do cardápio não entram no pedido.</p>}
-        <p className="mt-4 text-[11px] text-suave leading-[1.4]">Venda e consumo de bebida alcoólica proibidos para menores de 18 anos. Beba com moderação.</p>
+        <p className="mt-4 text-[12px] text-suave leading-[1.4]">Venda e consumo de bebida alcoólica proibidos para menores de 18 anos. Beba com moderação.</p>
       </div>
 
       {/* total sempre visível, colado no botão */}

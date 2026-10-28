@@ -46,6 +46,7 @@ export const BarraInferior: React.FC = () => {
 
   return (
     <nav
+      data-sempre-ativo
       aria-label="Navegação"
       className="fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-borda pb-[env(safe-area-inset-bottom)]"
     >
@@ -66,7 +67,7 @@ export const BarraInferior: React.FC = () => {
             {hidratado && quantidadeTotal > 0 && (
               <span
                 key={pulo}
-                className={`absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 rounded-full bg-tinta text-white text-[10px] font-bold flex items-center justify-center ${pulo ? 'animate-pulo' : ''}`}
+                className={`absolute -top-1.5 -right-2.5 min-w-[20px] h-[20px] px-1 rounded-full bg-tinta text-white text-[12px] font-bold flex items-center justify-center ${pulo ? 'animate-pulo' : ''}`}
               >
                 {quantidadeTotal > 99 ? '99+' : quantidadeTotal}
               </span>

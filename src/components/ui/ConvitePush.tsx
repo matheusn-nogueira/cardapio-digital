@@ -38,7 +38,7 @@ const ConviteInstalarIphone: React.FC<{ nomeLoja: string; aoFechar: () => void }
       aria-labelledby="titulo-convite-iphone"
       className="relative w-full bg-white rounded-t-3xl overflow-hidden animate-sobe pb-[env(safe-area-inset-bottom)]"
     >
-      <button type="button" onClick={aoFechar} aria-label="Fechar" className="absolute right-3 top-3 z-10 w-9 h-9 rounded-full bg-white/80 flex items-center justify-center text-tinta">
+      <button type="button" onClick={aoFechar} aria-label="Fechar" className="absolute right-3 top-3 z-10 w-10 h-10 rounded-full bg-white/80 flex items-center justify-center text-tinta">
         <X className="w-5 h-5" aria-hidden="true" />
       </button>
       <div className="bg-primaria px-6 pt-8 pb-6 text-center">
@@ -192,7 +192,7 @@ export const ConvitePush: React.FC = () => {
           type="button"
           onClick={dispensar}
           aria-label="Fechar"
-          className="absolute right-3 top-3 z-10 w-9 h-9 rounded-full bg-white/80 flex items-center justify-center text-tinta"
+          className="absolute right-3 top-3 z-10 w-10 h-10 rounded-full bg-white/80 flex items-center justify-center text-tinta"
         >
           <X className="w-5 h-5" aria-hidden="true" />
         </button>
@@ -232,7 +232,7 @@ export const ConvitePush: React.FC = () => {
           <button type="button" onClick={dispensar} className="w-full h-11 mt-1 text-[14px] font-bold text-suave">
             Agora não
           </button>
-          <p className="text-[11px] text-suave text-center">Só avisamos sobre os seus pedidos. Dá para desligar quando quiser.</p>
+          <p className="text-[12px] text-suave text-center">Só avisamos sobre os seus pedidos. Dá para desligar quando quiser.</p>
         </div>
       </div>
     </div>

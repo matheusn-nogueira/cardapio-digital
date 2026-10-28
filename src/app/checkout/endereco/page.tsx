@@ -332,7 +332,7 @@ export default function EtapaEndereco() {
               setEditandoRua(true);
               setTimeout(() => ruaRef.current?.focus(), 50);
             }}
-            className="text-[15px] font-bold link-acao py-2 mt-1"
+            className="text-[15px] font-bold link-acao min-h-10 mt-1"
           >
             Não sei meu CEP
           </button>

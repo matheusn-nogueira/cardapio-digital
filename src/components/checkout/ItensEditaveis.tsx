@@ -86,13 +86,16 @@ export const ItensEditaveis: React.FC<{ cartao: boolean; aoMudar?: () => void }>
                 <span className="min-w-6 text-center text-[15px] font-bold tabular-nums" aria-live="polite">
                   {l.quantidade}
                 </span>
+                {/* 40 px de toque como o "−"; a bolinha amarela continua com 32 por dentro */}
                 <button
                   type="button"
                   onClick={() => alterar(l.chave, l.quantidade + 1)}
                   aria-label={`Aumentar ${l.produto.nome}`}
-                  className="w-8 h-8 mx-1 rounded-full bg-primaria text-primaria-texto flex items-center justify-center"
+                  className="w-10 h-10 flex items-center justify-center"
                 >
-                  <Plus className="w-4 h-4" aria-hidden="true" />
+                  <span className="w-8 h-8 rounded-full bg-primaria text-primaria-texto flex items-center justify-center">
+                    <Plus className="w-4 h-4" aria-hidden="true" />
+                  </span>
                 </button>
               </div>
             </div>

@@ -20,8 +20,9 @@ export default async function Home() {
     .map((c) => ({ ...c, imagem_url: c.imagem_url ?? imagemDaCategoria(c, produtos) }));
   // toda marca de cerveja do catálogo, mesmo com um produto só (Bohemia, Petra…)
   const marcas = marcasDoCatalogo(produtos, 1);
-  const vitrine = (v: (typeof home.vitrines)[number]) => (
+  const vitrine = (v: (typeof home.vitrines)[number], opcoes: { prioridade?: boolean; adiada?: boolean } = {}) => (
     <Vitrine
+      {...opcoes}
       key={v.id}
       titulo={v.titulo}
       ids={v.produtos}
@@ -45,12 +46,13 @@ export default async function Home() {
       <BannerCarrossel banners={home.banners} />
       <StatusLojaCard />
       <PecaDeNovo />
-      <div className="pt-8">{primeira && vitrine(primeira)}</div>
+      <div className="pt-8">{primeira && vitrine(primeira, { prioridade: true })}</div>
       <MarcasLista marcas={marcas} />
       <div>
-        {demais.map(vitrine)}
+        {/* as de baixo só montam os cards quando a pessoa rola até perto (Vitrine `adiada`) */}
+        {demais.map((v) => vitrine(v, { adiada: true }))}
         {prateleiras.map((c) => (
-          <Vitrine key={c.id} titulo={c.nome} ids={c.ids} linkVerTodos={`/categoria/${c.id}`} categoriaId={c.id} />
+          <Vitrine key={c.id} titulo={c.nome} ids={c.ids} linkVerTodos={`/categoria/${c.id}`} categoriaId={c.id} adiada />
         ))}
       </div>
     </main>

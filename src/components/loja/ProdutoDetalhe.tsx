@@ -31,7 +31,7 @@ import { ImagemProduto } from './ImagemProduto';
 export const SeloTemperatura: React.FC<{ quente: boolean }> = ({ quente }) => {
   if (!quente) return null;
   return (
-    <span className="inline-flex items-center text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-aviso-claro text-aviso">
+    <span className="inline-flex items-center text-[12px] font-bold px-1.5 py-0.5 rounded-md bg-aviso-claro text-aviso">
       Natural/quente
     </span>
   );
@@ -264,10 +264,10 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
                       <span className="flex flex-wrap items-center gap-1.5">
                         <span className="text-[14px] font-semibold">{rotuloOferta(o)}</span>
                         {descontoBloco > 0 ? (
-                          <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-sucesso text-white">-{descontoBloco}%</span>
+                          <span className="text-[12px] font-bold px-1.5 py-0.5 rounded-md bg-sucesso text-white">-{descontoBloco}%</span>
                         ) : (
                           ofertaPromocional(o) && (
-                            <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-tinta text-white">Promo</span>
+                            <span className="text-[12px] font-bold px-1.5 py-0.5 rounded-md bg-tinta text-white">Promo</span>
                           )
                         )}
                       </span>
@@ -280,7 +280,7 @@ export const ProdutoDetalhe: React.FC<ProdutoDetalheProps> = ({ produto, idTitul
                     </span>
                     <span className="shrink-0 text-right tabular-nums">
                       {descontoBloco > 0 && (
-                        <span className="block text-[11px] text-suave line-through">{formatarPreco(cheio)}</span>
+                        <span className="block text-[12px] text-suave line-through">{formatarPreco(cheio)}</span>
                       )}
                       <span className="text-[15px] font-bold">{formatarPreco(o.preco)}</span>
                     </span>

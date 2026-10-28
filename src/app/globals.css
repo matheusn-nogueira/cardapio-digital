@@ -24,6 +24,11 @@
   --color-topo: #0A2540;
   --color-topo-texto: #A9C3DA;
   --color-banner: #0F3A63;
+  /* status da loja no topo azul-noite: bolinha verde (aberto) e laranja-claro (fechado) */
+  --color-status-aberto: #4ADE80;
+  --color-status-fechado: #FFC98A;
+  /* fundo do mapa da folha "sobre a loja" enquanto a imagem carrega */
+  --color-mapa: #E8E4DC;
   /* opção escolhida (pagamento, entrega, promoção da ficha): azul-noite cheio com texto branco,
      como o chip de categoria ativo (Freezer, 27/10/2026). Usa `tinta`, sem cor própria. */
   /* neutros: uma escala só */

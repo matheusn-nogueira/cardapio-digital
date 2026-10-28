@@ -6,9 +6,10 @@ import { ProdutoCard } from './ProdutoCard';
 
 export const GradeProdutos: React.FC<{ produtos: Produto[] }> = ({ produtos }) => (
   <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-    {produtos.map((produto) => (
+    {produtos.map((produto, i) => (
       <li key={produto.id} className="flex">
-        <ProdutoCard produto={produto} />
+        {/* as 4 primeiras aparecem na primeira tela do celular: foto com prioridade */}
+        <ProdutoCard produto={produto} prioridade={i < 4} />
       </li>
     ))}
   </ul>
