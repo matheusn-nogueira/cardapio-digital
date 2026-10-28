@@ -77,7 +77,8 @@ export const CategoriasLista: React.FC<Props> = ({ categorias, ativaId, acompanh
     <nav
       ref={nav}
       aria-label="Categorias"
-      className={`bg-white pt-3 pb-3 ${acompanharRolagem ? 'sticky top-[var(--altura-topo,0px)] z-30' : ''}`}
+      // presa embaixo do topo na home e na página de categoria: troca de categoria sem voltar ao começo
+      className={`bg-white pt-3 pb-3 ${acompanharRolagem || ativaId ? 'sticky top-[var(--altura-topo,0px)] z-30' : ''}`}
     >
       <ul ref={trilho} className="flex gap-2 overflow-x-auto no-scrollbar px-4 scroll-px-4">
         {categorias.map((cat) => {
