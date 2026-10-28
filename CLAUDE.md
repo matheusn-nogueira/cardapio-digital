@@ -95,6 +95,8 @@ Escolhida pelo dono entre 10 opções (estudo em `~/Pessoal/marca/identidade-10-
   - folhas (`aria-modal`): `FocoNasFolhas` deixa o resto da página `inert` enquanto uma está aberta (Tab e leitor de tela não escapam); com a sacola aberta (`data-manter-barra`) a barra de abas (`data-sempre-ativo`) continua clicável;
   - busca do topo com contorno de foco branco (o azul padrão some no topo azul-noite);
   - banner sozinho no computador ocupa metade da largura, como se fossem dois lado a lado.
+  - "Ver sacola": no fim de toda página há um espaço do tamanho da barra (`FloatingCart`), e o card cujo contador cairia atrás dela sobe sozinho ao tocar no "+" (`mostrarContador` no `ProdutoCard`);
+  - confirmação sem pedido nesta aba (é onde cai quem toca no aviso do pedido com o app fechado, porque o pedido fica só na sessão): ícone, explicação, "Falar com a loja" no WhatsApp, "Ver o cardápio" e o "Peça de novo".
 - **Marcas:** fundo na cor da lata e o logo na versão de rótulo quando existe (Heineken, Skol, Corona com coqueiro). Faltam rótulos de Império, Brahma e Budweiser (arte 512 × 512 PNG transparente).
 - Mexeu em `globals.css` e o servidor local não mudou? O Turbopack guarda CSS antigo em `.next`: pare o `npm run dev`, apague `.next` e suba de novo.
 

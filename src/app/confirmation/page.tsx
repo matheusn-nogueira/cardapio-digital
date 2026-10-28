@@ -2,14 +2,16 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Check, Copy, Navigation } from 'lucide-react';
+import { Check, Copy, Navigation, ShoppingBag } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useArmazem, useHidratado } from '@/lib/armazenamento';
 import { armazemUltimoPedido, nomePagamento } from '@/lib/estado-checkout';
-import { formatarPreco } from '@/lib/formatacao';
+import { formatarPreco, linkWhatsapp } from '@/lib/formatacao';
 import { vibrarLeve, vibrarSucesso } from '@/lib/toque';
 import { AndamentoPedido } from '@/components/checkout/AndamentoPedido';
 import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
+import { LogoWhatsApp } from '@/components/checkout/LogosPagamento';
+import { PecaDeNovo } from '@/components/loja/PecaDeNovo';
 
 /** O momento de "deu certo": círculo verde que entra com mola e o "✓" que se desenha dentro dele. */
 const SeloConfirmado: React.FC = () => {
@@ -43,6 +45,7 @@ export default function ConfirmationPage() {
     loja.latitude != null && loja.longitude != null
       ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${loja.latitude},${loja.longitude}`)}`
       : null;
+  const whatsapp = linkWhatsapp(config.whatsapp || loja.telefone, 'Olá! Queria saber do meu pedido.');
 
   if (!hidratado) {
     return (
@@ -56,12 +59,34 @@ export default function ConfirmationPage() {
     return (
       <main className="min-h-screen bg-fundo">
         <CabecalhoCheckout voltarPara="/" />
-        <div className="text-center px-6 py-16">
-          <p className="text-[17px] font-bold">Nenhum pedido recente por aqui</p>
-          <Link href="/" className="mt-4 inline-flex h-12 px-6 items-center rounded-xl bg-primaria text-primaria-texto font-bold">
-            Ver o cardápio
-          </Link>
+        {/* Sem pedido nesta aba (28/10/2026): quem chega aqui pelo aviso do pedido com o app já
+            fechado cai nesta tela, porque o pedido fica guardado só enquanto a aba está aberta.
+            Em vez de um beco sem saída: o que houve, o WhatsApp da loja e o "Peça de novo". */}
+        <div className="flex flex-col items-center text-center px-6 pt-14 pb-8">
+          <span className="w-16 h-16 rounded-full bg-white shadow-cartao flex items-center justify-center" aria-hidden="true">
+            <ShoppingBag className="w-7 h-7 text-tinta" />
+          </span>
+          <h1 className="mt-4 font-condensed text-[22px] font-bold uppercase tracking-[0.04em]">Nenhum pedido nesta tela</h1>
+          <p className="mt-2 text-[15px] text-suave leading-snug max-w-[300px]">
+            O acompanhamento aparece aqui logo depois do pedido. Para saber de um pedido já feito, fale com a loja.
+          </p>
+          <div className="mt-6 w-full max-w-[340px] flex flex-col gap-3">
+            {whatsapp && (
+              <a
+                href={whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-12 rounded-xl bg-primaria text-primaria-texto font-bold flex items-center justify-center gap-2"
+              >
+                <LogoWhatsApp className="w-5 h-5" /> Falar com a loja
+              </a>
+            )}
+            <Link href="/" className="h-12 rounded-xl border border-borda bg-white text-tinta font-bold flex items-center justify-center">
+              Ver o cardápio
+            </Link>
+          </div>
         </div>
+        <PecaDeNovo />
       </main>
     );
   }

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { Minus, Plus, Snowflake, Trash2 } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useCart } from '@/context/CartContext';
@@ -42,13 +42,25 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
   // versão que muda o produto (ex.: galão com vasilhame) pede escolha; natural não (padrão = gelada)
   const pedeEscolha = produto.variantes.some((v) => !v.quente);
 
+  const cartao = useRef<HTMLElement>(null);
   const abrir = () => abrirProduto(produto.id);
+  // o contador aparece no pé do card; se ele cair atrás do "Ver sacola" + abas (~136 px), a página
+  // sobe só o que falta para ele ficar à vista
+  const mostrarContador = () =>
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        const r = cartao.current?.querySelector('[data-foto]')?.getBoundingClientRect();
+        const limite = window.innerHeight - 136;
+        if (r && r.bottom > limite) window.scrollBy({ top: r.bottom - limite + 8, behavior: 'smooth' });
+      }),
+    );
   const aoAdicionar = () => {
     if (pedeEscolha) {
       abrir();
       return;
     }
     adicionar(produto.id, 1);
+    mostrarContador();
   };
   const diminuir = () => (naLinha <= 1 ? remover(produto.id) : alterar(produto.id, naLinha - 1));
 
@@ -59,8 +71,8 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
   if (produto.esgotado) return <CardEsgotado produto={produto} preco={unidade} formato={formato} />;
 
   return (
-    <article className={`flex flex-col ${formato === 'carrossel' ? 'w-[150px] shrink-0 snap-start' : 'w-full'}`}>
-      <div className="relative w-full aspect-square rounded-2xl bg-bloco">
+    <article ref={cartao} className={`flex flex-col ${formato === 'carrossel' ? 'w-[150px] shrink-0 snap-start' : 'w-full'}`}>
+      <div data-foto className="relative w-full aspect-square rounded-2xl bg-bloco">
         <button type="button" onClick={abrir} className="absolute inset-0 p-4 rounded-2xl" aria-label={`Ver ${produto.nome}`}>
           {/* a foto tem fundo branco: multiply funde o branco com o cinza do bloco */}
           <span className="block w-full h-full mix-blend-multiply">

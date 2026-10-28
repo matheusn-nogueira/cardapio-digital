@@ -19,6 +19,9 @@ export const FloatingCart: React.FC = () => {
   if (!hidratado || quantidadeTotal === 0 || sacolaAberta || ehRotaDeCompra(pathname)) return null;
 
   return (
+    <>
+    {/* espaço no fim da página do tamanho da barra: o último produto nunca fica atrás dela */}
+    <div className="h-[72px]" aria-hidden="true" />
     <div className="fixed bottom-[calc(64px+env(safe-area-inset-bottom))] left-0 right-0 px-4 pb-2 z-40 pointer-events-none">
       <button
         type="button"
@@ -35,5 +38,6 @@ export const FloatingCart: React.FC = () => {
         <span>{formatarPreco(subtotal)}</span>
       </button>
     </div>
+    </>
   );
 };
