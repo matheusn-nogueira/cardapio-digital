@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { CategoriasLista } from '@/components/loja/CategoriasLista';
 import { ListaCategoria } from '@/components/loja/ListaCategoria';
-import { buscarHome, buscarProdutos, imagemDaCategoria, produtosDaCategoria } from '@/lib/cardapio';
+import { buscarEsgotados, buscarHome, buscarProdutos, imagemDaCategoria, produtosDaCategoria } from '@/lib/cardapio';
 
 export const revalidate = 60;
 
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CategoriaPage({ params }: Props) {
   const { id } = await params;
-  const [home, produtos] = await Promise.all([buscarHome(), buscarProdutos()]);
+  const [home, produtos, esgotados] = await Promise.all([buscarHome(), buscarProdutos(), buscarEsgotados()]);
   const categoria = home.categorias.find((c) => c.id === id);
   if (!categoria) notFound();
 
@@ -44,7 +44,7 @@ export default async function CategoriaPage({ params }: Props) {
           </Link>
           <h1 className="font-condensed text-[24px] font-bold uppercase tracking-[0.03em] leading-tight">{categoria.nome}</h1>
         </div>
-        <ListaCategoria ids={daCategoria.map((p) => p.id)} />
+        <ListaCategoria ids={daCategoria.map((p) => p.id)} idsEsgotados={produtosDaCategoria(esgotados, categoria).map((p) => p.id)} />
       </div>
     </main>
   );

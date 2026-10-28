@@ -14,6 +14,15 @@ export function vibrarLeve(): void {
   }
 }
 
+/** Duas batidas curtas no pedido recebido: o "deu certo" que se sente na mão (só Android). */
+export function vibrarSucesso(): void {
+  try {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) navigator.vibrate([14, 70, 22]);
+  } catch {
+    // sem vibração: a tela já diz que deu certo
+  }
+}
+
 /**
  * Conta cada vez que `valor` sobe, para o número da sacola dar um pulinho (`key={pulo}` refaz a
  * animação). Começa em 0: ao abrir a página, com a sacola já cheia, não pula.

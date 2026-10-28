@@ -10,8 +10,8 @@ import { marcasDoCatalogo } from './MarcasLista';
  * Produtos de uma categoria com filtro por marca. Sem busca própria: a busca do topo fica
  * logo acima e procura em tudo (dono, 27/10/2026: duas buscas empilhadas confundiam).
  */
-export const ListaCategoria: React.FC<{ ids: string[] }> = ({ ids }) => {
-  const { produtoPorId } = useCardapio();
+export const ListaCategoria: React.FC<{ ids: string[]; idsEsgotados?: string[] }> = ({ ids, idsEsgotados = [] }) => {
+  const { produtoPorId, esgotados } = useCardapio();
   const [marca, setMarca] = useState<string | null>(null);
 
   const produtos = useMemo(
@@ -20,6 +20,11 @@ export const ListaCategoria: React.FC<{ ids: string[] }> = ({ ids }) => {
   );
   const marcas = useMemo(() => marcasDoCatalogo(produtos, 1), [produtos]);
   const filtrados = useMemo(() => (marca ? produtos.filter((p) => p.marca === marca) : produtos), [produtos, marca]);
+  // esgotados vêm no fim, apagados, e respeitam o filtro de marca
+  const esgotadosAqui = useMemo(() => {
+    const ids = new Set(idsEsgotados);
+    return esgotados.filter((p) => ids.has(p.id) && (!marca || p.marca === marca));
+  }, [esgotados, idsEsgotados, marca]);
 
   return (
     <div>
@@ -48,8 +53,8 @@ export const ListaCategoria: React.FC<{ ids: string[] }> = ({ ids }) => {
         {filtrados.length === 1 ? '1 produto' : `${filtrados.length} produtos`}
       </p>
 
-      {filtrados.length ? (
-        <GradeProdutos produtos={filtrados} />
+      {filtrados.length || esgotadosAqui.length ? (
+        <GradeProdutos produtos={[...filtrados, ...esgotadosAqui]} />
       ) : (
         <div className="text-center py-12 text-suave">
           <p className="text-[15px] font-medium text-tinta">Nada encontrado</p>

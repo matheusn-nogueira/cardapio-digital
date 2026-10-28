@@ -226,6 +226,23 @@ export const buscarProdutos = cache(async (): Promise<Produto[]> => {
     .map(paraCliente);
 });
 
+/**
+ * Pausados no ERP há até 30 dias (`cardapio_vw_esgotados`): o site mostra apagados, com "Volta
+ * logo", em vez de sumirem. Falha ao ler não derruba o cardápio: fica sem esgotados.
+ */
+export const buscarEsgotados = cache(async (): Promise<Produto[]> => {
+  try {
+    const linhas = await consultar<Record<string, unknown>[]>(`cardapio_vw_esgotados?select=${COLUNAS_PRODUTO}`);
+    return linhas
+      .map(normalizarProduto)
+      .filter((p) => p.ofertas.length > 0)
+      .sort(compararProdutos)
+      .map((p) => ({ ...paraCliente(p), esgotado: true }));
+  } catch {
+    return [];
+  }
+});
+
 function regex(padrao: string | undefined): RegExp | null {
   if (!padrao) return null;
   try {

@@ -12,16 +12,18 @@ interface VitrineProps {
   /** Ids de produto na ordem de exibição (os que saíram do catálogo são ignorados). */
   ids: string[];
   linkVerTodos?: string;
+  /** categoria do cardápio desta prateleira: marca o chip dela enquanto a seção está na tela */
+  categoriaId?: string;
 }
 
 /** Prateleira horizontal da home. Não renderiza nada se ficar vazia. */
-export const Vitrine: React.FC<VitrineProps> = ({ titulo, ids, linkVerTodos }) => {
+export const Vitrine: React.FC<VitrineProps> = ({ titulo, ids, linkVerTodos, categoriaId }) => {
   const { produtoPorId } = useCardapio();
   const produtos = ids.map((id) => produtoPorId.get(id)).filter((p): p is Produto => !!p);
   if (!produtos.length) return null;
 
   return (
-    <section className="mb-8" aria-label={titulo}>
+    <section className="mb-8" aria-label={titulo} data-categoria={categoriaId}>
       <div className="flex items-center justify-between px-4 mb-3">
         <h2 className="font-condensed text-[20px] font-bold uppercase text-tinta tracking-[0.04em] leading-tight">{titulo}</h2>
         {linkVerTodos && (

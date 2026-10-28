@@ -26,6 +26,7 @@ export default async function Home() {
       titulo={v.titulo}
       ids={v.produtos}
       linkVerTodos={v.tipo === 'categoria' && v.categoria_id ? `/categoria/${v.categoria_id}` : undefined}
+      categoriaId={v.tipo === 'categoria' ? v.categoria_id ?? undefined : undefined}
     />
   );
   const [primeira, ...demais] = home.vitrines;
@@ -40,7 +41,7 @@ export default async function Home() {
     <main className="pb-4 min-h-screen max-w-[1100px] mx-auto bg-white">
       <h1 className="sr-only">{home.loja.nome} — cardápio</h1>
       <PopupPromo />
-      <CategoriasLista categorias={categorias} />
+      <CategoriasLista categorias={categorias} acompanharRolagem />
       <BannerCarrossel banners={home.banners} />
       <StatusLojaCard />
       <PecaDeNovo />
@@ -49,7 +50,7 @@ export default async function Home() {
       <div>
         {demais.map(vitrine)}
         {prateleiras.map((c) => (
-          <Vitrine key={c.id} titulo={c.nome} ids={c.ids} linkVerTodos={`/categoria/${c.id}`} />
+          <Vitrine key={c.id} titulo={c.nome} ids={c.ids} linkVerTodos={`/categoria/${c.id}`} categoriaId={c.id} />
         ))}
       </div>
     </main>

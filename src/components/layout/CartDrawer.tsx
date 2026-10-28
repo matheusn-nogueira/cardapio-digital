@@ -42,6 +42,9 @@ export const BarraProgresso: React.FC<{ percentual: number; texto: string; compl
   </div>
 );
 
+/** Duração de `animate-sai-direita` (globals.css): o item só sai da sacola depois de deslizar. */
+const TEMPO_SAIDA_MS = 340;
+
 /** Fundo escuro e sacola terminam em cima da barra de abas (64 px + área segura do iPhone). */
 const ABAIXO_ATE_AS_ABAS = 'bottom-[calc(64px+env(safe-area-inset-bottom))]';
 
@@ -55,6 +58,20 @@ export const CartDrawer: React.FC = () => {
   const botaoFechar = useRef<HTMLButtonElement>(null);
   // "Esvaziar" pede confirmação na própria sacola (um toque sem querer apagaria tudo)
   const [confirmandoLimpar, setConfirmandoLimpar] = useState(false);
+  // itens saindo: deslizam para fora antes de sair da sacola de verdade
+  const [saindo, setSaindo] = useState<ReadonlySet<string>>(new Set());
+  const tirar = (chave: string) => {
+    if (saindo.has(chave)) return;
+    setSaindo((s) => new Set(s).add(chave));
+    window.setTimeout(() => {
+      remover(chave);
+      setSaindo((s) => {
+        const resto = new Set(s);
+        resto.delete(chave);
+        return resto;
+      });
+    }, TEMPO_SAIDA_MS);
+  };
   const { config } = home;
   const freteSalvo = useFrete();
   const [retirada] = useArmazem(armazemRetirada);
@@ -224,7 +241,12 @@ export const CartDrawer: React.FC = () => {
               {linhas.map((linha) => {
                 const { chave, produto, variante, quantidade } = linha;
                 return (
-                  <li key={chave} className="bg-white rounded-xl shadow-cartao p-4 mt-2.5 flex gap-3 items-start">
+                  <li
+                    key={chave}
+                    className={`bg-white rounded-xl shadow-cartao p-4 mt-2.5 flex gap-3 items-start ${
+                      saindo.has(chave) ? 'animate-sai-direita overflow-hidden pointer-events-none' : ''
+                    }`}
+                  >
                     <div className="w-[60px] h-[60px] shrink-0 rounded-lg overflow-hidden">
                       <ImagemProduto produto={produto} tamanho="pequena" />
                     </div>
@@ -253,7 +275,7 @@ export const CartDrawer: React.FC = () => {
                           <button
                             type="button"
                             className="w-10 h-10 flex items-center justify-center"
-                            onClick={() => alterar(chave, quantidade - 1)}
+                            onClick={() => (quantidade <= 1 ? tirar(chave) : alterar(chave, quantidade - 1))}
                             aria-label={`Diminuir ${produto.nome}`}
                           >
                             <Minus className="w-4 h-4" aria-hidden="true" />
@@ -279,7 +301,7 @@ export const CartDrawer: React.FC = () => {
                     <button
                       type="button"
                       className="w-9 h-9 -mr-1 -mt-1 flex items-center justify-center text-suave hover:text-perigo"
-                      onClick={() => remover(chave)}
+                      onClick={() => tirar(chave)}
                       aria-label={`Remover ${produto.nome} da sacola`}
                     >
                       <Trash2 className="w-[18px] h-[18px]" aria-hidden="true" />

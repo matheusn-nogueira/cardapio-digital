@@ -22,10 +22,11 @@ export async function gerarIconeLoja(lado: number): Promise<ImageResponse> {
   const home = await buscarHome().catch(() => null);
   const cor = corSegura(home?.config.cor_primaria, '#F2B705');
   const logo = await logoComoDataUrl(home?.loja.logo_url ?? null);
-  const margem = Math.round(lado * 0.08);
+  const margem = Math.round(lado * 0.1);
   return new ImageResponse(
     logo ? (
-      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FFFFFF' }}>
+      // Freezer (27/10/2026): logo sobre o azul-noite, igual ao topo e à abertura do app (antes, fundo branco)
+      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A2540' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={logo} alt="" width={lado - margem * 2} height={lado - margem * 2} style={{ objectFit: 'contain' }} />
       </div>
@@ -48,5 +49,25 @@ export async function gerarIconeLoja(lado: number): Promise<ImageResponse> {
       </div>
     ),
     { width: lado, height: lado },
+  );
+}
+
+/**
+ * Tela de abertura do app instalado (27/10/2026): azul-noite com a logo no meio, no lugar da tela
+ * branca. O Android monta a dele com o fundo e o ícone do manifest; o iPhone só mostra imagem
+ * pronta do tamanho exato da tela (apple-touch-startup-image), gerada aqui. Sem logo, só o azul.
+ */
+export async function gerarAbertura(largura: number, altura: number): Promise<ImageResponse> {
+  const home = await buscarHome().catch(() => null);
+  const logo = await logoComoDataUrl(home?.loja.logo_url ?? null);
+  const lado = Math.round(largura * 0.36);
+  return new ImageResponse(
+    (
+      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A2540' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {logo && <img src={logo} alt="" width={lado} height={lado} style={{ objectFit: 'contain' }} />}
+      </div>
+    ),
+    { width: largura, height: altura },
   );
 }

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { imagensDeAbertura } from '@/lib/abertura';
 import { Barlow, Barlow_Condensed } from 'next/font/google';
 import './globals.css';
 import { AppProviders } from '@/context/AppProviders';
@@ -11,7 +12,7 @@ import { ConvitePush } from '@/components/ui/ConvitePush';
 import { Toast } from '@/components/ui/Toast';
 import { ProdutoModal } from '@/components/loja/ProdutoModal';
 import { ConfirmacaoIdade } from '@/components/loja/ConfirmacaoIdade';
-import { buscarHome, buscarProdutos } from '@/lib/cardapio';
+import { buscarEsgotados, buscarHome, buscarProdutos } from '@/lib/cardapio';
 import { corSegura } from '@/lib/formatacao';
 import { descreverStatus } from '@/lib/horarios';
 import { DESCRICAO_SITE, URL_SITE } from '@/lib/site';
@@ -42,6 +43,8 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { default: `${nome} — ${config.slogan}`, template: `%s · ${nome}` },
     description: descricao,
     applicationName: nome,
+    // abertura do app instalado no iPhone: azul-noite com a logo (src/lib/abertura.ts)
+    appleWebApp: { capable: true, title: nome, startupImage: imagensDeAbertura() },
     alternates: { canonical: '/' },
     openGraph: {
       type: 'website',
@@ -64,7 +67,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [home, produtos] = await Promise.all([buscarHome(), buscarProdutos()]);
+  const [home, produtos, esgotados] = await Promise.all([buscarHome(), buscarProdutos(), buscarEsgotados()]);
   const status = descreverStatus(home.aberta, home.config, home.horarios);
   const tema = {
     '--cor-primaria': corSegura(home.config.cor_primaria, '#F2B705'),
@@ -74,7 +77,7 @@ export default async function RootLayout({
   return (
     <html lang="pt-BR" className={`${roboto.variable} ${robotoCondensed.variable} scroll-smooth`} style={tema}>
       <body className="font-sans text-[16px] text-tinta bg-fundo antialiased">
-        <AppProviders home={home} status={status} produtos={produtos}>
+        <AppProviders home={home} status={status} produtos={produtos} esgotados={esgotados}>
           <Header />
           {children}
           <Footer />

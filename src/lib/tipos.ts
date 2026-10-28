@@ -42,6 +42,8 @@ export interface Produto {
   ofertas: Oferta[];
   /** Versões de escolha explícita (natural, vasilhame…). Fora da combinação. */
   variantes: Variante[];
+  /** Pausado no ERP: aparece apagado, com "Volta logo", no fim da categoria e da busca. */
+  esgotado?: boolean;
 }
 
 export interface Loja {

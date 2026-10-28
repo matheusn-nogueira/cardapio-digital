@@ -11,11 +11,12 @@ export const AppProviders: React.FC<{
   home: DadosHome;
   status: StatusLoja;
   produtos: Produto[];
+  esgotados: Produto[];
   children: React.ReactNode;
-}> = ({ home, status, produtos, children }) => {
+}> = ({ home, status, produtos, esgotados, children }) => {
   useEffect(() => registrarEtapa('visita'), []);
   return (
-    <CardapioProvider home={home} status={status} produtos={produtos}>
+    <CardapioProvider home={home} status={status} produtos={produtos} esgotados={esgotados}>
       <CartProvider>{children}</CartProvider>
     </CardapioProvider>
   );

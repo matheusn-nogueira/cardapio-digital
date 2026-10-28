@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import React, { Suspense, useCallback, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ChevronDown, Search, X } from 'lucide-react';
@@ -88,6 +88,17 @@ export const Header: React.FC = () => {
   const [sobreAberto, setSobreAberto] = useState(false);
   // função estável: a folha não reabre o foco a cada atualização do topo ("Fecha em…")
   const fecharSobre = useCallback(() => setSobreAberto(false), []);
+  // altura do topo em --altura-topo: os chips de categoria da home grudam logo abaixo dele
+  const topo = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = topo.current;
+    if (!el) return;
+    const medir = () => document.documentElement.style.setProperty('--altura-topo', `${el.offsetHeight}px`);
+    medir();
+    const observador = new ResizeObserver(medir);
+    observador.observe(el);
+    return () => observador.disconnect();
+  }, [pathname]);
 
   if (ehRotaDeCompra(pathname)) {
     return config.aviso_topo ? (
@@ -100,7 +111,7 @@ export const Header: React.FC = () => {
       {config.aviso_topo && (
         <div className="bg-tinta text-white text-[13px] font-medium text-center px-4 py-2">{config.aviso_topo}</div>
       )}
-      <header className="bg-topo text-white px-4 sticky top-0 z-40">
+      <header ref={topo} className="bg-topo text-white px-4 sticky top-0 z-40">
         <div className="pt-3 pb-3 flex items-center gap-2.5 max-w-[1100px] mx-auto">
           {/* o logo já tem a forma da casa: sem círculo atrás (o amarelo do círculo, diferente
               do amarelo do logo, aparecia como um contorno laranja; dono, 27/10/2026) */}

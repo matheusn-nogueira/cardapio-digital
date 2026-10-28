@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import type { Categoria } from '@/lib/tipos';
 
@@ -9,27 +9,80 @@ interface Props {
   ativaId?: string;
   /** Mantido por compatibilidade: os chips já são compactos. */
   compacta?: boolean;
+  /**
+   * Home: os chips grudam embaixo do topo e marcam a categoria da prateleira que está na tela,
+   * como no iFood (dono, 27/10/2026). As prateleiras dizem a categoria em `data-categoria`.
+   */
+  acompanharRolagem?: boolean;
+}
+
+/** Chip marcado é o da prateleira cujo título já passou desta distância abaixo dos chips. */
+const FOLGA_LEITURA = 48;
+
+/** Categoria da última prateleira que já subiu até logo abaixo dos chips (null antes da primeira). */
+function useCategoriaNaTela(ligado: boolean, chips: React.RefObject<HTMLElement | null>): string | null {
+  const [atual, setAtual] = useState<string | null>(null);
+  useEffect(() => {
+    if (!ligado) return;
+    let quadro = 0;
+    const medir = () => {
+      quadro = 0;
+      const linha = (chips.current?.getBoundingClientRect().bottom ?? 0) + FOLGA_LEITURA;
+      let achada: string | null = null;
+      for (const secao of document.querySelectorAll<HTMLElement>('[data-categoria]')) {
+        if (secao.getBoundingClientRect().top <= linha) achada = secao.dataset.categoria ?? null;
+        else break;
+      }
+      setAtual(achada);
+    };
+    const aoRolar = () => {
+      if (!quadro) quadro = requestAnimationFrame(medir);
+    };
+    medir();
+    window.addEventListener('scroll', aoRolar, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', aoRolar);
+      if (quadro) cancelAnimationFrame(quadro);
+    };
+  }, [ligado, chips]);
+  return atual;
 }
 
 /**
  * Chips de categoria só com o nome, sem foto nem ícone (dono, 27/10/2026, Freezer). Na home o
- * primeiro (promoções) fica em destaque; na página de categoria, a categoria aberta.
- * Todas as categorias juntas ficam na aba Busca.
+ * primeiro (promoções) fica em destaque até a rolagem chegar às prateleiras; daí o destaque segue a
+ * prateleira na tela. Na página de categoria, a categoria aberta. Todas juntas ficam na aba Busca.
  */
-export const CategoriasLista: React.FC<Props> = ({ categorias, ativaId }) => {
+export const CategoriasLista: React.FC<Props> = ({ categorias, ativaId, acompanharRolagem = false }) => {
+  const nav = useRef<HTMLElement>(null);
+  const trilho = useRef<HTMLUListElement>(null);
+  const naTela = useCategoriaNaTela(acompanharRolagem, nav);
+  const destaqueId = ativaId ?? naTela ?? categorias[0]?.id;
+
+  // o chip marcado entra na tela dos chips, sem mexer na rolagem da página
+  useEffect(() => {
+    if (!acompanharRolagem || !trilho.current || !destaqueId) return;
+    const chip = trilho.current.querySelector<HTMLElement>(`[data-chip="${CSS.escape(destaqueId)}"]`);
+    if (chip) trilho.current.scrollTo({ left: chip.offsetLeft - 16, behavior: 'smooth' });
+  }, [acompanharRolagem, destaqueId]);
+
   if (!categorias.length) return null;
   return (
-    <nav aria-label="Categorias" className="bg-white pt-3 pb-3">
-      <ul className="flex gap-2 overflow-x-auto no-scrollbar px-4 scroll-px-4">
-        {categorias.map((cat, i) => {
+    <nav
+      ref={nav}
+      aria-label="Categorias"
+      className={`bg-white pt-3 pb-3 ${acompanharRolagem ? 'sticky top-[var(--altura-topo,0px)] z-30' : ''}`}
+    >
+      <ul ref={trilho} className="flex gap-2 overflow-x-auto no-scrollbar px-4 scroll-px-4">
+        {categorias.map((cat) => {
           const ativa = cat.id === ativaId;
-          const destaque = ativaId ? ativa : i === 0;
+          const destaque = cat.id === destaqueId;
           return (
-            <li key={cat.id} className="shrink-0">
+            <li key={cat.id} className="shrink-0" data-chip={cat.id}>
               <Link
                 href={`/categoria/${cat.id}`}
                 aria-current={ativa ? 'page' : undefined}
-                className={`flex items-center h-9 px-3.5 rounded-xl whitespace-nowrap text-[14px] ${
+                className={`flex items-center h-9 px-3.5 rounded-xl whitespace-nowrap text-[14px] transition-colors duration-200 ${
                   destaque ? 'bg-tinta text-white font-bold' : 'bg-bloco text-tinta font-semibold'
                 }`}
               >

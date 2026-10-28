@@ -1,14 +1,37 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Check, Copy, Navigation } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { useArmazem, useHidratado } from '@/lib/armazenamento';
 import { armazemUltimoPedido, nomePagamento } from '@/lib/estado-checkout';
 import { formatarPreco } from '@/lib/formatacao';
+import { vibrarLeve, vibrarSucesso } from '@/lib/toque';
 import { AndamentoPedido } from '@/components/checkout/AndamentoPedido';
 import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
+
+/** O momento de "deu certo": círculo verde que entra com mola e o "✓" que se desenha dentro dele. */
+const SeloConfirmado: React.FC = () => {
+  useEffect(() => vibrarSucesso(), []);
+  return (
+    <div className="w-16 h-16 mx-auto rounded-full bg-sucesso flex items-center justify-center animate-circulo-entra" aria-hidden="true">
+      <svg viewBox="0 0 24 24" className="w-9 h-9" fill="none">
+        {/* pathLength 1: o traço vai de 0 a 1 em desenha, qualquer que seja o tamanho do caminho */}
+        <path
+          d="M5 12.5l4.5 4.5L19 7.5"
+          pathLength={1}
+          stroke="white"
+          strokeWidth={3}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeDasharray={1}
+          className="animate-desenha"
+        />
+      </svg>
+    </div>
+  );
+};
 
 export default function ConfirmationPage() {
   const hidratado = useHidratado();
@@ -31,7 +54,7 @@ export default function ConfirmationPage() {
 
   if (!pedido) {
     return (
-      <main className="min-h-[70vh] bg-fundo">
+      <main className="min-h-screen bg-fundo">
         <CabecalhoCheckout voltarPara="/" />
         <div className="text-center px-6 py-16">
           <p className="text-[17px] font-bold">Nenhum pedido recente por aqui</p>
@@ -50,8 +73,9 @@ export default function ConfirmationPage() {
     if (!config.chave_pix) return;
     try {
       await navigator.clipboard.writeText(config.chave_pix);
+      vibrarLeve();
       setCopiado(true);
-      setTimeout(() => setCopiado(false), 2500);
+      setTimeout(() => setCopiado(false), 2000);
     } catch {
       // sem permissão de área de transferência: a chave continua visível para copiar à mão
     }
@@ -62,9 +86,7 @@ export default function ConfirmationPage() {
       <CabecalhoCheckout />
 
       <div className="flex-1 w-full max-w-[480px] mx-auto px-4 py-8 text-center animate-fade-in">
-        <div className="w-16 h-16 mx-auto rounded-full bg-sucesso text-white flex items-center justify-center">
-          <Check className="w-9 h-9" strokeWidth={3} aria-hidden="true" />
-        </div>
+        <SeloConfirmado />
         <h1 className="font-condensed text-[26px] font-bold uppercase tracking-[0.02em] leading-none mt-4">Pedido recebido!</h1>
         <p className="text-[15px] text-suave mt-1">
           Pedido <strong className="text-tinta">#{pedido.numero}</strong> · {formatarPreco(pedido.total)}
@@ -88,9 +110,13 @@ export default function ConfirmationPage() {
                   <button
                     type="button"
                     onClick={copiarPix}
-                    className="h-11 px-3 rounded-xl border-2 border-tinta font-bold text-[13px] flex items-center gap-1.5 shrink-0"
+                    aria-live="polite"
+                    // copiado: o botão fica verde com o "✓" por 2 s, para não restar dúvida de que foi
+                    className={`h-11 px-3 rounded-xl border-2 font-bold text-[13px] flex items-center gap-1.5 shrink-0 transition-colors duration-200 ${
+                      copiado ? 'bg-sucesso border-sucesso text-white' : 'border-tinta text-tinta'
+                    }`}
                   >
-                    {copiado ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
+                    {copiado ? <Check className="w-4 h-4 animate-pulo" strokeWidth={3} aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
                     {copiado ? 'Copiado' : 'Copiar'}
                   </button>
                 </div>

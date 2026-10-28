@@ -9,6 +9,8 @@ interface CardapioContextType {
   home: DadosHome;
   status: StatusLoja;
   produtos: Produto[];
+  /** pausados no ERP, mostrados apagados no fim da categoria e da busca */
+  esgotados: Produto[];
   produtoPorId: Map<string, Produto>;
   /** categoria do produto (ex.: "Cerveja") → categoria do cardápio */
   categoriaDoProduto: (produto: Produto) => Categoria | undefined;
@@ -23,8 +25,9 @@ export const CardapioProvider: React.FC<{
   home: DadosHome;
   status: StatusLoja;
   produtos: Produto[];
+  esgotados: Produto[];
   children: React.ReactNode;
-}> = ({ home, status, produtos, children }) => {
+}> = ({ home, status, produtos, esgotados, children }) => {
   const [produtoAbertoId, setProdutoAbertoId] = useState<string | null>(null);
 
   // "Fecha em 3h 24min" precisa andar: o status do servidor vale na hidratação; depois recalcula a cada minuto.
@@ -52,13 +55,14 @@ export const CardapioProvider: React.FC<{
       home,
       status: statusAoVivo,
       produtos,
+      esgotados,
       produtoPorId,
       categoriaDoProduto,
       produtoAberto: produtoAbertoId ? produtoPorId.get(produtoAbertoId) ?? null : null,
       abrirProduto,
       fecharProduto,
     }),
-    [home, statusAoVivo, produtos, produtoPorId, categoriaDoProduto, produtoAbertoId, abrirProduto, fecharProduto],
+    [home, statusAoVivo, produtos, esgotados, produtoPorId, categoriaDoProduto, produtoAbertoId, abrirProduto, fecharProduto],
   );
 
   return <CardapioContext.Provider value={valor}>{children}</CardapioContext.Provider>;

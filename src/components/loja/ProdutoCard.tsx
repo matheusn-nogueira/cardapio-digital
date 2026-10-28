@@ -54,6 +54,8 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
   // Freezer: floco cor de neve no canto de cima da cerveja que sai do freezer (só o ícone, dono, 27/10/2026)
   const gelada = !produto.quente && /cerveja/i.test(produto.categoria);
 
+  if (produto.esgotado) return <CardEsgotado produto={produto} preco={unidade} formato={formato} />;
+
   return (
     <article className={`flex flex-col ${formato === 'carrossel' ? 'w-[150px] shrink-0 snap-start' : 'w-full'}`}>
       <div className="relative w-full aspect-square rounded-2xl bg-bloco">
@@ -127,3 +129,35 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, formato = 'gr
     </article>
   );
 };
+
+/**
+ * Pausado no ERP (27/10/2026, pedido do dono): fica no cardápio, apagado e sem "+", com "Volta logo"
+ * no lugar da ação, em vez de sumir. Não abre a ficha: não há o que escolher.
+ */
+const CardEsgotado: React.FC<{ produto: Produto; preco: number; formato: ProdutoCardProps['formato'] }> = ({
+  produto,
+  preco,
+  formato,
+}) => (
+  <article
+    aria-label={`${produto.nome}, esgotado, volta logo`}
+    className={`flex flex-col ${formato === 'carrossel' ? 'w-[150px] shrink-0 snap-start' : 'w-full'}`}
+  >
+    <div className="relative w-full aspect-square rounded-2xl bg-bloco">
+      <span className="absolute inset-0 p-4 opacity-40 grayscale">
+        <span className="block w-full h-full mix-blend-multiply">
+          <ImagemProduto produto={produto} />
+        </span>
+      </span>
+      <span className="absolute left-2 bottom-2 h-7 px-2.5 rounded-lg bg-white text-tinta text-[12px] font-semibold flex items-center shadow-cartao">
+        Volta logo
+      </span>
+    </div>
+    <div className="flex flex-col pt-3 text-apagado" aria-hidden="true">
+      <span className="font-condensed text-[20px] font-bold tracking-[0.01em] leading-tight tabular-nums">
+        {formatarPreco(preco)}
+      </span>
+      <span className="text-[14px] leading-snug line-clamp-2 min-h-[2.75em] mt-0.5">{produto.nome}</span>
+    </div>
+  </article>
+);
