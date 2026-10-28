@@ -54,7 +54,7 @@ export const ItensEditaveis: React.FC<{ cartao: boolean; aoMudar?: () => void }>
       {removido && (
         <li className="px-4 py-2.5 flex items-center justify-between gap-3 bg-bloco" role="status">
           <span className="text-[14px] min-w-0 truncate">{removido.produto.nome} removido</span>
-          <button type="button" onClick={desfazer} className="text-[14px] font-bold underline shrink-0 py-1">
+          <button type="button" onClick={desfazer} className="text-[14px] font-bold link-acao shrink-0 py-1">
             Desfazer
           </button>
         </li>

@@ -18,11 +18,18 @@ const CampoBusca: React.FC = () => {
   const termoUrl = naBusca ? params.get('q') ?? '' : '';
   const [texto, setTexto] = useState(termoUrl);
   const [rotaAnterior, setRotaAnterior] = useState(pathname);
+  const [termoAnterior, setTermoAnterior] = useState(termoUrl);
 
   // Saiu da busca → limpa o campo (ajuste de estado durante o render, sem effect).
   if (rotaAnterior !== pathname) {
     setRotaAnterior(pathname);
+    setTermoAnterior(termoUrl);
     setTexto(termoUrl);
+  } else if (termoAnterior !== termoUrl) {
+    setTermoAnterior(termoUrl);
+    // aba Busca tocada com resultados abertos: /busca sem termo mostra as categorias, e o campo
+    // não pode ficar com o termo velho ("gelo"). Os outros saltos de termo vêm da própria digitação.
+    if (!termoUrl) setTexto('');
   }
 
   const buscar = (valor: string) => {

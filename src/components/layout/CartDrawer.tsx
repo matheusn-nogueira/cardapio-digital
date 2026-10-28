@@ -207,7 +207,7 @@ export const CartDrawer: React.FC = () => {
                   ? '1 item da sua sacola não está mais disponível.'
                   : `${indisponiveis} itens da sua sacola não estão mais disponíveis.`}
               </span>
-              <button type="button" onClick={removerIndisponiveis} className="font-bold underline py-1">
+              <button type="button" onClick={removerIndisponiveis} className="font-bold link-acao py-1">
                 Remover
               </button>
             </div>

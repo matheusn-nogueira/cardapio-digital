@@ -332,7 +332,7 @@ export default function EtapaEndereco() {
               setEditandoRua(true);
               setTimeout(() => ruaRef.current?.focus(), 50);
             }}
-            className="text-[15px] font-bold underline py-2 mt-1"
+            className="text-[15px] font-bold link-acao py-2 mt-1"
           >
             Não sei meu CEP
           </button>
@@ -351,7 +351,7 @@ export default function EtapaEndereco() {
                 setEditandoRua(true);
                 setTimeout(() => ruaRef.current?.focus(), 50);
               }}
-              className="text-[14px] font-bold underline shrink-0 py-1"
+              className="text-[14px] font-bold link-acao shrink-0 py-1"
             >
               Corrigir
             </button>
@@ -428,7 +428,7 @@ export default function EtapaEndereco() {
                 />
               </Campo>
             ) : (
-              <button type="button" onClick={() => setComReferencia(true)} className="text-[15px] font-bold underline py-2 mt-2">
+              <button type="button" onClick={() => setComReferencia(true)} className="text-[15px] font-bold link-acao py-2 mt-2">
                 Adicionar ponto de referência
               </button>
             )}

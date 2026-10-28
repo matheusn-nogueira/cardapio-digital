@@ -176,7 +176,7 @@ export const SobreLoja: React.FC<{ aberta: boolean; aoFechar: () => void }> = ({
         </div>
 
         {whatsapp && (
-          <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[14px] font-bold underline">
+          <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[14px] font-bold link-acao">
             <LogoWhatsApp className="w-4 h-4" /> {mascararTelefone(telefone ?? '')}
           </a>
         )}

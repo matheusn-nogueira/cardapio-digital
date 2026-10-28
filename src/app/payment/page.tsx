@@ -301,7 +301,7 @@ function EtapaPagamento() {
               <p className="font-bold">Endereço não informado</p>
             )}
           </div>
-          <Link href="/checkout/endereco" className="text-[14px] font-bold underline py-1 shrink-0">
+          <Link href="/checkout/endereco" className="text-[14px] font-bold link-acao py-1 shrink-0">
             Alterar
           </Link>
         </div>
@@ -314,7 +314,7 @@ function EtapaPagamento() {
               {cliente.telefone ? mascararTelefone(cliente.telefone) : 'WhatsApp não informado'}
             </p>
           </div>
-          <Link href="/checkout?editar=1" className="text-[14px] font-bold underline py-1 shrink-0">
+          <Link href="/checkout?editar=1" className="text-[14px] font-bold link-acao py-1 shrink-0">
             Alterar
           </Link>
         </div>
@@ -347,7 +347,7 @@ function EtapaPagamento() {
         {opcoes.length === 0 && <p className="text-[14px] text-perigo">Nenhuma forma de pagamento disponível no momento.</p>}
       </div>
       {!todasAsFormas && (
-        <button type="button" onClick={() => setTrocandoPagamento(true)} className="text-[15px] font-bold underline py-1">
+        <button type="button" onClick={() => setTrocandoPagamento(true)} className="text-[15px] font-bold link-acao py-1">
           Trocar forma de pagamento
         </button>
       )}
@@ -384,7 +384,7 @@ function EtapaPagamento() {
     <main className="pb-44 bg-fundo min-h-screen">
       <CabecalhoCheckout
         voltarPara={revisar ? '/' : '/checkout/endereco'}
-        etapa={revisar ? 'Confirme seu pedido' : 'Etapa 3 de 3'}
+        etapa={revisar ? 'Último passo' : 'Etapa 3 de 3'}
         etapaAtual={revisar ? undefined : 3}
       />
 
@@ -425,7 +425,7 @@ function EtapaPagamento() {
                 </span>
               )}
             </span>
-            <span className="text-[14px] font-bold underline shrink-0">{verItens ? 'Esconder' : 'Ver e alterar'}</span>
+            <span className="text-[14px] font-bold link-acao shrink-0">{verItens ? 'Esconder' : 'Ver e alterar'}</span>
           </button>
           {verItens && (
             <div className="border-t border-borda">
@@ -437,7 +437,7 @@ function EtapaPagamento() {
         {comObservacao || detalhes.observacoes ? (
           <InstructionsCard valor={detalhes.observacoes} aoMudar={(observacoes) => gravarDetalhes((d) => ({ ...d, observacoes }))} />
         ) : (
-          <button type="button" onClick={() => setComObservacao(true)} className="flex items-center gap-2 text-[15px] font-bold underline py-2">
+          <button type="button" onClick={() => setComObservacao(true)} className="flex items-center gap-2 text-[15px] font-bold link-acao py-2">
             <PenLine className="w-4 h-4" aria-hidden="true" /> Adicionar observação
           </button>
         )}
@@ -483,7 +483,7 @@ function EtapaPagamento() {
               </button>
               <button
                 type="button"
-                className="mt-1 w-full h-10 text-[14px] font-bold underline"
+                className="mt-1 w-full h-10 text-[14px] font-bold link-acao"
                 onClick={() => setValoresNovos(null)}
                 disabled={enviando}
               >
@@ -501,7 +501,7 @@ function EtapaPagamento() {
                       {whatsapp && (
                         <>
                           {' '}
-                          <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="font-bold underline">
+                          <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="font-bold link-acao">
                             Confirme pelo WhatsApp
                           </a>
                           .

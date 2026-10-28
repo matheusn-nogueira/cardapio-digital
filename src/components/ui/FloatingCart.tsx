@@ -6,6 +6,7 @@ import { useCart } from '@/context/CartContext';
 import { useHidratado } from '@/lib/armazenamento';
 import { formatarPreco } from '@/lib/formatacao';
 import { ehRotaDeCompra } from '@/lib/rotas';
+import { usePulo } from '@/lib/toque';
 
 
 /** Barra "Ver sacola" logo acima da barra de abas (celular e desktop). */
@@ -13,6 +14,7 @@ export const FloatingCart: React.FC = () => {
   const { quantidadeTotal, subtotal, abrirSacola, sacolaAberta } = useCart();
   const hidratado = useHidratado();
   const pathname = usePathname();
+  const pulo = usePulo(hidratado ? quantidadeTotal : 0);
 
   if (!hidratado || quantidadeTotal === 0 || sacolaAberta || ehRotaDeCompra(pathname)) return null;
 
@@ -23,7 +25,13 @@ export const FloatingCart: React.FC = () => {
         onClick={abrirSacola}
         className="pointer-events-auto w-full max-w-[560px] mx-auto bg-primaria text-primaria-texto font-bold text-[15px] h-14 rounded-xl flex items-center justify-between px-5 shadow-lg active:scale-[0.99] transition-transform"
       >
-        <span>Ver sacola ({quantidadeTotal})</span>
+        <span>
+          Ver sacola{' '}
+          {/* o número pula quando entra item, para a pessoa ver que o toque no + funcionou */}
+          <span key={pulo} className={`inline-block tabular-nums ${pulo ? 'animate-pulo' : ''}`}>
+            ({quantidadeTotal})
+          </span>
+        </span>
         <span>{formatarPreco(subtotal)}</span>
       </button>
     </div>

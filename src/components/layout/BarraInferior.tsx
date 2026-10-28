@@ -9,6 +9,7 @@ import { useCart } from '@/context/CartContext';
 import { useHidratado } from '@/lib/armazenamento';
 import { linkWhatsapp } from '@/lib/formatacao';
 import { ehRotaDeCompra } from '@/lib/rotas';
+import { usePulo } from '@/lib/toque';
 
 /**
  * WhatsApp no mesmo traço dos ícones da barra (desenho vazado do Tabler, MIT, grade de 24 e
@@ -32,6 +33,7 @@ export const BarraInferior: React.FC = () => {
   const pathname = usePathname();
   const { quantidadeTotal, abrirSacola, fecharSacola, sacolaAberta } = useCart();
   const hidratado = useHidratado();
+  const pulo = usePulo(hidratado ? quantidadeTotal : 0);
   if (ehRotaDeCompra(pathname)) return null;
   const whatsapp = linkWhatsapp(home.config.whatsapp || home.loja.telefone, 'Olá! Vim pelo cardápio online.');
 
@@ -62,7 +64,10 @@ export const BarraInferior: React.FC = () => {
           <span className="relative">
             <ShoppingBag className="w-6 h-6" aria-hidden="true" />
             {hidratado && quantidadeTotal > 0 && (
-              <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 rounded-full bg-tinta text-white text-[10px] font-bold flex items-center justify-center">
+              <span
+                key={pulo}
+                className={`absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] px-1 rounded-full bg-tinta text-white text-[10px] font-bold flex items-center justify-center ${pulo ? 'animate-pulo' : ''}`}
+              >
                 {quantidadeTotal > 99 ? '99+' : quantidadeTotal}
               </span>
             )}

@@ -20,6 +20,7 @@ import {
 } from '@/lib/carrinho';
 import { subtotalCarrinho } from '@/lib/precoQuantidade';
 import type { ItemSalvo, Produto } from '@/lib/tipos';
+import { vibrarLeve } from '@/lib/toque';
 import { useCardapio } from './CardapioContext';
 
 // Só ids e quantidades ficam salvos; nome/preço vêm sempre do catálogo atual
@@ -115,12 +116,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const adicionar = useCallback(
-    (produtoId: string, unidades = 1) => gravarItens((atual) => adicionarItem(atual, produtoId, unidades)),
+    (produtoId: string, unidades = 1) => {
+      vibrarLeve();
+      gravarItens((atual) => adicionarItem(atual, produtoId, unidades));
+    },
     [gravarItens],
   );
   const adicionarVarianteCb = useCallback(
-    (produtoId: string, ofertaId: string, blocos = 1) =>
-      gravarItens((atual) => adicionarVariante(atual, produtoId, ofertaId, blocos)),
+    (produtoId: string, ofertaId: string, blocos = 1) => {
+      vibrarLeve();
+      gravarItens((atual) => adicionarVariante(atual, produtoId, ofertaId, blocos));
+    },
     [gravarItens],
   );
   const alterar = useCallback(
