@@ -3,9 +3,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import type { Banner } from '@/lib/tipos';
-import { corSegura, urlExternaSegura } from '@/lib/formatacao';
+import recortes from '@/data/recortes.json';
+import { useCardapio } from '@/context/CardapioContext';
+import { corSegura, normalizarTexto, urlExternaSegura } from '@/lib/formatacao';
+import { ofertaPromocional } from '@/lib/ofertas';
+import type { Banner, Produto } from '@/lib/tipos';
 import { SlideApp, useModoBannerApp } from './BannerApp';
+
+const RECORTES = recortes as Record<string, string>;
 
 function destinoBanner(b: Banner): { href: string; externo: boolean } | null {
   const valor = b.link_valor?.trim();
@@ -20,33 +25,132 @@ function destinoBanner(b: Banner): { href: string; externo: boolean } | null {
   return null;
 }
 
-// Banner sem foto: a cor escolhida no ERP, chapada (27/10/2026: o degradê para o amarelo e
-// as bolhas davam cara de modelo pronto). O que chama é o título grande e o botão amarelo.
+/** Recorte transparente da foto do produto (scripts/recortar-latas.py), se existir. */
+function recorteDe(p: Produto): string | null {
+  const base = p.imagem_url?.split('?')[0].split('/').pop()?.replace(/\.[a-z0-9]+$/i, '');
+  return base && RECORTES[base] ? `/banners/latas/${RECORTES[base]}` : null;
+}
+
+/** "Império Latão: 3 por R$ 11,00" → nome "Império Latão", chamada "3 por", preço "R$ 11,00". */
+function partesDoTitulo(titulo: string): { nome: string; chamada: string; preco: string | null } {
+  const i = titulo.indexOf(':');
+  const nome = (i >= 0 ? titulo.slice(0, i) : titulo).trim();
+  const oferta = i >= 0 ? titulo.slice(i + 1).trim() : '';
+  const m = oferta.match(/^(.*?)\s*(R\$\s*[\d.,]+)\s*$/);
+  return { nome, chamada: m ? m[1] : oferta, preco: m ? m[2] : null };
+}
+
+/**
+ * Latas que ilustram o banner, só as que têm recorte: o produto do link; senão os que têm
+ * todas as palavras do nome do título (os em promoção primeiro: "Império Latão" é a Pilsen
+ * branca da promoção, não a Lager verde); senão as promoções da loja. "3 por" repete a lata 3×.
+ */
+function latasDoBanner(banner: Banner, nome: string, chamada: string, produtos: Produto[]): string[] {
+  const comRecorte = (lista: Produto[]) => lista.map(recorteDe).filter((u): u is string => !!u);
+  const emPromo = (p: Produto) => p.ofertas.some(ofertaPromocional);
+  let latas: string[] = [];
+  if (banner.link_tipo === 'produto') latas = comRecorte(produtos.filter((p) => p.id === banner.link_valor));
+  if (!latas.length && nome) {
+    const palavras = normalizarTexto(nome).split(/\s+/).filter(Boolean);
+    const casam = produtos.filter((p) => palavras.every((w) => normalizarTexto(p.nome).includes(w)));
+    latas = comRecorte([...casam.filter(emPromo), ...casam.filter((p) => !emPromo(p))]).slice(0, 1);
+  }
+  if (latas.length === 1) {
+    const vezes = Number(chamada.match(/^(\d+)\s*(por|x)\b/i)?.[1] ?? 1);
+    return Array.from({ length: Math.min(Math.max(vezes, 1), 3) }, () => latas[0]);
+  }
+  return latas.length ? latas : [...new Set(comRecorte(produtos.filter(emPromo)))].slice(0, 3);
+}
+
+// Posição das latas em leque (como nos banners do Zé): a do meio na frente e maior.
+const LEQUE: Record<number, { left: string; rotate: number; escala: number; z: number }[]> = {
+  1: [{ left: '50%', rotate: 6, escala: 1, z: 2 }],
+  2: [
+    { left: '36%', rotate: -8, escala: 0.92, z: 1 },
+    { left: '64%', rotate: 8, escala: 1, z: 2 },
+  ],
+  3: [
+    { left: '30%', rotate: -10, escala: 0.84, z: 1 },
+    { left: '70%', rotate: 10, escala: 0.84, z: 1 },
+    { left: '50%', rotate: 0, escala: 1, z: 2 },
+  ],
+};
+
+/** Botão amarelo que sai metade para fora da borda de baixo do banner (como no Zé). */
+export const BotaoBanner: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <span className="absolute left-4 bottom-0 translate-y-1/2 z-20 inline-flex items-center h-10 px-5 rounded-xl bg-primaria text-primaria-texto font-condensed font-bold uppercase text-[15px] tracking-[0.05em] shadow-[0_4px_10px_rgb(0_0_0/0.25)]">
+    {children}
+  </span>
+);
+
+// Banner sem foto vira arte no estilo do Zé (28/10/2026, dono: "estão muito ruins"): fundo azul
+// com um brilho gelado atrás das latas recortadas em leque, nome e preço grandes em letra
+// condensada e o botão saindo pela borda de baixo (sem selo de moderação: dono, 28/10/2026).
+// Com foto, vale a foto.
 const ConteudoBanner: React.FC<{ banner: Banner; primeiro: boolean; comLink: boolean }> = ({ banner, primeiro, comLink }) => {
-  // Freezer: banner sem foto sempre no azul do tema (a cor do ERP fica de lado no teste)
-  const cor = banner.imagem_url ? corSegura(banner.cor_fundo, '#0F3A63') : 'var(--color-banner)';
+  const { produtos } = useCardapio();
+  const rotulo = banner.link_tipo === 'categoria' ? 'Ver promoções' : banner.link_tipo === 'produto' ? 'Ver produto' : 'Saiba mais';
+
+  if (banner.imagem_url) {
+    return (
+      <div className="relative w-full min-h-44 rounded-2xl overflow-hidden" style={{ background: corSegura(banner.cor_fundo, '#0F3A63') }}>
+        <Image src={banner.imagem_url} alt={banner.titulo ?? ''} fill priority={primeiro} sizes="(max-width: 640px) 100vw, 640px" quality={75} className="object-cover" />
+      </div>
+    );
+  }
+
+  const { nome, chamada, preco } = partesDoTitulo(banner.titulo ?? '');
+  const latas = latasDoBanner(banner, nome, chamada, produtos);
+  const leque = LEQUE[latas.length] ?? [];
+  // com latas, o banner é para bater o olho (como no Zé): sem texto corrido. Sem latas, a
+  // primeira frase do subtítulo
+  const apoio = latas.length ? null : banner.subtitulo?.split(/(?<=\.)\s/)[0];
+
   return (
-    <div
-      className="relative w-full min-h-44 rounded-2xl overflow-hidden flex items-end p-4 pb-5"
-      style={{ background: cor }}
-    >
-      {banner.imagem_url ? (
-        <>
-          <Image src={banner.imagem_url} alt="" fill priority={primeiro} sizes="(max-width: 640px) 100vw, 640px" quality={75} className="object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" aria-hidden="true" />
-        </>
-      ) : null}
-      {(banner.titulo || banner.subtitulo) && (
-        <div className="relative z-10 max-w-[85%]">
-          {banner.titulo && <h2 className="text-white font-condensed font-bold uppercase text-[28px] leading-[1.02] tracking-[0.01em] text-balance">{banner.titulo}</h2>}
-          {banner.subtitulo && <p className="text-white/80 text-[14px] mt-1.5 leading-snug">{banner.subtitulo}</p>}
-          {comLink && (
-            <span className="inline-flex items-center h-10 px-5 mt-3 rounded-xl bg-primaria text-primaria-texto text-[14px] font-bold">
-              {banner.link_tipo === 'categoria' ? 'Ver promoções' : banner.link_tipo === 'produto' ? 'Ver produto' : 'Saiba mais'}
-            </span>
-          )}
-        </div>
-      )}
+    <div className="relative w-full min-h-44 rounded-2xl bg-banner">
+      <div className="absolute inset-0 rounded-2xl overflow-hidden" aria-hidden="true">
+        <span
+          className="absolute -right-12 top-1/2 -translate-y-1/2 w-64 h-64 rounded-full"
+          style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--color-topo-texto) 55%, transparent) 0%, transparent 68%)' }}
+        />
+        {latas.length > 0 && (
+          <span className="absolute right-4 top-4 bottom-2 w-[40%] max-w-[170px]">
+            {latas.map((url, i) => {
+              const pos = leque[i];
+              return (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={i}
+                  src={url}
+                  alt=""
+                  className="absolute bottom-0 h-[92%] w-auto [filter:drop-shadow(0_8px_10px_rgb(0_0_0/0.4))]"
+                  style={{
+                    left: pos.left,
+                    zIndex: pos.z,
+                    transform: `translateX(-50%) rotate(${pos.rotate}deg) scale(${pos.escala})`,
+                    transformOrigin: 'bottom center',
+                  }}
+                />
+              );
+            })}
+          </span>
+        )}
+      </div>
+
+      <div className={`relative z-10 p-4 pb-8 ${latas.length ? 'max-w-[56%]' : 'max-w-[85%]'}`}>
+        {nome && (
+          <h2 className="text-white font-condensed font-bold uppercase text-[24px] leading-[1] tracking-[0.02em] text-balance">{nome}</h2>
+        )}
+        {(chamada || preco) && (
+          <p className="mt-1.5 font-condensed font-bold uppercase text-primaria leading-none">
+            {chamada && <span className="block text-[18px] tracking-[0.04em]">{chamada}</span>}
+            {preco && <span className="block text-[38px] tracking-[0.01em] tabular-nums">{preco}</span>}
+          </p>
+        )}
+        {apoio && <p className="mt-1.5 text-[12px] text-topo-texto leading-snug">{apoio}</p>}
+      </div>
+
+      {comLink && <BotaoBanner>{rotulo}</BotaoBanner>}
     </div>
   );
 };
@@ -119,7 +223,8 @@ export const BannerCarrossel: React.FC<{ banners: Banner[] }> = ({ banners }) =>
           <div
             key={slide.id}
             // flex: o slide estica até o mais alto da fileira (banner de texto longo x banner do app)
-            className={`flex shrink-0 snap-start ${total > 1 ? 'w-[calc(100%-28px)] sm:w-[calc(50%-6px)]' : 'w-full'}`}
+            // pb-5: espaço para o botão que sai metade para fora da borda de baixo do banner
+            className={`flex shrink-0 snap-start pb-5 ${total > 1 ? 'w-[calc(100%-28px)] sm:w-[calc(50%-6px)]' : 'w-full'}`}
             role="group"
             aria-roledescription="slide"
             aria-label={`${i + 1} de ${total}`}
@@ -129,7 +234,7 @@ export const BannerCarrossel: React.FC<{ banners: Banner[] }> = ({ banners }) =>
         ))}
       </div>
       {total > 1 && (
-        <div className="flex items-center justify-center gap-1 mt-2">
+        <div className="flex items-center justify-center gap-1">
           {slides.map((slide, i) => (
             <button
               key={slide.id}
