@@ -11,6 +11,7 @@ import { vibrarLeve, vibrarSucesso } from '@/lib/toque';
 import { AndamentoPedido } from '@/components/checkout/AndamentoPedido';
 import { CabecalhoCheckout } from '@/components/checkout/CabecalhoCheckout';
 import { LogoWhatsApp } from '@/components/checkout/LogosPagamento';
+import { ConviteDivulgar } from '@/components/loja/Divulgar';
 import { PecaDeNovo } from '@/components/loja/PecaDeNovo';
 
 /** O momento de "deu certo": círculo verde que entra com mola e o "✓" que se desenha dentro dele. */
@@ -194,6 +195,8 @@ export default function ConfirmationPage() {
             {pedido.trocoPara ? ` · troco para ${formatarPreco(pedido.trocoPara)}` : ''}
           </p>
         </section>
+
+        <ConviteDivulgar />
 
         <Link
           href="/"

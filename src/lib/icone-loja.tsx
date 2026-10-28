@@ -5,7 +5,7 @@ import { ImageResponse } from 'next/og';
 import { buscarHome } from './cardapio';
 import { corSegura } from './formatacao';
 
-async function logoComoDataUrl(url: string | null): Promise<string | null> {
+export async function logoComoDataUrl(url: string | null): Promise<string | null> {
   if (!url) return null;
   try {
     const r = await fetch(url, { signal: AbortSignal.timeout(8000), next: { revalidate: 86400 } });

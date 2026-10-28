@@ -92,7 +92,7 @@ Escolhida pelo dono entre 10 opções (estudo em `~/Pessoal/marca/identidade-10-
   - letra: no mínimo **12 px** em texto de verdade (selos, avisos legais, número da sacola); ficam abaixo só o desenho do aviso no banner do app (decorativo) e o crédito do OpenStreetMap no mapa;
   - foto do produto: aparece já no HTML, com entrada só em CSS (`animate-fade-in`); antes vinha escondida até o JavaScript avisar que carregou e os cards ficavam vazios no 4G fraco. As primeiras fotos de cada tela têm `prioridade` (3 da primeira vitrine, 4 da grade);
   - prateleiras da home abaixo da primeira vitrine são `adiada`: os cards só montam quando a pessoa rola até perto (antes eram 229 fotos e 1 MB de HTML de uma vez);
-  - folhas (`aria-modal`): `FocoNasFolhas` deixa o resto da página `inert` enquanto uma está aberta (Tab e leitor de tela não escapam); com a sacola aberta (`data-manter-barra`) a barra de abas (`data-sempre-ativo`) continua clicável;
+  - folhas (`aria-modal`): `FocoNasFolhas` deixa o resto da página `inert` enquanto uma está aberta (Tab e leitor de tela não escapam); a folha ativa é a de z-index mais alto, e na mesma camada a que abriu por último (o pop-up de promoções, z-200, pode surgir com a ficha, z-150, já aberta); com a sacola aberta (`data-manter-barra`) a barra de abas (`data-sempre-ativo`) continua clicável;
   - busca do topo com contorno de foco branco (o azul padrão some no topo azul-noite);
   - banner sozinho no computador ocupa metade da largura, como se fossem dois lado a lado.
   - "Ver sacola": no fim de toda página há um espaço do tamanho da barra (`FloatingCart`), e o card cujo contador cairia atrás dela sobe sozinho ao tocar no "+" (`mostrarContador` no `ProdutoCard`);
@@ -166,6 +166,21 @@ Escolhida pelo dono entre 10 opções (estudo em `~/Pessoal/marca/identidade-10-
   - publicar a função ou trocar o segredo: `python3 -I scripts/configurar-push-pedido.py`;
   - a função foi testada direto, mas a mudança de status de um pedido real feito pelo site ainda não.
 - `supabase/` fica fora do `tsconfig` e do eslint, porque a Edge Function é Deno.
+
+## Divulgação (28/10/2026)
+
+- Instagram da loja: `@deliverydosfundos`, constante `INSTAGRAM` em `src/lib/site.ts` (não está no banco).
+- Compartilhar (`src/lib/compartilhar.ts`): abre a folha de compartilhar do celular (Web Share); sem ela, copia texto e link e avisa no toast. Componentes em `src/components/loja/Divulgar.tsx`:
+  - confirmação do pedido: card "Gostou? Chame a galera" (compartilhar o cardápio) e o convite para postar o brinde marcando o @;
+  - ficha do produto (ao lado do "Fechar") e página `/produto/[id]` (ao lado do "Voltar"): compartilhar o produto, com nome e preço no texto;
+  - "Sobre a loja": bloco Contato (WhatsApp e Instagram) e "Compartilhar cardápio".
+- Prévia do link (`src/lib/previa-link.tsx`, 1200×630, Freezer):
+  - cardápio (`src/app/opengraph-image.tsx`): logo, chamada, tempo de entrega e três latas recortadas;
+  - produto (`src/app/produto/[id]/opengraph-image.tsx`): foto, nome, preço e o bloco de promoção, se houver. As fotos do catálogo são webp, que o `next/og` não lê: o `sharp` converte para PNG antes;
+  - fontes Barlow baixadas do Google Fonts na hora; se falharem, sai a fonte padrão.
+- Push de "entregue": "Poste o brinde e marque @deliverydosfundos" (`supabase/functions/cardapio-push-pedido`). Para republicar só a função, sem trocar segredos: `python3 -I scripts/configurar-push-pedido.py --so-funcao`.
+- Cartão com QR code para imprimir (sacola, geladeira, balcão): `node scripts/cartao-qrcode.mjs` gera em `divulgacao/` o PDF de 10×15 cm (gráfica), o PNG (WhatsApp) e o QR solto em SVG. Usa a dependência de desenvolvimento `qrcode` e o Chrome instalado. O QR aponta para `https://cardapio.casadosfundos.cloud` (correção alta, lê mesmo amassado).
+- Ideia adiada: "indique e ganhe" com cupom. O checkout ainda não tem cupom.
 
 ## Regras do domínio
 

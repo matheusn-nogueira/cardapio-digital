@@ -22,7 +22,8 @@ function mensagem(status: string, numero: number, retirada: boolean): { title: s
         ? { title: `Pedido #${numero} pronto para retirada`, body: 'Pode vir buscar: está tudo separado.' }
         : { title: `Pedido #${numero} saiu para entrega`, body: 'Fique de olho na campainha, já já chega.' };
     case 'entregue':
-      return { title: `Pedido #${numero} entregue`, body: 'Bom proveito! Precisando, é só pedir de novo.' };
+      // divulgação (28/10/2026): a hora do brinde é a hora da foto
+      return { title: `Pedido #${numero} entregue`, body: 'Bom proveito! Poste o brinde e marque @deliverydosfundos.' };
     case 'cancelado':
       return { title: `Pedido #${numero} cancelado`, body: 'Se tiver dúvida, fale com a gente no WhatsApp.' };
     default:

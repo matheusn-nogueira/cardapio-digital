@@ -37,8 +37,6 @@ export async function generateMetadata(): Promise<Metadata> {
   const { loja, config } = await buscarHome();
   const nome = loja.nome || 'Casa dos Fundos';
   const descricao = DESCRICAO_SITE;
-  // prévia no WhatsApp/redes: logo da loja (Storage do Supabase, URL absoluta)
-  const imagens = loja.logo_url ? [{ url: loja.logo_url, alt: nome }] : undefined;
   return {
     metadataBase: new URL(URL_SITE),
     title: { default: `${nome} — ${config.slogan}`, template: `%s · ${nome}` },
@@ -54,9 +52,9 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: nome,
       title: nome,
       description: descricao,
-      images: imagens,
     },
-    twitter: { card: 'summary', title: nome, description: descricao, images: loja.logo_url ? [loja.logo_url] : undefined },
+    // a imagem da prévia é o src/app/opengraph-image.tsx (logo, chamada e latas), não mais só a logo
+    twitter: { card: 'summary_large_image', title: nome, description: descricao },
   };
 }
 

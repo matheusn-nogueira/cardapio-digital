@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
+import { BotaoCompartilharProduto } from './Divulgar';
 import { ProdutoDetalhe } from './ProdutoDetalhe';
 
 /** Bottom sheet (celular) / janela (desktop) com o detalhe do produto, enxuto como no app do Zé. */
@@ -40,6 +41,7 @@ export const ProdutoModal: React.FC = () => {
       >
         {/* alça da folha no celular, como nos apps: dá a pista de que ela desce */}
         <span className="absolute left-1/2 -translate-x-1/2 top-2.5 w-12 h-1.5 rounded-full bg-controle sm:hidden" aria-hidden="true" />
+        <BotaoCompartilharProduto produto={produtoAberto} className="absolute right-[68px] top-4 z-10 bg-borda" />
         <button
           ref={botaoFechar}
           type="button"

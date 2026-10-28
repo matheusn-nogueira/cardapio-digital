@@ -8,12 +8,14 @@
    autentica é o segredo).
 
 Uso: python3 -I scripts/configurar-push-pedido.py
+     python3 -I scripts/configurar-push-pedido.py --so-funcao   (só republica a função, sem trocar segredos)
 Nada é impresso além do andamento. O token da API vem do .env.local do pdv-balcao.
 """
 import json
 import os
 import secrets
 import subprocess
+import sys
 import tempfile
 import urllib.request
 
@@ -45,7 +47,18 @@ def sql(query):
         return json.loads(r.read().decode())
 
 
+def publicar_funcao(env):
+    subprocess.run(['supabase', 'functions', 'deploy', 'cardapio-push-pedido', '--project-ref', REF,
+                    '--use-api', '--no-verify-jwt'], env=env, cwd=RAIZ, check=True)
+
+
 def main():
+    env = {**os.environ, 'SUPABASE_ACCESS_TOKEN': TOKEN}
+    if '--so-funcao' in sys.argv:
+        publicar_funcao(env)
+        print('Edge Function publicada (segredos mantidos)')
+        return
+
     segredo = secrets.token_hex(32)
     existe = sql("select id from vault.secrets where name = 'cardapio_push_webhook'")
     if existe:
@@ -54,7 +67,6 @@ def main():
         sql(f"select vault.create_secret('{segredo}', 'cardapio_push_webhook')")
     print('1/3 segredo do webhook gravado no Vault')
 
-    env = {**os.environ, 'SUPABASE_ACCESS_TOKEN': TOKEN}
     with tempfile.NamedTemporaryFile('w', suffix='.env', delete=False) as f:
         f.write(f"VAPID_PUBLIC_KEY={LOCAL['VAPID_PUBLIC_KEY']}\n")
         f.write(f"VAPID_PRIVATE_KEY={LOCAL['VAPID_PRIVATE_KEY']}\n")
@@ -67,8 +79,7 @@ def main():
         os.remove(temporario)
     print('2/3 segredos da Edge Function gravados')
 
-    subprocess.run(['supabase', 'functions', 'deploy', 'cardapio-push-pedido', '--project-ref', REF,
-                    '--use-api', '--no-verify-jwt'], env=env, cwd=RAIZ, check=True)
+    publicar_funcao(env)
     print('3/3 Edge Function publicada')
 
 

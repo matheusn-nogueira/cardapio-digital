@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { Banknote, Clock, MapPin, Navigation, X } from 'lucide-react';
+import { Banknote, Clock, MapPin, Navigation, Share2, X } from 'lucide-react';
 import { useCardapio } from '@/context/CardapioContext';
 import { horarioResumido } from '@/lib/horarios';
 import { tilesDoMapa } from '@/lib/mapa';
 import { linkWhatsapp, mascararTelefone } from '@/lib/formatacao';
+import { LinkInstagram, useCompartilharCardapio } from './Divulgar';
 import { LogoElo, LogoMastercard, LogoPix, LogoVisa, LogoWhatsApp } from '@/components/checkout/LogosPagamento';
 
 /**
@@ -24,6 +25,7 @@ export const SobreLoja: React.FC<{ aberta: boolean; aoFechar: () => void }> = ({
   // mapa com as imagens do OpenStreetMap (lib/mapa) e rota no Google Maps, que abre o app de mapas do celular
   const ponto = loja.latitude != null && loja.longitude != null ? { lat: loja.latitude, lng: loja.longitude } : null;
   const destino = ponto ? `${ponto.lat},${ponto.lng}` : [loja.endereco, local].filter(Boolean).join(', ');
+  const compartilharCardapio = useCompartilharCardapio();
   const rota = destino ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destino)}` : null;
 
   useEffect(() => {
@@ -175,11 +177,25 @@ export const SobreLoja: React.FC<{ aberta: boolean; aoFechar: () => void }> = ({
           </ul>
         </div>
 
-        {whatsapp && (
-          <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[14px] font-bold link-acao">
-            <LogoWhatsApp className="w-4 h-4" /> {mascararTelefone(telefone ?? '')}
-          </a>
-        )}
+        <div>
+          <h3 className="text-[13px] font-bold text-suave mb-1.5">Contato</h3>
+          <div className="flex flex-wrap gap-x-5">
+            {whatsapp && (
+              <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 min-h-10 text-[14px] font-bold link-acao">
+                <LogoWhatsApp className="w-4 h-4" /> {mascararTelefone(telefone ?? '')}
+              </a>
+            )}
+            <LinkInstagram className="min-h-10 text-[14px] font-bold link-acao" />
+          </div>
+          {/* divulgação (28/10/2026): indicar a loja a qualquer hora, não só depois do pedido */}
+          <button
+            type="button"
+            onClick={compartilharCardapio}
+            className="mt-2 w-full h-12 rounded-xl border-2 border-tinta flex items-center justify-center gap-2 text-[15px] font-bold"
+          >
+            <Share2 className="w-4 h-4" aria-hidden="true" /> Compartilhar cardápio
+          </button>
+        </div>
 
         <p className="flex items-center gap-2.5 pt-4 border-t border-borda text-[12px] text-suave leading-snug">
           <span
